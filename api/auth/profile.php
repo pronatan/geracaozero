@@ -2,7 +2,8 @@
 /**
  * Perfil do usuário logado
  * GET  — dados + pedidos
- * PUT  — atualizar senha / e-mail
+ * PUT  — atualizar senha / e-mail / avatar
+ * DELETE — excluir pedido próprio (?orderId=)
  */
 require __DIR__ . '/common.php';
 
@@ -13,33 +14,42 @@ if (!$user) {
 
 $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
 
-if ($method === 'GET') {
-    $orders = gz_ddb_scan_all(gz_orders_table(), 500);
-    $mine = [];
+function gz_order_belongs_to_user(array $order, array $user): bool
+{
     $uid = (string) ($user['id'] ?? '');
     $email = strtolower((string) ($user['email'] ?? ''));
     $nick = strtolower((string) ($user['nick'] ?? ''));
+    if ($uid !== '' && ($order['userId'] ?? '') === $uid) {
+        return true;
+    }
+    if ($email !== '' && strtolower((string) ($order['email'] ?? '')) === $email) {
+        return true;
+    }
+    if ($nick !== '' && strtolower((string) ($order['nick'] ?? '')) === $nick) {
+        return true;
+    }
+    return false;
+}
+
+if ($method === 'GET') {
+    $orders = gz_ddb_scan_all(gz_orders_table(), 500);
+    $mine = [];
     foreach ($orders as $o) {
-        $match = false;
-        if ($uid !== '' && ($o['userId'] ?? '') === $uid) {
-            $match = true;
-        } elseif ($email !== '' && strtolower((string) ($o['email'] ?? '')) === $email) {
-            $match = true;
-        } elseif ($nick !== '' && strtolower((string) ($o['nick'] ?? '')) === $nick) {
-            $match = true;
+        if (!gz_order_belongs_to_user($o, $user)) {
+            continue;
         }
-        if ($match) {
-            $mine[] = [
-                'id' => $o['id'] ?? null,
-                'vip' => $o['vip'] ?? '',
-                'productTitle' => $o['productTitle'] ?? ($o['vip'] ?? ''),
-                'amount' => $o['amount'] ?? '',
-                'method' => $o['method'] ?? '',
-                'status' => $o['status'] ?? '',
-                'fulfillmentStatus' => $o['fulfillmentStatus'] ?? 'pending',
-                'createdAt' => $o['createdAt'] ?? null,
-            ];
-        }
+        $mine[] = [
+            'id' => $o['id'] ?? null,
+            'vip' => $o['vip'] ?? '',
+            'productTitle' => $o['productTitle'] ?? ($o['vip'] ?? ''),
+            'amount' => $o['amount'] ?? '',
+            'method' => $o['method'] ?? '',
+            'status' => $o['status'] ?? '',
+            'statusDetail' => $o['statusDetail'] ?? '',
+            'paymentStatus' => $o['paymentStatus'] ?? '',
+            'fulfillmentStatus' => $o['fulfillmentStatus'] ?? 'pending',
+            'createdAt' => $o['createdAt'] ?? null,
+        ];
     }
     usort($mine, static function ($a, $b) {
         return strcmp((string) ($b['createdAt'] ?? ''), (string) ($a['createdAt'] ?? ''));
@@ -50,6 +60,32 @@ if ($method === 'GET') {
         'user' => gz_public_user($user),
         'orders' => $mine,
     ]);
+}
+
+if ($method === 'DELETE') {
+    $input = gz_json_input();
+    $orderId = trim((string) ($_GET['orderId'] ?? ($input['orderId'] ?? $input['id'] ?? '')));
+    if ($orderId === '') {
+        gz_respond(400, ['ok' => false, 'message' => 'Informe o pedido']);
+    }
+    $order = gz_ddb_get(gz_orders_table(), ['id' => $orderId]);
+    if (!$order) {
+        gz_respond(404, ['ok' => false, 'message' => 'Pedido não encontrado']);
+    }
+    if (!gz_order_belongs_to_user($order, $user)) {
+        gz_respond(403, ['ok' => false, 'message' => 'Você só pode excluir seus próprios pedidos']);
+    }
+    $res = gz_ddb_delete(gz_orders_table(), ['id' => $orderId]);
+    if (!$res['ok']) {
+        gz_respond(500, ['ok' => false, 'message' => 'Falha ao excluir pedido']);
+    }
+    gz_log('orders.log', [
+        'action' => 'user_delete_order',
+        'userId' => $user['id'] ?? '',
+        'nick' => $user['nick'] ?? '',
+        'orderId' => $orderId,
+    ]);
+    gz_respond(200, ['ok' => true, 'deleted' => $orderId]);
 }
 
 if ($method === 'PUT' || $method === 'PATCH' || $method === 'POST') {
@@ -80,7 +116,6 @@ if ($method === 'PUT' || $method === 'PATCH' || $method === 'POST') {
             gz_respond(400, ['ok' => false, 'message' => 'Confirmação de senha não confere']);
         }
         $user['passwordHash'] = password_hash((string) $input['password'], PASSWORD_DEFAULT);
-        // mantém o token atual válido
     }
 
     if (array_key_exists('avatar', $input)) {
@@ -92,7 +127,6 @@ if ($method === 'PUT' || $method === 'PATCH' || $method === 'POST') {
             if (strpos($avatar, 'data:image/') !== 0) {
                 gz_respond(400, ['ok' => false, 'message' => 'Avatar inválido']);
             }
-            // ~120KB base64 ≈ imagem pequena redimensionada
             if (strlen($avatar) > 160000) {
                 gz_respond(400, ['ok' => false, 'message' => 'Imagem muito grande (máx ~100KB)']);
             }

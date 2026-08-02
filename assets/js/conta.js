@@ -125,15 +125,19 @@
           '<table class="admin-table" style="width:100%;font-size:0.48rem">' +
           "<thead><tr><th>Produto</th><th>Valor</th><th>Entrega</th><th>Data</th><th></th></tr></thead><tbody>" +
           orders.map(function (o) {
+            var id = o.id || "";
             var payBtn = needsPay(o)
-              ? '<a class="button is-small is-success" href="' + esc(payUrl(o)) + '">Pagar</a>'
+              ? '<a class="button is-small is-success" href="' + esc(payUrl(o)) + '">Pagar</a> '
+              : "";
+            var delBtn = id
+              ? '<button type="button" class="button is-small is-danger" data-del-my-order="' + esc(id) + '">Excluir</button>'
               : "";
             return "<tr>" +
               "<td>" + esc(o.productTitle || o.vip || "VIP") + "</td>" +
               "<td>" + esc(formatMoney(o.amount)) + "</td>" +
               "<td>" + esc(entregaLabel(o)) + "</td>" +
               "<td>" + esc(formatDate(o.createdAt)) + "</td>" +
-              '<td class="admin-actions">' + payBtn + "</td>" +
+              '<td class="admin-actions">' + payBtn + delBtn + "</td>" +
               "</tr>";
           }).join("") +
           "</tbody></table>";
@@ -179,8 +183,38 @@
     });
   }
 
+  function bindOrdersActions() {
+    var wrap = $("conta-orders");
+    if (!wrap || wrap.dataset.boundDel) return;
+    wrap.dataset.boundDel = "1";
+    wrap.addEventListener("click", async function (e) {
+      var btn = e.target.closest("[data-del-my-order]");
+      if (!btn) return;
+      var id = btn.getAttribute("data-del-my-order");
+      if (!id) return;
+      if (!confirm("Excluir este pedido da sua conta?")) return;
+      if (window.gzSetBtnLoading) window.gzSetBtnLoading(btn, true);
+      else btn.disabled = true;
+      try {
+        var res = await window.gzFetch(
+          "/api/auth/profile.php?orderId=" + encodeURIComponent(id),
+          { method: "DELETE" }
+        );
+        var data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.message || "Falha ao excluir");
+        setMsg("Pedido excluído.", "ok");
+        await load();
+      } catch (err) {
+        setMsg(err.message || "Erro ao excluir", "error");
+        if (window.gzSetBtnLoading) window.gzSetBtnLoading(btn, false);
+        else btn.disabled = false;
+      }
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     bindForm();
+    bindOrdersActions();
     load();
   });
 })();
