@@ -320,6 +320,64 @@
     }
   }
 
+  async function resumePendingOrder(orderId) {
+    setMsg("Carregando pagamento...", null);
+    try {
+      var res = await window.gzFetch(
+        "/api/order-status.php?id=" + encodeURIComponent(orderId)
+      );
+      var data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.message || "Pedido não encontrado");
+
+      state.orderId = data.orderId || orderId;
+      state.nick = data.nick || state.nick || "";
+      if (data.vip) state.vip = data.vip;
+      if (data.amount) state.amount = String(data.amount);
+      if (data.productTitle) state.title = data.productTitle;
+      if ($("checkout-resumo") && (data.productTitle || data.amount)) {
+        $("checkout-resumo").textContent =
+          (data.productTitle || state.title) + " — R$" + String(data.amount || state.amount).replace(".", ",");
+      }
+      if (data.nick && $("checkout-nick") && !$("checkout-nick").value) {
+        $("checkout-nick").value = data.nick;
+      }
+
+      if (isPaidStatus(data)) {
+        renderPaid({
+          nick: data.nick || state.nick,
+          orderId: data.orderId,
+          externalReference: data.externalReference,
+        });
+        return;
+      }
+
+      var waiting =
+        data.status === "action_required" ||
+        data.status === "pending" ||
+        (data.statusDetail && String(data.statusDetail).indexOf("waiting") !== -1);
+
+      if (waiting && data.pix && (data.pix.qrCode || data.pix.qrCodeBase64 || data.pix.ticketUrl)) {
+        renderPix(data);
+        return;
+      }
+
+      // Cartão pendente / sem QR: deixa o formulário pronto pra pagar de novo
+      setMsg("Finalize o pagamento abaixo.", "ok");
+      if (data.method === "credit_card") {
+        var cardRadio = document.querySelector('input[name="pay-method"][value="credit_card"]');
+        if (cardRadio) {
+          cardRadio.checked = true;
+          show($("panel-pix"), false);
+          show($("panel-card"), true);
+          mountCardForm();
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      setMsg(e.message || "Não foi possível reabrir o pagamento", "error");
+    }
+  }
+
   async function init() {
     if (!$("checkout-root")) return;
     await ensureCatalog();
@@ -341,6 +399,11 @@
           }
         }
       } catch (ignore) {}
+
+      var resumeId = new URLSearchParams(location.search).get("orderId");
+      if (resumeId) {
+        await resumePendingOrder(resumeId);
+      }
     } catch (e) {
       console.error(e);
       setMsg(e.message + " (precisa PHP local/hospedagem com api/)", "error");

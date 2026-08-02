@@ -70,6 +70,18 @@
     return "Em andamento";
   }
 
+  function needsPay(o) {
+    return entregaLabel(o) === "Aguardando pagamento";
+  }
+
+  function payUrl(o) {
+    var id = o.id || o.orderId || "";
+    var vip = o.vip || "";
+    var q = "/checkout?orderId=" + encodeURIComponent(id);
+    if (vip) q += "&vip=" + encodeURIComponent(vip);
+    return q;
+  }
+
   async function load() {
     try {
       var res = await window.gzFetch("/api/auth/profile.php");
@@ -111,13 +123,17 @@
       } else {
         $("conta-orders").innerHTML =
           '<table class="admin-table" style="width:100%;font-size:0.48rem">' +
-          "<thead><tr><th>Produto</th><th>Valor</th><th>Entrega</th><th>Data</th></tr></thead><tbody>" +
+          "<thead><tr><th>Produto</th><th>Valor</th><th>Entrega</th><th>Data</th><th></th></tr></thead><tbody>" +
           orders.map(function (o) {
+            var payBtn = needsPay(o)
+              ? '<a class="button is-small is-success" href="' + esc(payUrl(o)) + '">Pagar</a>'
+              : "";
             return "<tr>" +
               "<td>" + esc(o.productTitle || o.vip || "VIP") + "</td>" +
               "<td>" + esc(formatMoney(o.amount)) + "</td>" +
               "<td>" + esc(entregaLabel(o)) + "</td>" +
               "<td>" + esc(formatDate(o.createdAt)) + "</td>" +
+              '<td class="admin-actions">' + payBtn + "</td>" +
               "</tr>";
           }).join("") +
           "</tbody></table>";
