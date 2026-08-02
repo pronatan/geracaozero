@@ -157,16 +157,112 @@ Gera QR normalmente (`waiting_transfer`).
 - Em produção: `MP_SSL_VERIFY=true` e chaves MP de Produção
 - CloudFront HTTPS: abrir chamado AWS Support para verificar a conta e liberar criação de distribuições
 
-## Recursos usados (inventário)
+## Recursos usados (inventário completo)
 
-| Serviço | Recurso |
-|---------|---------|
-| GitHub | `pronatan/geracaozero` |
-| AWS IAM | user `adm-geracaozero` + roles EB |
-| AWS EB | app/env `geracaozero` / `geracaozero-prod` |
-| AWS S3 | `elasticbeanstalk-us-east-1-983902695861` |
-| AWS ACM | cert `geracaozero.ddnsfree.com` (ISSUED) |
-| AWS CloudFront | bloqueado até verificação da conta |
-| Dynu | API Key + OAuth2 (no `.env`) |
-| Dynu DNS | `geracaozero.ddnsfree.com`, `geracaozero.freeddns.org` |
-| Mercado Pago | Orders API (chaves de teste no momento) |
+### 1. Hospedagem e nuvem (AWS)
+
+| Recurso | Uso no projeto |
+|---------|----------------|
+| **Elastic Beanstalk** | App `geracaozero`, env **`geracaozero-secure`** (HTTPS) — PHP 8.x · AL2023 · Apache (`ProxyServer: apache`) |
+| **EC2 (via EB)** | Instância que roda o site + API PHP |
+| **ALB** | Load balancer do EB; redirect HTTP→HTTPS |
+| **S3** | Bucket `elasticbeanstalk-us-east-1-983902695861` — pacotes de deploy (`.zip`) |
+| **IAM** | User `adm-geracaozero` (CLI profile `geracaozero`); roles `aws-elasticbeanstalk-service-role` e `aws-elasticbeanstalk-ec2-role` (+ DynamoDB) |
+| **DynamoDB** | Banco NoSQL on-demand `us-east-1`: `gz_users`, `gz_orders`, `gz_products` |
+| **ACM** | Certificado TLS para `geracaozero.ddnsfree.com` |
+| **CloudFront** | Planejado; criação bloqueada até verificação da conta AWS |
+| **IMDS** | Credenciais IAM da instância para assinar chamadas DynamoDB |
+
+Config EB no repo: `.ebextensions/01-php.config`, `.ebextensions/03-apache-rewrite.config`, `.htaccess` (URLs limpas + HTTPS via `X-Forwarded-Proto`).
+
+### 2. Domínio / DNS
+
+| Recurso | Uso |
+|---------|-----|
+| **Dynu** (free) | DNS dinâmico / A records |
+| `geracaozero.ddnsfree.com` | Domínio principal público (HTTPS) |
+| `geracaozero.freeddns.org` | Domínio secundário |
+| Credenciais Dynu | `DYNU_API_KEY`, OAuth no `.env` (não commitado) |
+
+### 3. Pagamentos (Mercado Pago)
+
+| Recurso | Uso |
+|---------|-----|
+| **Mercado Pago Orders API** | Criar pedido Pix/cartão (`api.mercadopago.com`) |
+| **Checkout Transparente SDK JS** | `https://sdk.mercadopago.com/js/v2` no checkout |
+| **Webhook** | `POST /api/webhook.php` (HMAC com `MP_WEBHOOK_SECRET`) |
+| Env vars | `MP_ACCESS_TOKEN`, `MP_PUBLIC_KEY`, `MP_NOTIFICATION_URL`, `MP_SSL_VERIFY` |
+
+Formas ativas: **Pix** e **cartão**. Status sync: webhook + polling `order-status` + refresh no perfil.
+
+### 4. Minecraft / identidade do jogador
+
+| Recurso | Uso |
+|---------|-----|
+| **Mojang API** | `api.minecraftservices.com` + `api.mojang.com` — lookup de nick oficial |
+| **Ely.by / TLauncher** | `authserver.ely.by` — lookup de nick cracked/TLauncher (interno; UI não cita Ely.by) |
+| **mc-heads.net** | Avatar/skin do nick ou UUID (`/avatar/{id}/64`) |
+| Front | `assets/js/mc-lookup.js` no cadastro e checkout |
+| API | `GET /api/minecraft-lookup.php` · validação em `register.php` e `create-order.php` |
+
+Campos salvos no user: `nick`, `mcUuid`, `mcSource`.
+
+### 5. Front-end (libs CDN + locais)
+
+| Recurso | Uso |
+|---------|-----|
+| **Bulma** `0.8` | Grid/navbar/forms (`assets/css/bulma.min.css`) |
+| **Google Fonts** | `Press Start 2P` (estilo Minecraft) |
+| **Font Awesome** | Ícones (v5 `use.fontawesome.com` em páginas antigas; v6.5.2 `cdnjs` em login/register/checkout/conta/admin) |
+| **jQuery** `3.4.1` | Google Ajax CDN |
+| **CSS próprio** | `assets/css/gz.css`, `admin.css` |
+| **JS próprio** | `config.js`, `gz.js`, `auth.js`, `checkout.js`, `conta.js`, `admin.js`, `packs.js`, `avatar.js`, `mc-lookup.js`, `password-toggle.js`, `scripts.js` |
+
+Fundo visual: imagem Pinimg referenciada em `gz.css`.
+
+### 6. Back-end (PHP)
+
+| Área | Arquivos / função |
+|------|-------------------|
+| Bootstrap | `api/bootstrap.php` (env, CORS, MP HTTP, respond JSON) |
+| DynamoDB client | `api/dynamodb.php` (SigV4) |
+| Auth | `register`, `login`, `logout`, `me`, `profile`, `common` |
+| Loja/pagamentos | `catalog`, `create-order`, `order-status`, `webhook`, `mp-orders`, `public-key` |
+| Admin | `stats`, `users`, `products`, `orders` |
+| Minecraft | `minecraft-lib.php`, `minecraft-lookup.php` |
+
+Auth: token Bearer em `localStorage` (`gz_token`) + sessão PHP.
+
+### 7. Páginas do site
+
+| Rota limpa | Arquivo | Função |
+|------------|---------|--------|
+| `/` | `index.html` | Home |
+| `/loja` | `loja.html` | Catálogo VIP |
+| `/produto` | `produto.html` | Detalhe do pack |
+| `/checkout` | `checkout.html` | Pagamento Pix/cartão |
+| `/login` · `/register` | login/register | Conta |
+| `/conta` | `conta.html` | Pedidos, avatar, senha |
+| `/admin` | `admin.html` | Painel admin |
+| `/regras` · `/termos` · `/votar` | páginas institucionais | |
+
+Servidor Minecraft (info no site): IP `geracaozero.bedrock.net.br` · Discord `discord.gg/pAtKdPHBk2`.
+
+### 8. Código e deploy
+
+| Recurso | Uso |
+|---------|-----|
+| **GitHub** | `https://github.com/pronatan/geracaozero` |
+| Deploy | Zip → S3 → Application Version → Update Environment `geracaozero-secure` |
+| Segredos | `.env` / env vars EB (gitignored) |
+| Admin seed (trocar senha) | nick histórico pode ter mudado; senha seed antiga `Admin@GZ2026` |
+
+### 9. Fluxo resumido
+
+```
+Visitante → Dynu DNS → ALB HTTPS → Elastic Beanstalk (Apache + PHP)
+                                      ├─ HTML/CSS/JS estáticos
+                                      ├─ API PHP ──► DynamoDB
+                                      ├─ API PHP ──► Mercado Pago
+                                      └─ Lookup nick ──► Mojang / Ely.by → avatar mc-heads
+```
