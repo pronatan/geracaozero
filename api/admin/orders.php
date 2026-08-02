@@ -1,8 +1,8 @@
-<?php
 /**
  * Admin: pedidos
  * GET — listar
  * PUT — atualizar status / fulfillment
+ * DELETE — excluir pedido
  */
 require dirname(__DIR__) . '/auth/common.php';
 
@@ -49,6 +49,31 @@ if ($method === 'PUT' || $method === 'PATCH') {
     }
     gz_log('admin.log', ['action' => 'update_order', 'by' => $admin['nick'] ?? '', 'orderId' => $id]);
     gz_respond(200, ['ok' => true, 'order' => $order]);
+}
+
+if ($method === 'DELETE') {
+    $input = gz_json_input();
+    $id = trim((string) ($_GET['id'] ?? ($input['id'] ?? '')));
+    if ($id === '') {
+        gz_respond(400, ['ok' => false, 'message' => 'id obrigatório']);
+    }
+    $order = gz_ddb_get(gz_orders_table(), ['id' => $id]);
+    if (!$order) {
+        gz_respond(404, ['ok' => false, 'message' => 'Pedido não encontrado']);
+    }
+    $res = gz_ddb_delete(gz_orders_table(), ['id' => $id]);
+    if (!$res['ok']) {
+        gz_log('admin.log', ['action' => 'delete_order_fail', 'by' => $admin['nick'] ?? '', 'orderId' => $id, 'body' => $res['body'] ?? null]);
+        gz_respond(500, ['ok' => false, 'message' => 'Falha ao excluir pedido']);
+    }
+    gz_log('admin.log', [
+        'action' => 'delete_order',
+        'by' => $admin['nick'] ?? '',
+        'orderId' => $id,
+        'nick' => $order['nick'] ?? '',
+        'status' => $order['status'] ?? '',
+    ]);
+    gz_respond(200, ['ok' => true, 'deleted' => $id]);
 }
 
 gz_respond(405, ['ok' => false, 'message' => 'Método não permitido']);

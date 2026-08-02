@@ -101,8 +101,9 @@
         "<td>" + esc((o.createdAt || "").replace("T", " ").slice(0, 19)) + "</td>" +
         '<td class="admin-actions">' +
           (fulfill !== "done"
-            ? '<button type="button" class="button is-small is-success" data-fulfill="' + esc(o.id) + '">Marcar liberado</button>'
+            ? '<button type="button" class="button is-small is-success" data-fulfill="' + esc(o.id) + '">Marcar liberado</button> '
             : "") +
+          '<button type="button" class="button is-small is-danger" data-del-order="' + esc(o.id) + '" title="' + esc(o.id) + '">Excluir</button>' +
         "</td></tr>";
     }).join("");
     $("orders-table").innerHTML =
@@ -281,7 +282,7 @@
     });
 
     document.body.addEventListener("click", async function (e) {
-      var t = e.target.closest("[data-edit-product],[data-edit-user],[data-del-product],[data-del-user],[data-role-admin],[data-role-user],[data-fulfill]");
+      var t = e.target.closest("[data-edit-product],[data-edit-user],[data-del-product],[data-del-user],[data-del-order],[data-role-admin],[data-role-user],[data-fulfill]");
       if (!t) return;
       btnLoad(t, true);
       try {
@@ -300,6 +301,11 @@
         } else if (t.hasAttribute("data-del-user")) {
           if (!confirm("Excluir usuário?")) return;
           await api("/api/admin/users.php?id=" + encodeURIComponent(t.getAttribute("data-del-user")), { method: "DELETE" });
+          await refreshAll();
+        } else if (t.hasAttribute("data-del-order")) {
+          var oid = t.getAttribute("data-del-order");
+          if (!confirm("Excluir este pedido?\n" + oid)) return;
+          await api("/api/admin/orders.php?id=" + encodeURIComponent(oid), { method: "DELETE" });
           await refreshAll();
         } else if (t.hasAttribute("data-role-admin")) {
           await api("/api/admin/users.php", {
