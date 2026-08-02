@@ -74,10 +74,9 @@
   cursor: pointer;
   color: var(--ciano, #00aeef);
   font-size: 0.42rem;
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
+  text-decoration: none;
 }
-.gz-avatar-add:hover { color: var(--amarelo, #fff200); }
+.gz-avatar-add:hover { color: var(--amarelo, #fff200); text-decoration: none; }
 .gz-avatar-input { display: none !important; }
 
 .gz-nav-avatar {

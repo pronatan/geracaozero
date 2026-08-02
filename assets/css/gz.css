@@ -801,9 +801,9 @@ a.is-muted:hover {
   cursor: pointer;
   color: var(--ciano);
   font-size: 0.45rem;
-  text-decoration: underline;
+  text-decoration: none;
 }
-.gz-avatar-add:hover { color: var(--amarelo); }
+.gz-avatar-add:hover { color: var(--amarelo); text-decoration: none; }
 .gz-avatar-input { display: none !important; }
 
 .auth-nick {
