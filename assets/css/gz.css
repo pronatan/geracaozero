@@ -69,6 +69,17 @@ body {
   padding-bottom: 0.55em !important;
 }
 
+/* Spinner Bulma no botão (login / criar conta) */
+.button.is-loading {
+  color: transparent !important;
+  pointer-events: none;
+}
+.button.is-loading::after {
+  border-color: transparent transparent #fff #fff !important;
+  width: 1.1em;
+  height: 1.1em;
+}
+
 /* ===== Ícones Font Awesome (SVG) — tamanho forçado ===== */
 svg.svg-inline--fa {
   width: var(--icone) !important;

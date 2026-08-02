@@ -86,16 +86,35 @@
     }
   }
 
+  function setBtnLoading(btn, loading, labelWhenIdle) {
+    if (!btn) return;
+    if (loading) {
+      if (!btn.dataset.label) btn.dataset.label = btn.textContent.trim();
+      btn.classList.add("is-loading");
+      btn.disabled = true;
+      btn.setAttribute("aria-busy", "true");
+    } else {
+      btn.classList.remove("is-loading");
+      btn.disabled = false;
+      btn.removeAttribute("aria-busy");
+      if (labelWhenIdle || btn.dataset.label) {
+        btn.textContent = labelWhenIdle || btn.dataset.label;
+      }
+    }
+  }
+
   function bindForms() {
     var loginForm = document.getElementById("form-login");
     if (loginForm) {
       loginForm.addEventListener("submit", async function (e) {
         e.preventDefault();
         var msg = document.getElementById("auth-msg");
+        var btn = loginForm.querySelector('button[type="submit"]');
         var login = document.getElementById("login-user").value.trim();
         var password = document.getElementById("login-password").value;
         msg.className = "checkout-msg";
         msg.textContent = "Entrando...";
+        setBtnLoading(btn, true);
         try {
           var res = await window.gzFetch("/api/auth/login.php", {
             method: "POST",
@@ -108,6 +127,7 @@
           msg.textContent = "Login ok! Redirecionando...";
           setTimeout(function () { window.location.href = "index.html"; }, 600);
         } catch (err) {
+          setBtnLoading(btn, false);
           msg.className = "checkout-msg is-error";
           msg.textContent = err.message || "Erro ao entrar";
         }
@@ -119,6 +139,7 @@
       registerForm.addEventListener("submit", async function (e) {
         e.preventDefault();
         var msg = document.getElementById("auth-msg");
+        var btn = registerForm.querySelector('button[type="submit"]');
         var payload = {
           nick: document.getElementById("reg-nick").value.trim(),
           email: document.getElementById("reg-email").value.trim(),
@@ -127,6 +148,7 @@
         };
         msg.className = "checkout-msg";
         msg.textContent = "Criando conta...";
+        setBtnLoading(btn, true);
         try {
           var res = await window.gzFetch("/api/auth/register.php", {
             method: "POST",
@@ -139,6 +161,7 @@
           msg.textContent = "Conta criada! Redirecionando...";
           setTimeout(function () { window.location.href = "index.html"; }, 700);
         } catch (err) {
+          setBtnLoading(btn, false);
           msg.className = "checkout-msg is-error";
           msg.textContent = err.message || "Erro ao criar conta";
         }
