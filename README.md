@@ -53,11 +53,10 @@ Credenciais em `.env` (nunca no front):
 - `MP_PUBLIC_KEY`
 - `MP_NOTIFICATION_URL` (webhook público)
 
-> Status das chaves no servidor: ainda as do app (teste/homologação usadas no desenvolvimento).
-> Para cobrança **real**, troque por Credenciais de **Produção** no painel do Mercado Pago
-> e atualize `MP_ACCESS_TOKEN` + `MP_PUBLIC_KEY` no Elastic Beanstalk (e no `.env` local).
+> Status das chaves no servidor: **produção** aplicada em `geracaozero-secure`
+> (`MP_ACCESS_TOKEN` + `MP_PUBLIC_KEY` + webhook HTTPS).
 
-### Ativar produção (Mercado Pago)
+### Ativar / manter produção (Mercado Pago)
 
 1. Acesse https://www.mercadopago.com.br/developers/panel/app  
 2. Abra a aplicação do Geração Zero  
@@ -65,9 +64,9 @@ Credenciais em `.env` (nunca no front):
    - **Public Key** → `MP_PUBLIC_KEY`
    - **Access Token** → `MP_ACCESS_TOKEN`
 4. Em **Webhooks** / notificações, cadastre:  
-   `http://geracaozero.ddnsfree.com/api/webhook.php`  
+   `https://geracaozero.ddnsfree.com/api/webhook.php`  
    (eventos de Orders / pagamentos)
-5. Atualize as variáveis no EB (`geracaozero-prod`) e reinicie/atualize o ambiente  
+5. Atualize as variáveis no EB (`geracaozero-secure`) e aguarde o ambiente Ready  
 6. Faça um pagamento real pequeno (Pix) para validar
 
 **Importante:** chaves de teste (`TEST-...` ou conta `test_user_...`) **não** cobram dinheiro de verdade.
@@ -79,8 +78,7 @@ Endpoints:
 - `POST/GET api/webhook.php`
 
 Webhook sugerido:
-`http://geracaozero.ddnsfree.com/api/webhook.php`  
-(depois do HTTPS/CloudFront: `https://geracaozero.ddnsfree.com/api/webhook.php`)
+`https://geracaozero.ddnsfree.com/api/webhook.php`
 
 ## Conta (login / criar conta)
 
