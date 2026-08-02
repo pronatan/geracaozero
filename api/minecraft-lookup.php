@@ -1,6 +1,6 @@
 <?php
 /**
- * Lookup de nick Minecraft: Mojang (oficial) + Ely.by (TLauncher)
+ * Lookup de nick Minecraft: Mojang (oficial) + TLauncher
  * GET ?nick=Steve
  */
 require __DIR__ . '/bootstrap.php';

@@ -1,6 +1,6 @@
 <?php
 /**
- * Lookup Minecraft nick via Mojang + Ely.by (TLauncher)
+ * Lookup Minecraft nick via Mojang + TLauncher
  */
 
 function gz_mc_ssl_verify(): bool

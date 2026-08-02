@@ -1,5 +1,5 @@
 /**
- * Lookup visual de nick Minecraft (Mojang + TLauncher/Ely.by)
+ * Lookup visual de nick Minecraft (Mojang + TLauncher)
  */
 (function (w) {
   "use strict";

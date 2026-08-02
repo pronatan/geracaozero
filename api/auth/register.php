@@ -28,7 +28,7 @@ if ($password !== $password2) {
     gz_respond(400, ['ok' => false, 'message' => 'As senhas não coincidem']);
 }
 
-// Valida nick nas APIs Mojang / TLauncher (Ely.by)
+// Valida nick nas APIs Mojang / TLauncher
 $mc = gz_mc_lookup_nick($nick);
 if (empty($mc['found'])) {
     gz_respond(400, [
