@@ -5,7 +5,7 @@
 (function (w) {
   "use strict";
 
-  var DEFAULT_API = "http://geracaozero.ddnsfree.com";
+  var DEFAULT_API = "https://geracaozero.ddnsfree.com";
 
   // Se a página já está no mesmo host da API, usa URL relativa (mesmo origin).
   // Caso contrário (Live Server / localhost / arquivo local), aponta pra AWS.
@@ -13,7 +13,14 @@
   var onAws =
     host === "geracaozero.ddnsfree.com" ||
     host === "geracaozero.freeddns.org" ||
-    host.indexOf("elasticbeanstalk.com") !== -1;
+    host === "www.geracaozero.ddnsfree.com" ||
+    host.indexOf("elasticbeanstalk.com") !== -1 ||
+    host.indexOf("amazonaws.com") !== -1;
+
+  // Preferir HTTPS quando a página já está em HTTPS
+  if (!onAws && w.location && w.location.protocol === "http:") {
+    DEFAULT_API = "https://geracaozero.ddnsfree.com";
+  }
 
   w.GZ_API_BASE = onAws ? "" : DEFAULT_API;
 

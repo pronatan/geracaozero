@@ -332,7 +332,7 @@
       btnLoad(btn, true);
       var done = function () {
         if (window.gzSetToken) window.gzSetToken("");
-        location.href = "login.html";
+        location.href = "/login";
       };
       window.gzFetch("/api/auth/logout.php", { method: "POST" }).then(done).catch(done);
     });

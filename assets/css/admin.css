@@ -15,21 +15,21 @@
 .gz-avatar-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.75rem;
   background: rgba(0, 0, 0, 0.72);
   border: 2px solid var(--ciano, #00aeef);
-  padding: 0.35rem 0.65rem 0.35rem 0.35rem;
+  padding: 0.45rem 0.85rem 0.45rem 0.45rem;
   box-shadow: 0 0 0 1px rgba(255, 242, 0, 0.15);
 }
 .gz-avatar-chip-lg {
-  padding: 0.55rem 0.85rem 0.55rem 0.55rem;
+  padding: 0.75rem 1rem 0.75rem 0.75rem;
   width: 100%;
   box-sizing: border-box;
 }
 .gz-avatar-media {
-  width: 40px;
-  height: 40px;
-  border-radius: 4px;
+  width: 64px;
+  height: 64px;
+  border-radius: 6px;
   overflow: hidden;
   flex: 0 0 auto;
   background: linear-gradient(135deg, #001f5c, #00aeef);
@@ -39,8 +39,8 @@
   border: 2px solid var(--amarelo, #fff200);
 }
 .gz-avatar-chip-lg .gz-avatar-media {
-  width: 72px;
-  height: 72px;
+  width: 112px;
+  height: 112px;
 }
 .gz-avatar-img {
   width: 100%;
@@ -50,24 +50,24 @@
 }
 .gz-avatar-fallback {
   color: #fff;
-  font-size: 0.85rem;
+  font-size: 1.25rem;
   font-weight: bold;
 }
-.gz-avatar-chip-lg .gz-avatar-fallback { font-size: 1.4rem; }
-.gz-avatar-meta { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+.gz-avatar-chip-lg .gz-avatar-fallback { font-size: 2rem; }
+.gz-avatar-meta { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; }
 .gz-avatar-label {
   color: var(--amarelo, #fff200);
-  font-size: 0.5rem;
+  font-size: 0.58rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 160px;
+  max-width: 200px;
 }
-.gz-avatar-chip-lg .gz-avatar-label { font-size: 0.62rem; max-width: none; }
+.gz-avatar-chip-lg .gz-avatar-label { font-size: 0.72rem; max-width: none; }
 .gz-avatar-add {
   cursor: pointer;
   color: var(--ciano, #00aeef);
-  font-size: 0.42rem;
+  font-size: 0.5rem;
   text-decoration: underline;
   text-underline-offset: 0.2em;
 }
@@ -75,20 +75,20 @@
 .gz-avatar-input { display: none !important; }
 
 .gz-nav-avatar {
-  width: 1.35em;
-  height: 1.35em;
-  border-radius: 3px;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 4px;
   object-fit: cover;
-  vertical-align: -0.25em;
-  border: 1px solid var(--amarelo, #fff200);
+  vertical-align: -0.45em;
+  border: 2px solid var(--amarelo, #fff200);
   display: inline-block;
 }
 .gz-nav-avatar-fallback {
   background: linear-gradient(135deg, #001f5c, #00aeef);
   color: #fff;
   text-align: center;
-  line-height: 1.35em;
-  font-size: 0.55rem;
+  line-height: 2rem;
+  font-size: 0.75rem;
 }
 .admin-stats {
   display: grid;

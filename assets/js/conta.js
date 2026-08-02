@@ -59,7 +59,7 @@
 
       var orders = data.orders || [];
       if (!orders.length) {
-        $("conta-orders").innerHTML = "<p>Nenhum pedido ainda. Visite a <a href='loja.html'>loja</a>.</p>";
+        $("conta-orders").innerHTML = "<p>Nenhum pedido ainda. Visite a <a href='/loja'>loja</a>.</p>";
       } else {
         $("conta-orders").innerHTML =
           '<table class="admin-table" style="width:100%;font-size:0.48rem">' +

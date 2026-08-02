@@ -9,13 +9,13 @@
     var place = slot.getAttribute("data-auth-slot");
     if (place === "brand") {
       slot.innerHTML =
-        '<a href="login.html" class="navbar-item auth-btn">Entrar</a>' +
-        '<a href="register.html" class="navbar-item auth-btn auth-btn-accent">Criar conta</a>';
+        '<a href="/login" class="navbar-item auth-btn">Entrar</a>' +
+        '<a href="/register" class="navbar-item auth-btn auth-btn-accent">Criar conta</a>';
       return;
     }
     slot.innerHTML =
-      '<a href="login.html" class="navbar-item auth-btn"><i class="fas fa-sign-in-alt"></i> Entrar</a>' +
-      '<a href="register.html" class="navbar-item auth-btn auth-btn-accent"><i class="fas fa-user-plus"></i> Criar conta</a>';
+      '<a href="/login" class="navbar-item auth-btn"><i class="fas fa-sign-in-alt"></i> Entrar</a>' +
+      '<a href="/register" class="navbar-item auth-btn auth-btn-accent"><i class="fas fa-user-plus"></i> Criar conta</a>';
   }
 
   function renderUser(slot, user) {
@@ -24,11 +24,11 @@
       ? '<img class="gz-nav-avatar" src="' + user.avatar + '" alt="">'
       : '<span class="gz-nav-avatar gz-nav-avatar-fallback">' + ((nick.charAt(0) || "?").toUpperCase()) + "</span>";
     var accountCta =
-      '<a href="conta.html" class="navbar-item auth-btn auth-btn-account" title="Gerenciar conta">' +
+      '<a href="/conta" class="navbar-item auth-btn auth-btn-account" title="Gerenciar conta">' +
       avatarHtml + " " + nick +
       "</a>";
     var adminLink = (user && user.role === "admin")
-      ? '<a href="admin.html" class="navbar-item auth-btn auth-btn-accent">Acessar painel</a>'
+      ? '<a href="/admin" class="navbar-item auth-btn auth-btn-accent">Acessar painel</a>'
       : "";
     if (slot.getAttribute("data-auth-slot") === "brand") {
       slot.innerHTML =
@@ -49,7 +49,7 @@
         e.preventDefault();
         var done = function () {
           if (window.gzSetToken) window.gzSetToken("");
-          window.location.href = "index.html";
+          window.location.href = "/";
         };
         (window.gzFetch ? window.gzFetch("/api/auth/logout.php", { method: "POST" })
           : fetch("api/auth/logout.php", { method: "POST" }))
@@ -127,7 +127,7 @@
           if (data.token && window.gzSetToken) window.gzSetToken(data.token);
           msg.className = "checkout-msg is-ok";
           msg.textContent = "Login ok! Redirecionando...";
-          setTimeout(function () { window.location.href = "index.html"; }, 600);
+          setTimeout(function () { window.location.href = "/"; }, 600);
         } catch (err) {
           setBtnLoading(btn, false);
           msg.className = "checkout-msg is-error";
@@ -161,7 +161,7 @@
           if (data.token && window.gzSetToken) window.gzSetToken(data.token);
           msg.className = "checkout-msg is-ok";
           msg.textContent = "Conta criada! Redirecionando...";
-          setTimeout(function () { window.location.href = "index.html"; }, 700);
+          setTimeout(function () { window.location.href = "/"; }, 700);
         } catch (err) {
           setBtnLoading(btn, false);
           msg.className = "checkout-msg is-error";
