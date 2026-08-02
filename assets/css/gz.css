@@ -833,7 +833,7 @@ img.mc-nick-avatar {
   border-radius: 4px !important;
   object-fit: cover !important;
   image-rendering: pixelated;
-  border: 1px solid rgba(0, 0, 0, 0.25) !important;
+  border: none !important;
   background: #111 !important;
   flex-shrink: 0;
   align-self: center;
@@ -843,6 +843,18 @@ img.mc-nick-avatar {
   margin-bottom: 0;
   font-size: 0.62rem;
   line-height: 1.2;
+  text-decoration: none !important;
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  min-height: 0;
+}
+.mc-lookup-status.is-ok,
+.mc-lookup-status.is-error {
+  text-decoration: none !important;
+  border-bottom: none !important;
 }
 .mc-lookup-status.is-error {
   font-size: 0.58rem;
