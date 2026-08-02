@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Checkout VIP - Geração Zero</title>
+  <link rel="icon" type="image/png" href="assets/img/logo.png?v=1">
+  <link rel="stylesheet" href="assets/css/bulma.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/gz.css?v=7">
+</head>
+
+<body>
+
+<header class="section">
+  <div class="logo container">
+    <a href="index.html">
+      <img src="assets/img/logo.png?v=1" alt="Geração Zero">
+    </a>
+  </div>
+
+  <div class="container">
+    <nav class="navbar">
+      <div class="navbar-brand">
+        <div class="navbar-auth-brand" data-auth-slot="brand"></div>
+        <a class="navbar-burger burger" aria-label="menu" aria-expanded="false">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+      </div>
+
+      <div class="navbar-menu">
+        <div class="navbar-start">
+          <a href="index.html" class="navbar-item"><i class="fas fa-home"></i> Início</a>
+          <a href="regras.html" class="navbar-item"><i class="fas fa-book"></i> Regras</a>
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a href="loja.html" class="navbar-link"><i class="fas fa-shopping-cart"></i> Loja</a>
+            <div class="navbar-dropdown">
+              <a href="loja.html#vip" class="navbar-item"><i class="fas fa-gem"></i> VIPs</a>
+              <hr class="navbar-divider">
+              <a href="termos.html" class="navbar-item">Termos da loja</a>
+            </div>
+          </div>
+          <a href="https://discord.gg/pAtKdPHBk2" target="_blank" rel="noreferrer" class="navbar-item"><i class="fab fa-discord"></i> Discord</a>
+        </div>
+
+        <div class="navbar-end">
+          <div data-auth-slot="end"></div>
+          <a id="ip" class="navbar-item" title="Clique para copiar">
+            <i class="fas fa-copy"></i> <span>geracaozero.bedrock.net.br</span>
+            <textarea></textarea>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main class="section">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-5">
+        <article class="article produto-sidebar">
+          <h1 class="article-title"><i class="fas fa-shopping-cart"></i> Finalizar compra</h1>
+          <div class="article-content" id="checkout-root">
+            <img id="produto-img" src="assets/img/vip-lacoste.png?v=1" alt="VIP">
+            <h1 id="produto-preco">R$29,90</h1>
+            <p id="checkout-resumo" class="checkout-resumo">VIP Lacoste — R$29,90</p>
+            <p id="checkout-msg" class="checkout-msg is-hidden" aria-live="polite"></p>
+
+            <div id="pay-success" class="is-hidden checkout-success">
+              <p id="pay-success-text"></p>
+              <a href="https://discord.gg/pAtKdPHBk2" target="_blank" rel="noreferrer" class="button is-link is-fullwidth">
+                <span class="icon"><i class="fab fa-discord"></i></span>
+                <span>Abrir Discord</span>
+              </a>
+            </div>
+
+            <div id="pix-result" class="is-hidden checkout-pix">
+              <img id="pix-qr-img" alt="QR Code Pix" class="pix-qr">
+              <label class="label">Pix Copia e Cola</label>
+              <textarea id="pix-copy-code" class="textarea" rows="3" readonly></textarea>
+              <div class="buttons">
+                <button type="button" id="pix-copy-btn" class="button is-primary is-fullwidth">Copiar código Pix</button>
+              </div>
+              <a id="pix-ticket-link" class="button is-link is-fullwidth is-hidden" target="_blank" rel="noreferrer">Abrir ticket Pix</a>
+            </div>
+
+            <div id="checkout-form-wrap">
+              <div class="field">
+                <label class="label" for="checkout-nick">Nick no Minecraft</label>
+                <div class="control">
+                  <input id="checkout-nick" class="input" type="text" maxlength="32" placeholder="Seu nick" required>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="label" for="checkout-email">E-mail</label>
+                <div class="control">
+                  <input id="checkout-email" class="input" type="email" placeholder="voce@email.com" required>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="label" for="checkout-cpf">CPF (opcional no Pix)</label>
+                <div class="control">
+                  <input id="checkout-cpf" class="input" type="text" maxlength="14" placeholder="000.000.000-00">
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="label">Forma de pagamento</label>
+                <div class="checkout-methods">
+                  <label class="checkout-method">
+                    <input type="radio" name="pay-method" value="pix" checked>
+                    <img class="pay-icon-pixel" src="assets/img/icon-pix-pixel.png" alt="">
+                    <i class="fa-brands fa-pix pay-icon-fa" aria-hidden="true"></i>
+                    <span>Pix</span>
+                  </label>
+                  <label class="checkout-method">
+                    <input type="radio" name="pay-method" value="credit_card">
+                    <img class="pay-icon-pixel" src="assets/img/icon-card-pixel.png" alt="">
+                    <i class="fa-solid fa-credit-card pay-icon-fa" aria-hidden="true"></i>
+                    <span>Cartão</span>
+                  </label>
+                </div>
+              </div>
+
+              <div id="panel-pix">
+                <button type="button" id="btn-pay-pix" class="button is-success is-fullwidth">
+                  <span>Pagar com Pix</span>
+                </button>
+              </div>
+
+              <div id="panel-card" class="is-hidden">
+                <form id="form-checkout-card">
+                  <div class="field">
+                    <label class="label" for="form-checkout__cardNumber">Número do cartão</label>
+                    <div class="control">
+                      <input id="form-checkout__cardNumber" class="input" type="text" autocomplete="cc-number">
+                    </div>
+                  </div>
+                  <div class="field is-horizontal">
+                    <div class="field-body">
+                      <div class="field">
+                        <label class="label" for="form-checkout__expirationDate">Validade</label>
+                        <div class="control">
+                          <input id="form-checkout__expirationDate" class="input" type="text" autocomplete="cc-exp">
+                        </div>
+                      </div>
+                      <div class="field">
+                        <label class="label" for="form-checkout__securityCode">CVV</label>
+                        <div class="control">
+                          <input id="form-checkout__securityCode" class="input" type="text" autocomplete="cc-csc">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label class="label" for="form-checkout__cardholderName">Nome no cartão</label>
+                    <div class="control">
+                      <input id="form-checkout__cardholderName" class="input" type="text" autocomplete="cc-name">
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label class="label" for="form-checkout__cardholderEmail">E-mail do cartão</label>
+                    <div class="control">
+                      <input id="form-checkout__cardholderEmail" class="input" type="email">
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label class="label" for="form-checkout__identificationType">Documento</label>
+                    <div class="control">
+                      <select id="form-checkout__identificationType" class="input"></select>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label class="label" for="form-checkout__identificationNumber">Número do documento</label>
+                    <div class="control">
+                      <input id="form-checkout__identificationNumber" class="input" type="text">
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label class="label" for="form-checkout__issuer">Banco emissor</label>
+                    <div class="control">
+                      <select id="form-checkout__issuer" class="input"></select>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label class="label" for="form-checkout__installments">Parcelas</label>
+                    <div class="control">
+                      <select id="form-checkout__installments" class="input"></select>
+                    </div>
+                  </div>
+                  <button type="submit" id="btn-pay-card" class="button is-success is-fullwidth">Pagar com cartão</button>
+                </form>
+              </div>
+
+              <p class="checkout-note">Enviando com segurança. Seus dados de pagamento são protegidos.</p>
+              <a id="btn-voltar-detalhes" href="produto.html" class="button is-link is-fullwidth" style="margin-top:0.75rem">
+                <span>Ver detalhes do VIP</span>
+              </a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="section">
+  <div class="container">
+    <article class="footer">
+      <span>Geração Zero <script>document.write(new Date().getFullYear())</script> &copy; Todos os direitos reservados.</span>
+      <span class="is-muted"><i class="fas fa-code"></i> Base: Próprio</span>
+    </article>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://sdk.mercadopago.com/js/v2"></script>
+<script src="assets/js/gz.js?v=6"></script>
+<script src="assets/js/auth.js?v=7"></script>
+<script src="assets/js/packs.js?v=6"></script>
+<script>
+  var vip = new URLSearchParams(location.search).get("vip") || "lacoste";
+  var pack = window.GZ_PACKS[vip] || window.GZ_PACKS.lacoste;
+  document.getElementById("produto-preco").textContent = pack.preco;
+  document.getElementById("produto-img").src = pack.img;
+  document.getElementById("produto-img").alt = pack.titulo;
+  document.getElementById("checkout-resumo").textContent = pack.titulo + " — " + pack.preco;
+  document.getElementById("btn-voltar-detalhes").href = "produto.html?vip=" + encodeURIComponent(vip);
+  document.title = "Checkout " + pack.titulo + " - Geração Zero";
+</script>
+<script src="assets/js/checkout.js?v=7"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
+
+</body>
+</html>

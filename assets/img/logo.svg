@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" role="img" aria-label="Geração Zero">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c8f542"/>
+      <stop offset="100%" stop-color="#8fb82e"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="18" width="84" height="84" rx="14" fill="#121a16" stroke="url(#g)" stroke-width="4"/>
+  <text x="50" y="78" text-anchor="middle" font-family="Arial Black, Impact, sans-serif" font-size="48" fill="#c8f542">0</text>
+  <text x="110" y="72" font-family="Arial Black, Impact, sans-serif" font-size="42" fill="#f4f7f2">GERAÇÃO ZERO</text>
+  <text x="112" y="98" font-family="Arial, sans-serif" font-size="16" fill="#9aa89c">SERVIDOR OFICIAL · MINECRAFT</text>
+</svg>

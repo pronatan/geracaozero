@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Loja - Geração Zero</title>
+    <link rel="icon" type="image/png" href="assets/img/logo.png?v=1">
+<link rel="stylesheet" href="assets/css/bulma.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/gz.css?v=7">
+</head>
+
+<body>
+
+<header class="section">
+  <div class="logo container">
+    <a href="index.html">
+      <img src="assets/img/logo.png?v=1" alt="Geração Zero">
+    </a>
+  </div>
+
+  <div class="container">
+    <nav class="navbar">
+      <div class="navbar-brand">
+        <div class="navbar-auth-brand" data-auth-slot="brand"></div>
+        <a class="navbar-burger burger">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+      </div>
+
+      <div class="navbar-menu">
+        <div class="navbar-start">
+          <a href="index.html" class="navbar-item"><i class="fas fa-home"></i> Início</a>
+          <a href="regras.html" class="navbar-item"><i class="fas fa-book"></i> Regras</a>
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a href="loja.html" class="navbar-link"><i class="fas fa-shopping-cart"></i> Loja</a>
+            <div class="navbar-dropdown">
+              <a href="loja.html#vip" class="navbar-item"><i class="fas fa-gem"></i> VIPs</a>
+              <hr class="navbar-divider">
+              <a href="termos.html" class="navbar-item">Termos da loja</a>
+            </div>
+          </div>
+          <a href="https://discord.gg/pAtKdPHBk2" target="_blank" rel="noreferrer" class="navbar-item"><i class="fab fa-discord"></i> Discord</a>
+        </div>
+
+        <div class="navbar-end">
+          <div data-auth-slot="end"></div>
+          <a id="ip" class="navbar-item">
+            <i class="fas fa-copy"></i> <span>geracaozero.bedrock.net.br</span>
+            <textarea></textarea>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main class="section">
+  <div class="container">
+    <article id="vip" class="article">
+      <h1 class="article-title"><i class="fas fa-gem"></i> Adquira seu VIP!</h1>
+      <div class="article-content">
+        <p>Pacotes oficiais do Geração Zero. Veja os detalhes ou avance direto para a compra.</p>
+        <ul class="produtos">
+          <li>
+            <img src="assets/img/vip-supreme.png?v=1" alt="VIP Supreme">
+            <h1>VIP Supreme</h1>
+            <h2>R$14,90</h2>
+            <div class="buttons is-centered">
+              <a href="produto.html?vip=supreme" class="button is-primary" title="Ver detalhes">
+                <span class="icon is-small"><i class="fas fa-eye"></i></span>
+              </a>
+              <a href="checkout.html?vip=supreme" class="button is-success">
+                <span class="icon"><i class="fas fa-shopping-cart"></i></span>
+                <span>Comprar</span>
+              </a>
+            </div>
+          </li>
+          <li>
+            <img src="assets/img/vip-lacoste.png?v=1" alt="VIP Lacoste">
+            <h1>VIP Lacoste</h1>
+            <h2>R$29,90</h2>
+            <div class="buttons is-centered">
+              <a href="produto.html?vip=lacoste" class="button is-primary" title="Ver detalhes">
+                <span class="icon is-small"><i class="fas fa-eye"></i></span>
+              </a>
+              <a href="checkout.html?vip=lacoste" class="button is-success">
+                <span class="icon"><i class="fas fa-shopping-cart"></i></span>
+                <span>Comprar</span>
+              </a>
+            </div>
+          </li>
+          <li>
+            <img src="assets/img/vip-gucci.png?v=1" alt="VIP Gucci">
+            <h1>VIP Gucci</h1>
+            <h2>R$49,90</h2>
+            <div class="buttons is-centered">
+              <a href="produto.html?vip=gucci" class="button is-primary" title="Ver detalhes">
+                <span class="icon is-small"><i class="fas fa-eye"></i></span>
+              </a>
+              <a href="checkout.html?vip=gucci" class="button is-success">
+                <span class="icon"><i class="fas fa-shopping-cart"></i></span>
+                <span>Comprar</span>
+              </a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </article>
+  </div>
+</main>
+
+<footer class="section">
+  <div class="container">
+    <article class="footer">
+      <span>Geração Zero <script>document.write(new Date().getFullYear())</script> &copy; Todos os direitos reservados.</span>
+      <span class="is-muted"><i class="fas fa-code"></i> Base: Próprio</span>
+    </article>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="assets/js/gz.js?v=2"></script>
+<script src="assets/js/auth.js?v=7"></script>
+<script defer src="https://use.fontawesome.com/releases/v5.12.1/js/all.js"></script>
+
+</body>
+</html>

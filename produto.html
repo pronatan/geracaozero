@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Produto VIP - Geração Zero</title>
+  <link rel="icon" type="image/png" href="assets/img/logo.png?v=1">
+  <link rel="stylesheet" href="assets/css/bulma.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/gz.css?v=7">
+</head>
+
+<body>
+
+<header class="section">
+  <div class="logo container">
+    <a href="index.html">
+      <img src="assets/img/logo.png?v=1" alt="Geração Zero">
+    </a>
+  </div>
+
+  <div class="container">
+    <nav class="navbar">
+      <div class="navbar-brand">
+        <div class="navbar-auth-brand" data-auth-slot="brand"></div>
+        <a class="navbar-burger burger" aria-label="menu" aria-expanded="false">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+      </div>
+
+      <div class="navbar-menu">
+        <div class="navbar-start">
+          <a href="index.html" class="navbar-item"><i class="fas fa-home"></i> Início</a>
+          <a href="regras.html" class="navbar-item"><i class="fas fa-book"></i> Regras</a>
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a href="loja.html" class="navbar-link"><i class="fas fa-shopping-cart"></i> Loja</a>
+            <div class="navbar-dropdown">
+              <a href="loja.html#vip" class="navbar-item"><i class="fas fa-gem"></i> VIPs</a>
+              <hr class="navbar-divider">
+              <a href="termos.html" class="navbar-item">Termos da loja</a>
+            </div>
+          </div>
+          <a href="https://discord.gg/pAtKdPHBk2" target="_blank" rel="noreferrer" class="navbar-item"><i class="fab fa-discord"></i> Discord</a>
+        </div>
+
+        <div class="navbar-end">
+          <div data-auth-slot="end"></div>
+          <a id="ip" class="navbar-item" title="Clique para copiar">
+            <i class="fas fa-copy"></i> <span>geracaozero.bedrock.net.br</span>
+            <textarea></textarea>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main class="section">
+  <div class="container">
+    <div class="columns">
+      <div class="column">
+        <article class="article">
+          <h1 id="produto-titulo" class="article-title"><i class="fas fa-gem"></i> VIP Lacoste</h1>
+          <div class="article-content">
+            <p id="produto-desc"></p>
+            <p><b>Vantagens</b></p>
+            <ul id="produto-lista" class="list"></ul>
+          </div>
+        </article>
+      </div>
+
+      <div class="column is-4">
+        <article class="article produto-sidebar">
+          <h1 class="article-title"><i class="fas fa-info-circle"></i> Detalhes</h1>
+          <div class="article-content">
+            <img id="produto-img" src="assets/img/vip-lacoste.png?v=1" alt="VIP">
+            <h1 id="produto-preco">R$29,90</h1>
+            <p class="checkout-note" style="margin-top:0.5rem">Confira as vantagens ao lado e avance para o pagamento quando quiser.</p>
+            <a id="btn-ir-checkout" href="checkout.html?vip=lacoste" class="button is-success is-fullwidth">
+              <span class="icon"><i class="fas fa-shopping-cart"></i></span>
+              <span>Comprar agora</span>
+            </a>
+            <a href="loja.html#vip" class="button is-link is-fullwidth" style="margin-top:0.75rem">
+              <span>Voltar à loja</span>
+            </a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="section">
+  <div class="container">
+    <article class="footer">
+      <span>Geração Zero <script>document.write(new Date().getFullYear())</script> &copy; Todos os direitos reservados.</span>
+      <span class="is-muted"><i class="fas fa-code"></i> Base: Próprio</span>
+    </article>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="assets/js/gz.js?v=6"></script>
+<script src="assets/js/auth.js?v=7"></script>
+<script src="assets/js/packs.js?v=6"></script>
+<script>
+  var vip = new URLSearchParams(location.search).get("vip") || "lacoste";
+  var pack = window.GZ_PACKS[vip] || window.GZ_PACKS.lacoste;
+  document.getElementById("produto-titulo").innerHTML = '<i class="fas fa-gem"></i> ' + pack.titulo;
+  document.getElementById("produto-preco").textContent = pack.preco;
+  document.getElementById("produto-img").src = pack.img;
+  document.getElementById("produto-img").alt = pack.titulo;
+  document.getElementById("produto-desc").textContent = pack.desc;
+  document.getElementById("produto-lista").innerHTML = pack.perks
+    .map(function (p) { return '<li><i class="fas fa-check"></i> ' + p + "</li>"; })
+    .join("");
+  document.getElementById("btn-ir-checkout").href = "checkout.html?vip=" + encodeURIComponent(vip);
+  document.title = pack.titulo + " - Geração Zero";
+</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
+
+</body>
+</html>

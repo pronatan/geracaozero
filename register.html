@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Criar conta - Geração Zero</title>
+  <link rel="icon" type="image/png" href="assets/img/logo.png?v=1">
+  <link rel="stylesheet" href="assets/css/bulma.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/gz.css?v=7">
+</head>
+<body>
+
+<header class="section">
+  <div class="logo container">
+    <a href="index.html"><img src="assets/img/logo.png?v=1" alt="Geração Zero"></a>
+  </div>
+  <div class="container">
+    <nav class="navbar">
+      <div class="navbar-brand">
+        <div class="navbar-auth-brand" data-auth-slot="brand"></div>
+        <a class="navbar-burger burger" aria-label="menu" aria-expanded="false">
+          <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+        </a>
+      </div>
+      <div class="navbar-menu">
+        <div class="navbar-start">
+          <a href="index.html" class="navbar-item"><i class="fas fa-home"></i> Início</a>
+          <a href="loja.html" class="navbar-item"><i class="fas fa-shopping-cart"></i> Loja</a>
+          <a href="https://discord.gg/pAtKdPHBk2" target="_blank" rel="noreferrer" class="navbar-item"><i class="fab fa-discord"></i> Discord</a>
+        </div>
+        <div class="navbar-end">
+          <div data-auth-slot="end"></div>
+          <a id="ip" class="navbar-item" title="Clique para copiar">
+            <i class="fas fa-copy"></i> <span>geracaozero.bedrock.net.br</span>
+            <textarea></textarea>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main class="section">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-5">
+        <article class="article produto-sidebar">
+          <h1 class="article-title"><i class="fas fa-user-plus"></i> Criar conta</h1>
+          <div class="article-content">
+            <p id="auth-msg" class="checkout-msg is-hidden" aria-live="polite"></p>
+            <form id="form-register">
+              <div class="field">
+                <label class="label" for="reg-nick">Nick no Minecraft</label>
+                <div class="control">
+                  <input id="reg-nick" class="input" type="text" maxlength="32" required autocomplete="username">
+                </div>
+              </div>
+              <div class="field">
+                <label class="label" for="reg-email">E-mail</label>
+                <div class="control">
+                  <input id="reg-email" class="input" type="email" required autocomplete="email">
+                </div>
+              </div>
+              <div class="field">
+                <label class="label" for="reg-password">Senha</label>
+                <div class="control">
+                  <input id="reg-password" class="input" type="password" minlength="6" required autocomplete="new-password">
+                </div>
+              </div>
+              <div class="field">
+                <label class="label" for="reg-password2">Confirmar senha</label>
+                <div class="control">
+                  <input id="reg-password2" class="input" type="password" minlength="6" required autocomplete="new-password">
+                </div>
+              </div>
+              <button type="submit" class="button is-success is-fullwidth">Criar conta</button>
+            </form>
+            <p class="checkout-note" style="margin-top:1rem">Já tem conta?</p>
+            <a href="login.html" class="button is-link is-fullwidth">Entrar</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="section">
+  <div class="container">
+    <article class="footer">
+      <span>Geração Zero <script>document.write(new Date().getFullYear())</script> &copy; Todos os direitos reservados.</span>
+      <span class="is-muted"><i class="fas fa-code"></i> Base: Próprio</span>
+    </article>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="assets/js/gz.js?v=7"></script>
+<script src="assets/js/auth.js?v=7"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
+</body>
+</html>

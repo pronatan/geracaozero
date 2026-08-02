@@ -1,0 +1,6 @@
+# Bloquear listagem e acesso a logs
+Options -Indexes
+
+<FilesMatch "\.(log|env)$">
+  Require all denied
+</FilesMatch>

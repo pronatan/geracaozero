@@ -1,0 +1,6 @@
+.env
+.env.*
+!.env.example
+api/logs/
+data/users.json
+*.log
