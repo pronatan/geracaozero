@@ -107,12 +107,7 @@ $orderBody = [
     ],
 ];
 
-$notificationUrl = gz_env('MP_NOTIFICATION_URL');
-if ($notificationUrl !== '') {
-    $orderBody['config'] = [
-        'notification_url' => $notificationUrl,
-    ];
-}
+# Notificações vêm do Webhook cadastrado no painel do MP (Orders API não aceita config.notification_url).
 
 $idempotency = bin2hex(random_bytes(16));
 $result = gz_mp_request('POST', '/v1/orders', $orderBody, $idempotency);
