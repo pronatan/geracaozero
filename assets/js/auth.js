@@ -25,10 +25,11 @@
       : '<span class="gz-nav-avatar gz-nav-avatar-fallback">' + ((nick.charAt(0) || "?").toUpperCase()) + "</span>";
     var accountCta =
       '<a href="/conta" class="navbar-item auth-btn auth-btn-account" title="Gerenciar conta">' +
-      avatarHtml + " " + nick +
+      avatarHtml +
+      '<span class="auth-nick-text">' + nick + "</span>" +
       "</a>";
     var adminLink = (user && user.role === "admin")
-      ? '<a href="/admin" class="navbar-item auth-btn auth-btn-accent">Acessar painel</a>'
+      ? '<a href="/admin" class="navbar-item auth-btn auth-btn-accent" title="Acessar painel">Painel</a>'
       : "";
     if (slot.getAttribute("data-auth-slot") === "brand") {
       slot.innerHTML =
