@@ -22,6 +22,54 @@
       .replace(/>/g, "&gt;");
   }
 
+  function formatMoney(amount) {
+    var n = Number(String(amount == null ? "" : amount).replace(",", "."));
+    if (isNaN(n)) return amount == null || amount === "" ? "-" : ("R$" + amount);
+    return "R$" + n.toFixed(2).replace(".", ",");
+  }
+
+  function formatDate(iso) {
+    var s = String(iso || "");
+    if (!s) return "-";
+    // 2026-08-02T15:01:54.337Z → 02/08/2026 12:01
+    var d = new Date(s);
+    if (isNaN(d.getTime())) return s.replace("T", " ").slice(0, 16);
+    var pad = function (x) { return String(x).padStart(2, "0"); };
+    return pad(d.getDate()) + "/" + pad(d.getMonth() + 1) + "/" + d.getFullYear() +
+      " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+  }
+
+  function entregaLabel(o) {
+    var pay = String(o.status || "").toLowerCase();
+    var detail = String(o.statusDetail || o.paymentStatus || "").toLowerCase();
+    var fulfill = String(o.fulfillmentStatus || "pending").toLowerCase();
+
+    if (fulfill === "done") return "VIP liberado";
+
+    if (
+      pay === "failed" || pay === "cancelled" || pay === "canceled" || pay === "rejected" ||
+      detail === "failed" || detail === "high_risk" || detail.indexOf("cc_rejected") === 0 ||
+      detail === "expired"
+    ) {
+      return "Pagamento não aprovado";
+    }
+
+    if (
+      pay === "action_required" || pay === "pending" ||
+      detail === "waiting_transfer" || detail === "pending_waiting_transfer" ||
+      detail === "pending_challenge" || detail.indexOf("waiting") !== -1
+    ) {
+      return "Aguardando pagamento";
+    }
+
+    if (pay === "processed" || pay === "approved" || detail === "accredited") {
+      return "Aguardando liberação";
+    }
+
+    // fallback amigável (sem expor status técnico)
+    return "Em andamento";
+  }
+
   async function load() {
     try {
       var res = await window.gzFetch("/api/auth/profile.php");
@@ -63,14 +111,13 @@
       } else {
         $("conta-orders").innerHTML =
           '<table class="admin-table" style="width:100%;font-size:0.48rem">' +
-          "<thead><tr><th>VIP</th><th>Valor</th><th>Status</th><th>Entrega</th><th>Data</th></tr></thead><tbody>" +
+          "<thead><tr><th>Produto</th><th>Valor</th><th>Entrega</th><th>Data</th></tr></thead><tbody>" +
           orders.map(function (o) {
             return "<tr>" +
-              "<td>" + esc(o.productTitle || o.vip) + "</td>" +
-              "<td>" + esc(o.amount) + "</td>" +
-              "<td>" + esc(o.status || "-") + "</td>" +
-              "<td>" + esc(o.fulfillmentStatus || "pending") + "</td>" +
-              "<td>" + esc(String(o.createdAt || "").replace("T", " ").slice(0, 19)) + "</td>" +
+              "<td>" + esc(o.productTitle || o.vip || "VIP") + "</td>" +
+              "<td>" + esc(formatMoney(o.amount)) + "</td>" +
+              "<td>" + esc(entregaLabel(o)) + "</td>" +
+              "<td>" + esc(formatDate(o.createdAt)) + "</td>" +
               "</tr>";
           }).join("") +
           "</tbody></table>";
