@@ -1,9 +1,11 @@
 <?php
-require __DIR__ . '/bootstrap.php';
+require __DIR__ . '/auth/common.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     gz_respond(405, ['ok' => false, 'message' => 'Método não permitido']);
 }
+
+$sessionUser = gz_current_user();
 
 $input = gz_json_input();
 $vip = strtolower(trim((string) ($input['vip'] ?? '')));
@@ -141,6 +143,26 @@ if (!$result['ok']) {
 $order = $result['body'];
 $payment = $order['transactions']['payments'][0] ?? [];
 $pm = $payment['payment_method'] ?? [];
+
+$orderId = (string) ($order['id'] ?? $externalReference);
+gz_save_order([
+    'id' => $orderId,
+    'orderId' => $orderId,
+    'externalReference' => $externalReference,
+    'userId' => (string) ($sessionUser['id'] ?? 'guest'),
+    'nick' => $nick,
+    'email' => $email,
+    'vip' => $vip,
+    'productTitle' => (string) ($product['title'] ?? $vip),
+    'method' => $method,
+    'amount' => $amount,
+    'status' => (string) ($order['status'] ?? ''),
+    'statusDetail' => (string) ($order['status_detail'] ?? ''),
+    'paymentId' => (string) ($payment['id'] ?? ''),
+    'fulfillmentStatus' => 'pending',
+    'createdAt' => date('c'),
+    'updatedAt' => date('c'),
+]);
 
 $response = [
     'ok' => true,

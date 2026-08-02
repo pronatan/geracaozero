@@ -624,6 +624,81 @@ a.is-muted:hover {
   color: var(--amarelo) !important;
 }
 
+.auth-btn-account {
+  color: var(--ciano) !important;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+.auth-btn-account:hover {
+  color: var(--amarelo) !important;
+}
+
+.gz-nav-avatar {
+  width: 1.35em;
+  height: 1.35em;
+  border-radius: 3px;
+  object-fit: cover;
+  vertical-align: -0.25em;
+  border: 1px solid var(--amarelo);
+  display: inline-block;
+}
+.gz-nav-avatar-fallback {
+  background: linear-gradient(135deg, #001f5c, #00aeef);
+  color: #fff;
+  text-align: center;
+  line-height: 1.35em;
+  font-size: 0.55rem;
+}
+
+/* Avatar chip (conta / admin) também no CSS global */
+.gz-avatar-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: rgba(0, 0, 0, 0.72);
+  border: 2px solid var(--ciano);
+  padding: 0.35rem 0.65rem 0.35rem 0.35rem;
+}
+.gz-avatar-chip-lg {
+  padding: 0.55rem 0.85rem 0.55rem 0.55rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+.gz-avatar-media {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  overflow: hidden;
+  flex: 0 0 auto;
+  background: linear-gradient(135deg, #001f5c, #00aeef);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--amarelo);
+}
+.gz-avatar-chip-lg .gz-avatar-media { width: 72px; height: 72px; }
+.gz-avatar-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gz-avatar-fallback { color: #fff; font-size: 0.85rem; }
+.gz-avatar-chip-lg .gz-avatar-fallback { font-size: 1.4rem; }
+.gz-avatar-meta { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+.gz-avatar-label {
+  color: var(--amarelo);
+  font-size: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}
+.gz-avatar-chip-lg .gz-avatar-label { font-size: 0.62rem; max-width: none; }
+.gz-avatar-add {
+  cursor: pointer;
+  color: var(--ciano);
+  font-size: 0.42rem;
+  text-decoration: underline;
+}
+.gz-avatar-add:hover { color: var(--amarelo); }
+.gz-avatar-input { display: none !important; }
+
 .auth-nick {
   color: var(--amarelo) !important;
   font-size: 0.58rem !important;

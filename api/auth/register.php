@@ -33,18 +33,19 @@ if (gz_find_user_by_nick($nick)) {
     gz_respond(409, ['ok' => false, 'message' => 'Este nick já está em uso']);
 }
 
+$token = bin2hex(random_bytes(24));
 $user = [
     'id' => bin2hex(random_bytes(8)),
     'nick' => $nick,
     'email' => $email,
     'passwordHash' => password_hash($password, PASSWORD_DEFAULT),
+    'tokenHash' => hash('sha256', $token),
+    'role' => 'user',
     'createdAt' => date('c'),
 ];
 
-$users = gz_users_read();
-$users[] = $user;
-if (!gz_users_write($users)) {
-    gz_respond(500, ['ok' => false, 'message' => 'Não foi possível salvar a conta']);
+if (!gz_save_user($user)) {
+    gz_respond(500, ['ok' => false, 'message' => 'Não foi possível salvar a conta no banco']);
 }
 
 gz_login_user($user);
@@ -53,5 +54,6 @@ gz_log('auth.log', ['action' => 'register', 'nick' => $nick, 'email' => $email])
 gz_respond(201, [
     'ok' => true,
     'message' => 'Conta criada com sucesso',
+    'token' => $token,
     'user' => gz_public_user($user),
 ]);

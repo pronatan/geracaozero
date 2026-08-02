@@ -1,0 +1,168 @@
+/* Painel administrativo */
+.admin-body { background-attachment: scroll; }
+.admin-header { padding-bottom: 0.5rem; }
+.admin-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.admin-logo { max-height: 64px; display: block; margin-bottom: 0.75rem; }
+.admin-title { font-size: 0.85rem; margin: 0; color: var(--amarelo); }
+.admin-userbox { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; font-size: 0.55rem; }
+
+.gz-avatar-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: rgba(0, 0, 0, 0.72);
+  border: 2px solid var(--ciano, #00aeef);
+  padding: 0.35rem 0.65rem 0.35rem 0.35rem;
+  box-shadow: 0 0 0 1px rgba(255, 242, 0, 0.15);
+}
+.gz-avatar-chip-lg {
+  padding: 0.55rem 0.85rem 0.55rem 0.55rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+.gz-avatar-media {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  overflow: hidden;
+  flex: 0 0 auto;
+  background: linear-gradient(135deg, #001f5c, #00aeef);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--amarelo, #fff200);
+}
+.gz-avatar-chip-lg .gz-avatar-media {
+  width: 72px;
+  height: 72px;
+}
+.gz-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.gz-avatar-fallback {
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+.gz-avatar-chip-lg .gz-avatar-fallback { font-size: 1.4rem; }
+.gz-avatar-meta { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+.gz-avatar-label {
+  color: var(--amarelo, #fff200);
+  font-size: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}
+.gz-avatar-chip-lg .gz-avatar-label { font-size: 0.62rem; max-width: none; }
+.gz-avatar-add {
+  cursor: pointer;
+  color: var(--ciano, #00aeef);
+  font-size: 0.42rem;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.gz-avatar-add:hover { color: var(--amarelo, #fff200); }
+.gz-avatar-input { display: none !important; }
+
+.gz-nav-avatar {
+  width: 1.35em;
+  height: 1.35em;
+  border-radius: 3px;
+  object-fit: cover;
+  vertical-align: -0.25em;
+  border: 1px solid var(--amarelo, #fff200);
+  display: inline-block;
+}
+.gz-nav-avatar-fallback {
+  background: linear-gradient(135deg, #001f5c, #00aeef);
+  color: #fff;
+  text-align: center;
+  line-height: 1.35em;
+  font-size: 0.55rem;
+}
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+.admin-stat {
+  background: rgba(0, 0, 0, 0.65);
+  border: 2px solid var(--ciano);
+  padding: 0.85rem;
+  text-align: center;
+}
+.admin-stat strong { display: block; font-size: 1.1rem; color: var(--amarelo); margin-bottom: 0.35rem; }
+.admin-stat span { font-size: 0.5rem; opacity: 0.85; }
+.admin-tabs ul { border-bottom-color: var(--ciano) !important; }
+.admin-tabs a { color: #fff !important; font-size: 0.55rem !important; }
+.admin-tabs li.is-active a {
+  background: var(--ciano) !important;
+  border-color: var(--ciano) !important;
+  color: #000 !important;
+}
+.admin-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.admin-table-wrap { overflow-x: auto; }
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.48rem;
+  line-height: 1.5;
+}
+.admin-table th,
+.admin-table td {
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 0.55rem 0.4rem;
+  vertical-align: top;
+  text-align: left;
+}
+.admin-table th { background: rgba(0,174,239,0.25); color: var(--amarelo); }
+.admin-table tr:nth-child(even) { background: rgba(255,255,255,0.04); }
+.admin-form {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 2px dashed rgba(255,255,255,0.25);
+}
+.admin-form label { display: block; margin-bottom: 0.35rem; font-size: 0.5rem; }
+.admin-form .input,
+.admin-form .textarea,
+.admin-form .select select {
+  font-family: var(--fonte-mc);
+  font-size: 0.55rem !important;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  border-color: var(--ciano);
+}
+.admin-actions { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+.admin-actions .button { font-size: 0.45rem !important; }
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.4rem;
+  border-radius: 2px;
+  font-size: 0.45rem;
+}
+.badge-admin { background: var(--magenta); color: #fff; }
+.badge-user { background: #444; color: #fff; }
+.badge-ok { background: #1f9d55; color: #fff; }
+.badge-wait { background: #d69e2e; color: #000; }
+.admin-gate { text-align: center; padding: 2rem 1rem; }
+@media (max-width: 768px) {
+  .admin-title { font-size: 0.7rem; }
+}

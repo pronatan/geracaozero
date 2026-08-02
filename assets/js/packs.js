@@ -1,44 +1,26 @@
-window.GZ_PACKS = {
-  supreme: {
-    titulo: "VIP Supreme",
-    preco: "R$14,90",
-    amount: "14.90",
-    img: "assets/img/vip-supreme.png?v=1",
-    desc: "O primeiro impulso pra quem está recomeçando no Geração Zero.",
-    perks: [
-      "Prefixo Supreme no chat",
-      "Kit semanal básico",
-      "2 homes extras",
-      "Acesso à fila prioritária"
-    ]
-  },
-  lacoste: {
-    titulo: "VIP Lacoste",
-    preco: "R$29,90",
-    amount: "29.90",
-    img: "assets/img/vip-lacoste.png?v=1",
-    desc: "Mais conforto pra farmar, explorar e dominar o mapa.",
-    perks: [
-      "Tudo do Supreme",
-      "Prefixo Lacoste",
-      "Kit semanal intermediário",
-      "5 homes extras",
-      "/fly no terreno (limites do servidor)"
-    ]
-  },
-  gucci: {
-    titulo: "VIP Gucci",
-    preco: "R$49,90",
-    amount: "49.90",
-    img: "assets/img/vip-gucci.png?v=1",
-    desc: "O pacote completo pra quem lidera a geração.",
-    perks: [
-      "Tudo do Lacoste",
-      "Prefixo Gucci",
-      "Kit semanal premium",
-      "10 homes extras",
-      "Partículas exclusivas",
-      "Suporte prioritário no Discord"
-    ]
-  }
-};
+/**
+ * Carrega catálogo da API AWS → window.GZ_PACKS
+ * Mantém fallback local se a API falhar.
+ */
+(function (w) {
+  "use strict";
+
+  w.GZ_PACKS = w.GZ_PACKS || {};
+
+  w.gzLoadCatalog = async function () {
+    try {
+      var res = await (w.gzFetch
+        ? w.gzFetch("/api/catalog.php")
+        : fetch((w.GZ_API_BASE || "") + "/api/catalog.php", { cache: "no-store" }));
+      var data = await res.json();
+      if (res.ok && data.ok && data.packs) {
+        w.GZ_PACKS = data.packs;
+        w.GZ_PRODUCTS = data.products || [];
+        return w.GZ_PACKS;
+      }
+    } catch (e) {
+      console.warn("catalog API falhou, usando fallback", e);
+    }
+    return w.GZ_PACKS;
+  };
+})(window);

@@ -27,11 +27,17 @@ if (!$user || empty($user['passwordHash']) || !password_verify($password, $user[
     gz_respond(401, ['ok' => false, 'message' => 'Login ou senha inválidos']);
 }
 
+$token = bin2hex(random_bytes(24));
+$user['tokenHash'] = hash('sha256', $token);
+$user['lastLoginAt'] = date('c');
+gz_save_user($user);
+
 gz_login_user($user);
 gz_log('auth.log', ['action' => 'login', 'nick' => $user['nick'] ?? '', 'email' => $user['email'] ?? '']);
 
 gz_respond(200, [
     'ok' => true,
     'message' => 'Login realizado',
+    'token' => $token,
     'user' => gz_public_user($user),
 ]);

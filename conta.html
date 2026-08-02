@@ -4,9 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  <title>Entrar - Geração Zero</title>
+  <title>Minha conta - Geração Zero</title>
   <link rel="icon" type="image/png" href="assets/img/logo.png?v=1">
   <link rel="stylesheet" href="assets/css/bulma.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,29 +46,64 @@
 
 <main class="section">
   <div class="container">
-    <div class="columns is-centered">
+    <div id="conta-gate" class="article is-hidden" style="text-align:center">
+      <h1 class="article-title">Minha conta</h1>
+      <p>Faça login para gerenciar sua conta.</p>
+      <a href="login.html" class="button is-primary">Entrar</a>
+    </div>
+
+    <div id="conta-app" class="columns is-multiline is-hidden">
       <div class="column is-5">
         <article class="article produto-sidebar">
-          <h1 class="article-title"><i class="fas fa-sign-in-alt"></i> Entrar</h1>
+          <h1 class="article-title"><i class="fas fa-user-cog"></i> Minha conta</h1>
           <div class="article-content">
-            <p id="auth-msg" class="checkout-msg is-hidden" aria-live="polite"></p>
-            <form id="form-login">
+            <p id="conta-msg" class="checkout-msg is-hidden" aria-live="polite"></p>
+
+            <div id="conta-avatar" class="gz-avatar-chip gz-avatar-chip-lg" style="margin-bottom:1rem"></div>
+
+            <p><b>Nick:</b> <span id="conta-nick">-</span></p>
+            <p><b>E-mail:</b> <span id="conta-email-view">-</span></p>
+            <p id="conta-role-wrap" class="is-hidden"><b>Tipo:</b> <span id="conta-role">user</span></p>
+
+            <hr>
+            <h2 class="article-title" style="font-size:0.7rem">Atualizar dados</h2>
+            <form id="form-conta">
               <div class="field">
-                <label class="label" for="login-user">E-mail ou nick</label>
+                <label class="label" for="conta-email">E-mail</label>
                 <div class="control">
-                  <input id="login-user" class="input" type="text" required autocomplete="username">
+                  <input id="conta-email" class="input" type="email" required>
                 </div>
               </div>
               <div class="field">
-                <label class="label" for="login-password">Senha</label>
+                <label class="label" for="conta-pass-current">Senha atual (só se for trocar)</label>
                 <div class="control">
-                  <input id="login-password" class="input" type="password" required autocomplete="current-password">
+                  <input id="conta-pass-current" class="input" type="password" autocomplete="current-password">
                 </div>
               </div>
-              <button type="submit" class="button is-success is-fullwidth">Entrar</button>
+              <div class="field">
+                <label class="label" for="conta-pass-new">Nova senha</label>
+                <div class="control">
+                  <input id="conta-pass-new" class="input" type="password" minlength="6" autocomplete="new-password">
+                </div>
+              </div>
+              <div class="field">
+                <label class="label" for="conta-pass-confirm">Confirmar nova senha</label>
+                <div class="control">
+                  <input id="conta-pass-confirm" class="input" type="password" minlength="6" autocomplete="new-password">
+                </div>
+              </div>
+              <button type="submit" class="button is-success is-fullwidth">Salvar</button>
             </form>
-            <p class="checkout-note" style="margin-top:1rem">Ainda não tem conta?</p>
-            <a href="register.html" class="button is-link is-fullwidth">Criar conta</a>
+            <a id="conta-admin-link" href="admin.html" class="button is-link is-fullwidth is-hidden" style="margin-top:0.75rem">Acessar painel</a>
+          </div>
+        </article>
+      </div>
+
+      <div class="column is-7">
+        <article class="article">
+          <h1 class="article-title"><i class="fas fa-receipt"></i> Meus pedidos</h1>
+          <div class="article-content">
+            <div id="conta-orders" class="admin-table-wrap">Carregando...</div>
           </div>
         </article>
       </div>
@@ -90,7 +123,9 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="assets/js/config.js?v=1"></script>
 <script src="assets/js/gz.js?v=8"></script>
+<script src="assets/js/avatar.js?v=1"></script>
 <script src="assets/js/auth.js?v=11"></script>
+<script src="assets/js/conta.js?v=2"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
 </body>
 </html>

@@ -33,6 +33,9 @@ Credenciais Dynu ficam só no `.env` (`DYNU_API_KEY`, OAuth). **Não commitar.**
 | ACM | certificado DNS emitido para `geracaozero.ddnsfree.com` |
 | CloudFront | **pendente** — conta AWS precisa verificação em Support (`AccessDenied` ao criar distribuição) |
 | IAM roles | `aws-elasticbeanstalk-service-role`, `aws-elasticbeanstalk-ec2-role` |
+| DynamoDB | `gz_users`, `gz_orders`, `gz_products` (on-demand) · `us-east-1` |
+| API pública | `http://geracaozero.ddnsfree.com/api/...` |
+| Painel admin | `http://geracaozero.ddnsfree.com/admin.html` |
 
 ## GitHub
 
@@ -50,7 +53,24 @@ Credenciais em `.env` (nunca no front):
 - `MP_PUBLIC_KEY`
 - `MP_NOTIFICATION_URL` (webhook público)
 
-> Status atual das chaves: **ambiente de teste** (`test_user_...@testuser.com`). Para cobrança real, trocar pelas chaves de **Produção** no painel do MP.
+> Status das chaves no servidor: ainda as do app (teste/homologação usadas no desenvolvimento).
+> Para cobrança **real**, troque por Credenciais de **Produção** no painel do Mercado Pago
+> e atualize `MP_ACCESS_TOKEN` + `MP_PUBLIC_KEY` no Elastic Beanstalk (e no `.env` local).
+
+### Ativar produção (Mercado Pago)
+
+1. Acesse https://www.mercadopago.com.br/developers/panel/app  
+2. Abra a aplicação do Geração Zero  
+3. Em **Credenciais de produção**, copie:
+   - **Public Key** → `MP_PUBLIC_KEY`
+   - **Access Token** → `MP_ACCESS_TOKEN`
+4. Em **Webhooks** / notificações, cadastre:  
+   `http://geracaozero.ddnsfree.com/api/webhook.php`  
+   (eventos de Orders / pagamentos)
+5. Atualize as variáveis no EB (`geracaozero-prod`) e reinicie/atualize o ambiente  
+6. Faça um pagamento real pequeno (Pix) para validar
+
+**Importante:** chaves de teste (`TEST-...` ou conta `test_user_...`) **não** cobram dinheiro de verdade.
 
 Endpoints:
 - `GET  api/public-key.php`
@@ -67,16 +87,52 @@ Webhook sugerido:
 - `register.html` — criar conta (nick, e-mail, senha)
 - `login.html` — entrar
 - API: `api/auth/register.php`, `login.php`, `logout.php`, `me.php`
-- Contas em `data/users.json` (protegido)
+- Contas, pedidos e produtos no **DynamoDB** (`gz_users`, `gz_orders`, `gz_products`)
+- Auth via token (`Authorization: Bearer`) no `localStorage` (`gz_token`)
 
-Na navbar: **Entrar** / **Criar conta** → após login: nick + **Sair**.
+Na navbar: **Entrar** / **Criar conta** → após login: nick + **Sair** (+ **Admin** se role=admin).
 
-## Abrir local
+## Painel administrativo
 
-O checkout/login precisa de **PHP** (Live Server/`npx serve` não executa `api/*.php`).
+URL: `http://geracaozero.ddnsfree.com/admin.html`
+
+- Produtos VIP (criar/editar/ativar/excluir) → tabela `gz_products`
+- Pedidos (listar + marcar VIP liberado)
+- Usuários (listar, promover admin, criar user/admin, excluir)
+
+Admin inicial (troque a senha depois):
+- nick: `admin`
+- e-mail: `admin@geracaozero.com`
+- senha: `Admin@GZ2026`
+
+APIs admin (Bearer admin):
+- `GET /api/admin/stats.php`
+- `GET|POST|PUT|DELETE /api/admin/users.php`
+- `GET|POST|PUT|DELETE /api/admin/products.php`
+- `GET|PUT /api/admin/orders.php`
+
+Catálogo público: `GET /api/catalog.php`
+
+## Front → API AWS
+
+`assets/js/config.js` define `GZ_API_BASE`:
+- no domínio AWS/Dynu → API relativa (`/api/...`)
+- em localhost / Live Server → `http://geracaozero.ddnsfree.com`
+
+Assim o HTML local já fala com a API publicada na AWS (não precisa PHP local).
+
+## Abrir local (só front)
 
 ```bash
 cd geracaozero
+npx serve .
+# ou Live Server — a API vai para geracaozero.ddnsfree.com
+```
+
+Para debugar a API PHP localmente (com DynamoDB), use role/credenciais AWS no `.env`
+(`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION=us-east-1`):
+
+```bash
 php -S localhost:8080
 ```
 

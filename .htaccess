@@ -28,6 +28,13 @@
   </IfModule>
 </FilesMatch>
 
+# Passar Authorization para o PHP (Bearer token)
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTP:Authorization} .
+  RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+</IfModule>
+
 # Proteger segredos
 <FilesMatch "^\.env">
   <IfModule mod_authz_core.c>

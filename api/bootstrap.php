@@ -8,6 +8,22 @@ declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 
+// CORS — front local ou outro domínio chama a API na AWS
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if ($origin !== '') {
+    header('Access-Control-Allow-Origin: ' . $origin);
+    header('Vary: Origin');
+} else {
+    header('Access-Control-Allow-Origin: *');
+}
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+header('Access-Control-Max-Age: 86400');
+if (strtoupper($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
+
 function gz_load_env(string $path): void
 {
     if (!is_file($path)) {
@@ -65,26 +81,17 @@ function gz_respond(int $status, array $payload): void
 
 function gz_catalog(): array
 {
-    return [
-        'supreme' => [
-            'id' => 'supreme',
-            'title' => 'VIP Supreme',
-            'amount' => '14.90',
-            'description' => 'VIP Supreme - Geração Zero',
-        ],
-        'lacoste' => [
-            'id' => 'lacoste',
-            'title' => 'VIP Lacoste',
-            'amount' => '29.90',
-            'description' => 'VIP Lacoste - Geração Zero',
-        ],
-        'gucci' => [
-            'id' => 'gucci',
-            'title' => 'VIP Gucci',
-            'amount' => '49.90',
-            'description' => 'VIP Gucci - Geração Zero',
-        ],
-    ];
+    require_once __DIR__ . '/catalog-lib.php';
+    $out = [];
+    foreach (gz_products_all(true) as $p) {
+        $out[$p['id']] = [
+            'id' => $p['id'],
+            'title' => $p['title'],
+            'amount' => $p['amount'],
+            'description' => $p['mpDescription'] ?: ($p['title'] . ' - Geração Zero'),
+        ];
+    }
+    return $out;
 }
 
 function gz_mp_request(string $method, string $path, ?array $body = null, ?string $idempotencyKey = null): array

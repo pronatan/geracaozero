@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/gz.css?v=7">
+  <link rel="stylesheet" href="assets/css/gz.css?v=10">
 </head>
 
 <body>
@@ -68,49 +68,8 @@
       <h1 class="article-title"><i class="fas fa-gem"></i> Adquira seu VIP!</h1>
       <div class="article-content">
         <p>Pacotes oficiais do Geração Zero. Veja os detalhes ou avance direto para a compra.</p>
-        <ul class="produtos">
-          <li>
-            <img src="assets/img/vip-supreme.png?v=1" alt="VIP Supreme">
-            <h1>VIP Supreme</h1>
-            <h2>R$14,90</h2>
-            <div class="buttons is-centered">
-              <a href="produto.html?vip=supreme" class="button is-primary" title="Ver detalhes">
-                <span class="icon is-small"><i class="fas fa-eye"></i></span>
-              </a>
-              <a href="checkout.html?vip=supreme" class="button is-success">
-                <span class="icon"><i class="fas fa-shopping-cart"></i></span>
-                <span>Comprar</span>
-              </a>
-            </div>
-          </li>
-          <li>
-            <img src="assets/img/vip-lacoste.png?v=1" alt="VIP Lacoste">
-            <h1>VIP Lacoste</h1>
-            <h2>R$29,90</h2>
-            <div class="buttons is-centered">
-              <a href="produto.html?vip=lacoste" class="button is-primary" title="Ver detalhes">
-                <span class="icon is-small"><i class="fas fa-eye"></i></span>
-              </a>
-              <a href="checkout.html?vip=lacoste" class="button is-success">
-                <span class="icon"><i class="fas fa-shopping-cart"></i></span>
-                <span>Comprar</span>
-              </a>
-            </div>
-          </li>
-          <li>
-            <img src="assets/img/vip-gucci.png?v=1" alt="VIP Gucci">
-            <h1>VIP Gucci</h1>
-            <h2>R$49,90</h2>
-            <div class="buttons is-centered">
-              <a href="produto.html?vip=gucci" class="button is-primary" title="Ver detalhes">
-                <span class="icon is-small"><i class="fas fa-eye"></i></span>
-              </a>
-              <a href="checkout.html?vip=gucci" class="button is-success">
-                <span class="icon"><i class="fas fa-shopping-cart"></i></span>
-                <span>Comprar</span>
-              </a>
-            </div>
-          </li>
+        <ul class="produtos" id="loja-produtos">
+          <li><p>Carregando produtos...</p></li>
         </ul>
       </div>
     </article>
@@ -127,8 +86,35 @@
 </footer>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script src="assets/js/gz.js?v=2"></script>
-<script src="assets/js/auth.js?v=7"></script>
+<script src="assets/js/config.js?v=1"></script>
+<script src="assets/js/gz.js?v=8"></script>
+<script src="assets/js/auth.js?v=11"></script>
+<script src="assets/js/packs.js?v=8"></script>
+<script>
+  (async function () {
+    await window.gzLoadCatalog();
+    var list = document.getElementById("loja-produtos");
+    var packs = window.GZ_PACKS || {};
+    var ids = Object.keys(packs);
+    if (!ids.length) {
+      list.innerHTML = "<li><p>Nenhum produto ativo.</p></li>";
+      return;
+    }
+    list.innerHTML = ids.map(function (id) {
+      var p = packs[id];
+      return (
+        "<li>" +
+        '<img src="' + p.img + '" alt="' + p.titulo + '">' +
+        "<h1>" + p.titulo + "</h1>" +
+        "<h2>" + p.preco + "</h2>" +
+        '<div class="buttons is-centered">' +
+        '<a href="produto.html?vip=' + id + '" class="button is-primary" title="Ver detalhes"><span class="icon is-small"><i class="fas fa-eye"></i></span></a>' +
+        '<a href="checkout.html?vip=' + id + '" class="button is-success"><span class="icon"><i class="fas fa-shopping-cart"></i></span><span>Comprar</span></a>' +
+        "</div></li>"
+      );
+    }).join("");
+  })();
+</script>
 <script defer src="https://use.fontawesome.com/releases/v5.12.1/js/all.js"></script>
 
 </body>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>Admin - Geração Zero</title>
+  <link rel="icon" type="image/png" href="assets/img/logo.png?v=1">
+  <link rel="stylesheet" href="assets/css/bulma.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/gz.css?v=10">
+  <link rel="stylesheet" href="assets/css/admin.css?v=2">
+</head>
+<body class="admin-body">
+
+<header class="section admin-header">
+  <div class="container admin-top">
+    <div>
+      <a href="index.html"><img src="assets/img/logo.png?v=1" alt="Geração Zero" class="admin-logo"></a>
+    </div>
+    <div class="admin-userbox">
+      <div id="admin-who" class="gz-avatar-chip" aria-live="polite">...</div>
+      <a href="conta.html" class="button is-small is-info">Conta</a>
+      <a href="index.html" class="button is-small is-link">Site</a>
+      <button type="button" id="btn-admin-logout" class="button is-small is-danger">Sair</button>
+    </div>
+  </div>
+</header>
+
+<main class="section">
+  <div class="container">
+    <div id="admin-gate" class="article admin-gate is-hidden">
+      <h2 class="article-title">Acesso restrito</h2>
+      <p>Faça login com uma conta <b>admin</b>.</p>
+      <a href="login.html" class="button is-primary">Entrar</a>
+    </div>
+
+    <div id="admin-app" class="is-hidden">
+      <div id="admin-stats" class="admin-stats"></div>
+
+      <div class="tabs is-boxed admin-tabs">
+        <ul>
+          <li class="is-active" data-tab="products"><a>Produtos</a></li>
+          <li data-tab="orders"><a>Pedidos</a></li>
+          <li data-tab="users"><a>Usuários</a></li>
+        </ul>
+      </div>
+
+      <section id="tab-products" class="admin-panel article">
+        <div class="admin-panel-head">
+          <h2 class="article-title">Produtos / VIP</h2>
+          <button type="button" class="button is-success" id="btn-new-product">Novo produto</button>
+        </div>
+        <div id="products-table" class="admin-table-wrap"></div>
+
+        <form id="form-product" class="admin-form is-hidden">
+          <h3 id="product-form-title">Novo produto</h3>
+          <div class="columns is-multiline">
+            <div class="column is-3">
+              <label>ID (slug)</label>
+              <input class="input" name="id" id="p-id" required pattern="[a-z0-9_-]{2,32}" placeholder="ex: lacoste">
+            </div>
+            <div class="column is-5">
+              <label>Título</label>
+              <input class="input" name="title" id="p-title" required>
+            </div>
+            <div class="column is-2">
+              <label>Amount (MP)</label>
+              <input class="input" name="amount" id="p-amount" required placeholder="29.90">
+            </div>
+            <div class="column is-2">
+              <label>Ordem</label>
+              <input class="input" name="sortOrder" id="p-sort" type="number" value="1">
+            </div>
+            <div class="column is-4">
+              <label>Preço exibido</label>
+              <input class="input" name="priceLabel" id="p-price" placeholder="R$29,90">
+            </div>
+            <div class="column is-8">
+              <label>Imagem (URL)</label>
+              <input class="input" name="imageUrl" id="p-img" placeholder="assets/img/vip-lacoste.png?v=1">
+            </div>
+            <div class="column is-12">
+              <label>Descrição</label>
+              <textarea class="textarea" name="description" id="p-desc" rows="2"></textarea>
+            </div>
+            <div class="column is-12">
+              <label>Benefícios (1 por linha)</label>
+              <textarea class="textarea" name="perks" id="p-perks" rows="5"></textarea>
+            </div>
+            <div class="column is-12">
+              <label class="checkbox"><input type="checkbox" id="p-active" checked> Ativo na loja</label>
+            </div>
+          </div>
+          <div class="buttons">
+            <button type="submit" class="button is-primary">Salvar</button>
+            <button type="button" class="button" id="btn-cancel-product">Cancelar</button>
+          </div>
+          <p id="product-msg" class="checkout-msg is-hidden"></p>
+        </form>
+      </section>
+
+      <section id="tab-orders" class="admin-panel article is-hidden">
+        <h2 class="article-title">Pedidos</h2>
+        <div id="orders-table" class="admin-table-wrap"></div>
+      </section>
+
+      <section id="tab-users" class="admin-panel article is-hidden">
+        <div class="admin-panel-head">
+          <h2 class="article-title">Usuários</h2>
+          <button type="button" class="button is-success" id="btn-new-user">Novo usuário / admin</button>
+        </div>
+        <div id="users-table" class="admin-table-wrap"></div>
+
+        <form id="form-user" class="admin-form is-hidden">
+          <h3>Criar conta</h3>
+          <div class="columns is-multiline">
+            <div class="column is-3">
+              <label>Nick</label>
+              <input class="input" id="u-nick" required>
+            </div>
+            <div class="column is-4">
+              <label>E-mail</label>
+              <input class="input" id="u-email" type="email" required>
+            </div>
+            <div class="column is-3">
+              <label>Senha</label>
+              <input class="input" id="u-password" type="password" required minlength="6">
+            </div>
+            <div class="column is-2">
+              <label>Role</label>
+              <div class="select is-fullwidth">
+                <select id="u-role">
+                  <option value="user">user</option>
+                  <option value="admin">admin</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="buttons">
+            <button type="submit" class="button is-primary">Criar</button>
+            <button type="button" class="button" id="btn-cancel-user">Cancelar</button>
+          </div>
+          <p id="user-msg" class="checkout-msg is-hidden"></p>
+        </form>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script src="assets/js/config.js?v=1"></script>
+<script src="assets/js/avatar.js?v=1"></script>
+<script src="assets/js/admin.js?v=2"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
+</body>
+</html>

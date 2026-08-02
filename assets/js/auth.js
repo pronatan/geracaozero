@@ -20,14 +20,26 @@
 
   function renderUser(slot, user) {
     var nick = (user && user.nick) ? user.nick : "Conta";
+    var avatarHtml = (user && user.avatar)
+      ? '<img class="gz-nav-avatar" src="' + user.avatar + '" alt="">'
+      : '<span class="gz-nav-avatar gz-nav-avatar-fallback">' + ((nick.charAt(0) || "?").toUpperCase()) + "</span>";
+    var accountCta =
+      '<a href="conta.html" class="navbar-item auth-btn auth-btn-account" title="Gerenciar conta">' +
+      avatarHtml + " " + nick +
+      "</a>";
+    var adminLink = (user && user.role === "admin")
+      ? '<a href="admin.html" class="navbar-item auth-btn auth-btn-accent">Acessar painel</a>'
+      : "";
     if (slot.getAttribute("data-auth-slot") === "brand") {
       slot.innerHTML =
-        '<span class="navbar-item auth-nick">' + nick + "</span>" +
+        accountCta +
+        adminLink +
         '<a href="#" class="navbar-item auth-btn" data-auth-logout>Sair</a>';
       return;
     }
     slot.innerHTML =
-      '<span class="navbar-item auth-nick"><i class="fas fa-user"></i> ' + nick + "</span>" +
+      accountCta +
+      adminLink +
       '<a href="#" class="navbar-item auth-btn" data-auth-logout><i class="fas fa-sign-out-alt"></i> Sair</a>';
   }
 
@@ -35,9 +47,14 @@
     Array.prototype.forEach.call(root.querySelectorAll("[data-auth-logout]"), function (btn) {
       btn.addEventListener("click", function (e) {
         e.preventDefault();
-        fetch("api/auth/logout.php", { method: "POST", credentials: "same-origin" })
-          .then(function () { window.location.href = "index.html"; })
-          .catch(function () { window.location.href = "index.html"; });
+        var done = function () {
+          if (window.gzSetToken) window.gzSetToken("");
+          window.location.href = "index.html";
+        };
+        (window.gzFetch ? window.gzFetch("/api/auth/logout.php", { method: "POST" })
+          : fetch("api/auth/logout.php", { method: "POST" }))
+          .then(done)
+          .catch(done);
       });
     });
   }
@@ -52,7 +69,9 @@
 
   async function loadSession() {
     try {
-      var res = await fetch("api/auth/me.php", { credentials: "same-origin", cache: "no-store" });
+      var res = await (window.gzFetch
+        ? window.gzFetch("/api/auth/me.php")
+        : fetch("api/auth/me.php", { cache: "no-store" }));
       var data = await res.json();
       if (data && data.authenticated && data.user) {
         paint(data.user);
@@ -78,14 +97,13 @@
         msg.className = "checkout-msg";
         msg.textContent = "Entrando...";
         try {
-          var res = await fetch("api/auth/login.php", {
+          var res = await window.gzFetch("/api/auth/login.php", {
             method: "POST",
-            credentials: "same-origin",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ login: login, password: password }),
           });
           var data = await res.json();
           if (!res.ok || !data.ok) throw new Error(data.message || "Falha no login");
+          if (data.token && window.gzSetToken) window.gzSetToken(data.token);
           msg.className = "checkout-msg is-ok";
           msg.textContent = "Login ok! Redirecionando...";
           setTimeout(function () { window.location.href = "index.html"; }, 600);
@@ -110,14 +128,13 @@
         msg.className = "checkout-msg";
         msg.textContent = "Criando conta...";
         try {
-          var res = await fetch("api/auth/register.php", {
+          var res = await window.gzFetch("/api/auth/register.php", {
             method: "POST",
-            credentials: "same-origin",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
           });
           var data = await res.json();
           if (!res.ok || !data.ok) throw new Error(data.message || "Falha ao criar conta");
+          if (data.token && window.gzSetToken) window.gzSetToken(data.token);
           msg.className = "checkout-msg is-ok";
           msg.textContent = "Conta criada! Redirecionando...";
           setTimeout(function () { window.location.href = "index.html"; }, 700);

@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/gz.css?v=7">
+  <link rel="stylesheet" href="assets/css/gz.css?v=10">
 </head>
 
 <body>
@@ -225,20 +225,25 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="https://sdk.mercadopago.com/js/v2"></script>
-<script src="assets/js/gz.js?v=6"></script>
-<script src="assets/js/auth.js?v=7"></script>
-<script src="assets/js/packs.js?v=6"></script>
+<script src="assets/js/config.js?v=1"></script>
+<script src="assets/js/gz.js?v=8"></script>
+<script src="assets/js/auth.js?v=11"></script>
+<script src="assets/js/packs.js?v=8"></script>
 <script>
-  var vip = new URLSearchParams(location.search).get("vip") || "lacoste";
-  var pack = window.GZ_PACKS[vip] || window.GZ_PACKS.lacoste;
-  document.getElementById("produto-preco").textContent = pack.preco;
-  document.getElementById("produto-img").src = pack.img;
-  document.getElementById("produto-img").alt = pack.titulo;
-  document.getElementById("checkout-resumo").textContent = pack.titulo + " — " + pack.preco;
-  document.getElementById("btn-voltar-detalhes").href = "produto.html?vip=" + encodeURIComponent(vip);
-  document.title = "Checkout " + pack.titulo + " - Geração Zero";
+  (async function () {
+    await window.gzLoadCatalog();
+    var vip = new URLSearchParams(location.search).get("vip") || "lacoste";
+    var pack = window.GZ_PACKS[vip] || Object.keys(window.GZ_PACKS).map(function (k) { return window.GZ_PACKS[k]; })[0];
+    if (!pack) return;
+    document.getElementById("produto-preco").textContent = pack.preco;
+    document.getElementById("produto-img").src = pack.img;
+    document.getElementById("produto-img").alt = pack.titulo;
+    document.getElementById("checkout-resumo").textContent = pack.titulo + " — " + pack.preco;
+    document.getElementById("btn-voltar-detalhes").href = "produto.html?vip=" + encodeURIComponent(vip);
+    document.title = "Checkout " + pack.titulo + " - Geração Zero";
+  })();
 </script>
-<script src="assets/js/checkout.js?v=7"></script>
+<script src="assets/js/checkout.js?v=9"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
 
 </body>

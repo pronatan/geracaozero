@@ -13,7 +13,14 @@
     nick: "",
   };
 
-  var packs = window.GZ_PACKS || {};
+    var packs = window.GZ_PACKS || {};
+
+  async function ensureCatalog() {
+    if (window.gzLoadCatalog) {
+      await window.gzLoadCatalog();
+      packs = window.GZ_PACKS || packs;
+    }
+  }
 
   function $(id) {
     return document.getElementById(id);
@@ -42,7 +49,7 @@
   }
 
   async function loadPublicKey() {
-    var res = await fetch("api/public-key.php", { cache: "no-store" });
+    var res = await window.gzFetch("/api/public-key.php");
     var data = await res.json();
     if (!res.ok || !data.ok) {
       throw new Error(data.message || "Não foi possível carregar a chave pública");
@@ -87,7 +94,8 @@
 
   function syncPackFromPage() {
     var vip = new URLSearchParams(location.search).get("vip") || "lacoste";
-    var pack = packs[vip] || packs.lacoste;
+    var pack = packs[vip] || packs.lacoste || packs[Object.keys(packs)[0]];
+    if (!pack) return;
     state.vip = vip;
     state.title = pack.titulo;
     state.amount = String(pack.amount || "29.90");
@@ -97,9 +105,8 @@
   }
 
   async function createOrder(payload) {
-    var res = await fetch("api/create-order.php", {
+    var res = await window.gzFetch("/api/create-order.php", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
     var data = await res.json();
@@ -156,9 +163,9 @@
     if (!state.orderId) return;
     state.pollTimer = setInterval(async function () {
       try {
-        var res = await fetch("api/order-status.php?id=" + encodeURIComponent(state.orderId), {
-          cache: "no-store",
-        });
+        var res = await window.gzFetch(
+          "/api/order-status.php?id=" + encodeURIComponent(state.orderId)
+        );
         var data = await res.json();
         if (!data.ok) return;
         var okStatuses = ["processed", "accredited"];
@@ -303,13 +310,14 @@
 
   async function init() {
     if (!$("checkout-root")) return;
+    await ensureCatalog();
     syncPackFromPage();
     bindUI();
     try {
       await loadPublicKey();
       setMsg("", null);
       try {
-        var meRes = await fetch("api/auth/me.php", { credentials: "same-origin", cache: "no-store" });
+        var meRes = await window.gzFetch("/api/auth/me.php");
         var meData = await meRes.json();
         if (meData && meData.authenticated && meData.user) {
           window.GZ_USER = meData.user;
