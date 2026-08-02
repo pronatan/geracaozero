@@ -87,16 +87,18 @@
   }
 
   function setBtnLoading(btn, loading, labelWhenIdle) {
+    if (window.gzSetBtnLoading) {
+      window.gzSetBtnLoading(btn, loading);
+      return;
+    }
     if (!btn) return;
     if (loading) {
       if (!btn.dataset.label) btn.dataset.label = btn.textContent.trim();
       btn.classList.add("is-loading");
       btn.disabled = true;
-      btn.setAttribute("aria-busy", "true");
     } else {
       btn.classList.remove("is-loading");
       btn.disabled = false;
-      btn.removeAttribute("aria-busy");
       if (labelWhenIdle || btn.dataset.label) {
         btn.textContent = labelWhenIdle || btn.dataset.label;
       }

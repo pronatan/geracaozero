@@ -201,7 +201,8 @@
 
     state.nick = nick.trim();
     setMsg("Gerando Pix...", null);
-    $("btn-pay-pix").disabled = true;
+    if (window.gzSetBtnLoading) window.gzSetBtnLoading($("btn-pay-pix"), true);
+    else $("btn-pay-pix").disabled = true;
 
     try {
       var data = await createOrder({
@@ -221,7 +222,8 @@
       console.error(e);
       setMsg(e.message || "Erro ao gerar Pix", "error");
     } finally {
-      $("btn-pay-pix").disabled = false;
+      if (window.gzSetBtnLoading) window.gzSetBtnLoading($("btn-pay-pix"), false);
+      else $("btn-pay-pix").disabled = false;
     }
   }
 
@@ -248,7 +250,8 @@
     }
 
     setMsg("Processando cartão...", null);
-    $("btn-pay-card").disabled = true;
+    if (window.gzSetBtnLoading) window.gzSetBtnLoading($("btn-pay-card"), true);
+    else $("btn-pay-card").disabled = true;
 
     try {
       var data = await createOrder({
@@ -274,7 +277,8 @@
       console.error(e);
       setMsg(e.message || "Pagamento recusado ou inválido", "error");
     } finally {
-      $("btn-pay-card").disabled = false;
+      if (window.gzSetBtnLoading) window.gzSetBtnLoading($("btn-pay-card"), false);
+      else $("btn-pay-card").disabled = false;
     }
   }
 

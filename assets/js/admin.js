@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var state = { products: [], users: [], orders: [], editingProductId: null };
+  var state = { products: [], users: [], orders: [], editingProductId: null, editingUserId: null };
 
   function $(id) { return document.getElementById(id); }
 
@@ -23,6 +23,14 @@
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
+  }
+
+  function btnLoad(btn, on) {
+    if (window.gzSetBtnLoading) window.gzSetBtnLoading(btn, on);
+    else if (btn) {
+      btn.disabled = !!on;
+      btn.classList.toggle("is-loading", !!on);
+    }
   }
 
   async function api(path, options) {
@@ -114,6 +122,7 @@
         "<td>" + roleBadge + "</td>" +
         "<td>" + esc((u.createdAt || "").replace("T", " ").slice(0, 19)) + "</td>" +
         '<td class="admin-actions">' +
+          '<button type="button" class="button is-small is-info" data-edit-user="' + esc(u.id) + '">Editar</button>' +
           (u.role === "admin"
             ? '<button type="button" class="button is-small" data-role-user="' + esc(u.id) + '">Tornar user</button>'
             : '<button type="button" class="button is-small is-warning" data-role-admin="' + esc(u.id) + '">Tornar admin</button>') +
@@ -176,6 +185,22 @@
     msg("product-msg", "");
   }
 
+  function openUserForm(user) {
+    show($("form-user"), true);
+    state.editingUserId = user ? user.id : null;
+    $("u-id").value = user ? user.id : "";
+    $("user-form-title").textContent = user ? ("Editar: " + user.nick) : "Novo usuário";
+    $("u-nick").value = user ? user.nick : "";
+    $("u-email").value = user ? user.email : "";
+    $("u-password").value = "";
+    $("u-role").value = user ? (user.role || "user") : "user";
+    $("u-password-label").textContent = user ? "Nova senha (opcional)" : "Senha";
+    $("u-password").required = !user;
+    $("btn-save-user").textContent = user ? "Salvar" : "Criar";
+    msg("user-msg", "");
+    if (window.gzInitPasswordToggles) window.gzInitPasswordToggles();
+  }
+
   function bindEvents() {
     document.querySelectorAll(".admin-tabs li").forEach(function (li) {
       li.addEventListener("click", function () {
@@ -185,15 +210,12 @@
 
     $("btn-new-product").addEventListener("click", function () { openProductForm(null); });
     $("btn-cancel-product").addEventListener("click", function () { show($("form-product"), false); });
-    $("btn-new-user").addEventListener("click", function () {
-      show($("form-user"), true);
-      msg("user-msg", "");
-      if (window.gzInitPasswordToggles) window.gzInitPasswordToggles();
-    });
+    $("btn-new-user").addEventListener("click", function () { openUserForm(null); });
     $("btn-cancel-user").addEventListener("click", function () { show($("form-user"), false); });
 
     $("form-product").addEventListener("submit", async function (e) {
       e.preventDefault();
+      var btn = $("btn-save-product");
       var payload = {
         id: $("p-id").value.trim().toLowerCase(),
         title: $("p-title").value.trim(),
@@ -205,6 +227,7 @@
         sortOrder: parseInt($("p-sort").value, 10) || 0,
         active: $("p-active").checked,
       };
+      btnLoad(btn, true);
       try {
         msg("product-msg", "Salvando...", "");
         await api("/api/admin/products.php", {
@@ -216,37 +239,60 @@
         await refreshAll();
       } catch (err) {
         msg("product-msg", err.message, "error");
+      } finally {
+        btnLoad(btn, false);
       }
     });
 
     $("form-user").addEventListener("submit", async function (e) {
       e.preventDefault();
+      var btn = $("btn-save-user");
+      var editing = !!state.editingUserId;
       var payload = {
         nick: $("u-nick").value.trim(),
         email: $("u-email").value.trim(),
-        password: $("u-password").value,
         role: $("u-role").value,
       };
+      var pass = $("u-password").value;
+      if (pass) payload.password = pass;
+      if (editing) payload.id = state.editingUserId;
+      else if (!pass) {
+        msg("user-msg", "Informe a senha", "error");
+        return;
+      }
+
+      btnLoad(btn, true);
       try {
-        msg("user-msg", "Criando...", "");
-        await api("/api/admin/users.php", { method: "POST", body: JSON.stringify(payload) });
-        msg("user-msg", "Usuário criado!", "ok");
+        msg("user-msg", editing ? "Salvando..." : "Criando...", "");
+        await api("/api/admin/users.php", {
+          method: editing ? "PUT" : "POST",
+          body: JSON.stringify(payload),
+        });
+        msg("user-msg", editing ? "Usuário atualizado!" : "Usuário criado!", "ok");
         $("form-user").reset();
         show($("form-user"), false);
+        state.editingUserId = null;
         await refreshAll();
       } catch (err) {
         msg("user-msg", err.message, "error");
+      } finally {
+        btnLoad(btn, false);
       }
     });
 
     document.body.addEventListener("click", async function (e) {
-      var t = e.target.closest("[data-edit-product],[data-del-product],[data-del-user],[data-role-admin],[data-role-user],[data-fulfill]");
+      var t = e.target.closest("[data-edit-product],[data-edit-user],[data-del-product],[data-del-user],[data-role-admin],[data-role-user],[data-fulfill]");
       if (!t) return;
+      btnLoad(t, true);
       try {
         if (t.hasAttribute("data-edit-product")) {
-          var id = t.getAttribute("data-edit-product");
-          var p = state.products.find(function (x) { return x.id === id; });
+          var pid = t.getAttribute("data-edit-product");
+          var p = state.products.find(function (x) { return x.id === pid; });
           if (p) openProductForm(p);
+        } else if (t.hasAttribute("data-edit-user")) {
+          var uid = t.getAttribute("data-edit-user");
+          var u = state.users.find(function (x) { return x.id === uid; });
+          if (u) openUserForm(u);
         } else if (t.hasAttribute("data-del-product")) {
           if (!confirm("Excluir produto?")) return;
           await api("/api/admin/products.php?id=" + encodeURIComponent(t.getAttribute("data-del-product")), { method: "DELETE" });
@@ -276,10 +322,14 @@
         }
       } catch (err) {
         alert(err.message || "Erro");
+      } finally {
+        btnLoad(t, false);
       }
     });
 
     $("btn-admin-logout").addEventListener("click", function () {
+      var btn = $("btn-admin-logout");
+      btnLoad(btn, true);
       var done = function () {
         if (window.gzSetToken) window.gzSetToken("");
         location.href = "login.html";

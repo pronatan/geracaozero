@@ -63,4 +63,20 @@
     options.cache = options.cache || "no-store";
     return fetch(w.gzApiUrl(path), options);
   };
+
+  /** Spinner Bulma no botão enquanto processa */
+  w.gzSetBtnLoading = function (btn, loading) {
+    if (!btn) return;
+    if (loading) {
+      if (!btn.dataset.gzLabelHtml) btn.dataset.gzLabelHtml = btn.innerHTML;
+      btn.classList.add("is-loading");
+      btn.disabled = true;
+      btn.setAttribute("aria-busy", "true");
+    } else {
+      btn.classList.remove("is-loading");
+      btn.disabled = false;
+      btn.removeAttribute("aria-busy");
+      if (btn.dataset.gzLabelHtml) btn.innerHTML = btn.dataset.gzLabelHtml;
+    }
+  };
 })(window);

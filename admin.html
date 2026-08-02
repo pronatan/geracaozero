@@ -51,7 +51,10 @@
       <section id="tab-products" class="admin-panel article">
         <div class="admin-panel-head">
           <h2 class="article-title">Produtos / VIP</h2>
-          <button type="button" class="button is-success" id="btn-new-product">Novo produto</button>
+          <button type="button" class="button is-success" id="btn-new-product">
+            <span class="icon is-small"><i class="fas fa-plus"></i></span>
+            <span>Novo produto</span>
+          </button>
         </div>
         <div id="products-table" class="admin-table-wrap"></div>
 
@@ -95,7 +98,7 @@
             </div>
           </div>
           <div class="buttons">
-            <button type="submit" class="button is-primary">Salvar</button>
+            <button type="submit" class="button is-primary" id="btn-save-product">Salvar</button>
             <button type="button" class="button" id="btn-cancel-product">Cancelar</button>
           </div>
           <p id="product-msg" class="checkout-msg is-hidden"></p>
@@ -110,12 +113,16 @@
       <section id="tab-users" class="admin-panel article is-hidden">
         <div class="admin-panel-head">
           <h2 class="article-title">Usuários</h2>
-          <button type="button" class="button is-success" id="btn-new-user">Novo usuário / admin</button>
+          <button type="button" class="button is-success" id="btn-new-user">
+            <span class="icon is-small"><i class="fas fa-plus"></i></span>
+            <span>Novo usuário</span>
+          </button>
         </div>
         <div id="users-table" class="admin-table-wrap"></div>
 
         <form id="form-user" class="admin-form is-hidden">
-          <h3>Criar conta</h3>
+          <h3 id="user-form-title">Novo usuário</h3>
+          <input type="hidden" id="u-id" value="">
           <div class="columns is-multiline">
             <div class="column is-3">
               <label>Nick</label>
@@ -126,8 +133,8 @@
               <input class="input" id="u-email" type="email" required>
             </div>
             <div class="column is-3">
-              <label>Senha</label>
-              <input class="input" id="u-password" type="password" required minlength="6">
+              <label id="u-password-label">Senha</label>
+              <input class="input" id="u-password" type="password" minlength="6">
             </div>
             <div class="column is-2">
               <label>Role</label>
@@ -140,7 +147,7 @@
             </div>
           </div>
           <div class="buttons">
-            <button type="submit" class="button is-primary">Criar</button>
+            <button type="submit" class="button is-primary" id="btn-save-user">Criar</button>
             <button type="button" class="button" id="btn-cancel-user">Cancelar</button>
           </div>
           <p id="user-msg" class="checkout-msg is-hidden"></p>
@@ -150,9 +157,9 @@
   </div>
 </main>
 
-<script src="assets/js/config.js?v=1"></script>
+<script src="assets/js/config.js?v=2"></script>
 <script src="assets/js/avatar.js?v=1"></script>
-<script src="assets/js/admin.js?v=2"></script>
+<script src="assets/js/admin.js?v=3"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
 <script src="assets/js/password-toggle.js?v=4"></script>
 </body>

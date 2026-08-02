@@ -86,6 +86,7 @@
     if (!form) return;
     form.addEventListener("submit", async function (e) {
       e.preventDefault();
+      var btn = form.querySelector('button[type="submit"]');
       var payload = { email: $("conta-email").value.trim() };
       var neo = $("conta-pass-new").value;
       if (neo) {
@@ -93,6 +94,7 @@
         payload.password = neo;
         payload.passwordConfirm = $("conta-pass-confirm").value;
       }
+      if (window.gzSetBtnLoading) window.gzSetBtnLoading(btn, true);
       try {
         setMsg("Salvando...", "");
         var res = await window.gzFetch("/api/auth/profile.php", {
@@ -108,6 +110,8 @@
         $("conta-email-view").textContent = (data.user && data.user.email) || payload.email;
       } catch (err) {
         setMsg(err.message || "Erro", "error");
+      } finally {
+        if (window.gzSetBtnLoading) window.gzSetBtnLoading(btn, false);
       }
     });
   }
