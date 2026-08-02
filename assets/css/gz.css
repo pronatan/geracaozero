@@ -500,8 +500,19 @@ a.is-muted:hover {
 .produto-sidebar .textarea,
 .produto-sidebar select.input {
   font-family: var(--fonte-mc);
-  font-size: 0.58rem;
-  min-height: 2.4em;
+  font-size: 0.62rem;
+  min-height: 3.4em;
+  padding-top: 0.85em;
+  padding-bottom: 0.85em;
+  line-height: 1.4;
+}
+
+.admin-form .input,
+.admin-form .textarea,
+.admin-form .select select {
+  min-height: 2.8em;
+  padding-top: 0.7em;
+  padding-bottom: 0.7em;
 }
 
 .is-hidden {
@@ -554,8 +565,12 @@ a.is-muted:hover {
 .gz-password-input {
   display: block !important;
   width: 100% !important;
-  padding-right: 2.6rem !important;
+  min-height: 3.4em !important;
+  padding-top: 0.85em !important;
+  padding-bottom: 0.85em !important;
+  padding-right: 2.8rem !important;
   box-sizing: border-box !important;
+  line-height: 1.4 !important;
 }
 .gz-password-toggle {
   position: absolute !important;
