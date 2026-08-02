@@ -1,3 +1,4 @@
+<?php
 /**
  * Admin: pedidos
  * GET — listar
