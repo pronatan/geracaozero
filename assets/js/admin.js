@@ -185,7 +185,11 @@
 
     $("btn-new-product").addEventListener("click", function () { openProductForm(null); });
     $("btn-cancel-product").addEventListener("click", function () { show($("form-product"), false); });
-    $("btn-new-user").addEventListener("click", function () { show($("form-user"), true); msg("user-msg", ""); });
+    $("btn-new-user").addEventListener("click", function () {
+      show($("form-user"), true);
+      msg("user-msg", "");
+      if (window.gzInitPasswordToggles) window.gzInitPasswordToggles();
+    });
     $("btn-cancel-user").addEventListener("click", function () { show($("form-user"), false); });
 
     $("form-product").addEventListener("submit", async function (e) {

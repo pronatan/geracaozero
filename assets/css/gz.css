@@ -544,6 +544,43 @@ a.is-muted:hover {
   flex: 0 0 auto;
 }
 
+/* Senha: mostrar / ocultar */
+.gz-password-control {
+  position: relative;
+}
+.gz-password-input {
+  padding-right: 2.75rem !important;
+}
+.gz-password-toggle {
+  position: absolute;
+  right: 0.35rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.1rem;
+  height: 2.1rem;
+  border: 2px solid var(--ciano);
+  background: rgba(0, 0, 0, 0.75);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  z-index: 2;
+}
+.gz-password-toggle:hover {
+  border-color: var(--amarelo);
+  background: rgba(0, 31, 92, 0.9);
+}
+.gz-password-eye {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  display: block;
+  pointer-events: none;
+}
+
 .checkout-method .pay-icon-fa {
   display: none;
   width: 1.35em !important;
