@@ -4,18 +4,19 @@
 (function () {
   "use strict";
 
-  var EYE = "assets/img/icon-eye-pixel.png?v=1";
-  var EYE_OFF = "assets/img/icon-eye-off-pixel.png?v=1";
+  var EYE = "assets/img/icon-eye-pixel.png?v=2";
+  var EYE_OFF = "assets/img/icon-eye-off-pixel.png?v=2";
 
   function wrapInput(input) {
     if (!input || input.dataset.pwToggle === "1") return;
     input.dataset.pwToggle = "1";
 
-    var control = input.parentElement;
-    if (!control) return;
-    control.classList.add("has-icons-right", "gz-password-control");
+    var wrap = document.createElement("div");
+    wrap.className = "gz-password-wrap";
 
-    // padding for icon button
+    var parent = input.parentNode;
+    parent.insertBefore(wrap, input);
+    wrap.appendChild(input);
     input.classList.add("gz-password-input");
 
     var btn = document.createElement("button");
@@ -24,9 +25,11 @@
     btn.setAttribute("aria-label", "Mostrar senha");
     btn.setAttribute("title", "Mostrar senha");
     btn.innerHTML =
-      '<img class="gz-password-eye" src="' + EYE_OFF + '" alt="" width="22" height="22">';
+      '<img class="gz-password-eye" src="' + EYE_OFF + '" alt="" width="20" height="20">';
 
-    btn.addEventListener("click", function () {
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
       var show = input.type === "password";
       input.type = show ? "text" : "password";
       var img = btn.querySelector("img");
@@ -36,7 +39,7 @@
       input.focus();
     });
 
-    control.appendChild(btn);
+    wrap.appendChild(btn);
   }
 
   function init() {
@@ -49,6 +52,5 @@
     init();
   }
 
-  // admin form may show later
   window.gzInitPasswordToggles = init;
 })();
