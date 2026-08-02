@@ -6,6 +6,7 @@
  * DELETE — excluir pedido próprio (?orderId=)
  */
 require __DIR__ . '/common.php';
+require_once dirname(__DIR__) . '/mp-orders.php';
 
 $user = gz_current_user();
 if (!$user) {
@@ -34,9 +35,19 @@ function gz_order_belongs_to_user(array $order, array $user): bool
 if ($method === 'GET') {
     $orders = gz_ddb_scan_all(gz_orders_table(), 500);
     $mine = [];
+    $refreshed = 0;
     foreach ($orders as $o) {
         if (!gz_order_belongs_to_user($o, $user)) {
             continue;
+        }
+        // Atualiza pedidos ainda abertos consultando o Mercado Pago (máx 8)
+        $oid = (string) ($o['id'] ?? '');
+        if ($oid !== '' && $refreshed < 8 && gz_order_needs_mp_refresh($o)) {
+            $synced = gz_mp_sync_order_by_id($oid);
+            if (is_array($synced)) {
+                $o = $synced;
+                $refreshed++;
+            }
         }
         $mine[] = [
             'id' => $o['id'] ?? null,
@@ -59,6 +70,7 @@ if ($method === 'GET') {
         'ok' => true,
         'user' => gz_public_user($user),
         'orders' => $mine,
+        'refreshed' => $refreshed,
     ]);
 }
 

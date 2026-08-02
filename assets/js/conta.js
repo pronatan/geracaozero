@@ -217,4 +217,14 @@
     bindOrdersActions();
     load();
   });
+
+  // Voltar da página de pagamento (bfcache / aba) → recarrega pedidos atualizados
+  window.addEventListener("pageshow", function (e) {
+    if (e.persisted) load();
+  });
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible" && $("conta-app") && !$("conta-app").classList.contains("is-hidden")) {
+      load();
+    }
+  });
 })();
