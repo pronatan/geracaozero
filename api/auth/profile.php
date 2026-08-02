@@ -7,6 +7,7 @@
  */
 require __DIR__ . '/common.php';
 require_once dirname(__DIR__) . '/mp-orders.php';
+require_once dirname(__DIR__) . '/s3.php';
 
 $user = gz_current_user();
 if (!$user) {
@@ -136,16 +137,15 @@ if ($method === 'PUT' || $method === 'PATCH' || $method === 'POST') {
             $user['avatar'] = '';
         } else {
             $avatar = (string) $avatar;
-            if (strpos($avatar, 'data:image/') !== 0) {
-                gz_respond(400, ['ok' => false, 'message' => 'Avatar inválido']);
+            $nickHint = (string) ($user['nick'] ?? $user['id'] ?? 'user');
+            $stored = gz_store_image_value($avatar, 'avatars', $nickHint);
+            if (empty($stored['ok'])) {
+                gz_respond(400, [
+                    'ok' => false,
+                    'message' => $stored['message'] ?? 'Falha ao salvar avatar no S3',
+                ]);
             }
-            if (strlen($avatar) > 160000) {
-                gz_respond(400, ['ok' => false, 'message' => 'Imagem muito grande (máx ~100KB)']);
-            }
-            if (!preg_match('#^data:image/(jpeg|jpg|png|webp|gif);base64,#i', $avatar)) {
-                gz_respond(400, ['ok' => false, 'message' => 'Formato de imagem não suportado']);
-            }
-            $user['avatar'] = $avatar;
+            $user['avatar'] = (string) ($stored['url'] ?? '');
         }
     }
 

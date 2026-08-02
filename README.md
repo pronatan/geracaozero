@@ -166,12 +166,15 @@ Gera QR normalmente (`waiting_transfer`).
 | **Elastic Beanstalk** | App `geracaozero`, env **`geracaozero-secure`** (HTTPS) — PHP 8.x · AL2023 · Apache (`ProxyServer: apache`) |
 | **EC2 (via EB)** | Instância que roda o site + API PHP |
 | **ALB** | Load balancer do EB; redirect HTTP→HTTPS |
-| **S3** | Bucket `elasticbeanstalk-us-east-1-983902695861` — pacotes de deploy (`.zip`) |
-| **IAM** | User `adm-geracaozero` (CLI profile `geracaozero`); roles `aws-elasticbeanstalk-service-role` e `aws-elasticbeanstalk-ec2-role` (+ DynamoDB) |
-| **DynamoDB** | Banco NoSQL on-demand `us-east-1`: `gz_users`, `gz_orders`, `gz_products` |
+| **S3 (deploy)** | Bucket `elasticbeanstalk-us-east-1-983902695861` — zips de versão do EB |
+| **S3 assets** | Bucket `geracaozero-assets-983902695861` — imagens de produtos (`products/`) e avatares (`avatars/`); URLs públicas no DynamoDB |
+| **IAM** | User `adm-geracaozero` (CLI profile `geracaozero`); roles EB + policy DynamoDB/S3 |
+| **DynamoDB** | `gz_users`, `gz_orders`, `gz_products` (on-demand, `us-east-1`) |
 | **ACM** | Certificado TLS para `geracaozero.ddnsfree.com` |
-| **CloudFront** | Planejado; criação bloqueada até verificação da conta AWS |
-| **IMDS** | Credenciais IAM da instância para assinar chamadas DynamoDB |
+| **CloudWatch Logs** | Stream de logs do EB (`StreamLogs=true`) + health logs |
+| **CloudWatch Alarm** | `geracaozero-secure-health` — alerta se saúde do ambiente piorar |
+| **CloudFront** | Ainda bloqueado até verificação da conta AWS Support |
+| **IMDS** | Credenciais IAM da instância para DynamoDB/S3 |
 
 Config EB no repo: `.ebextensions/01-php.config`, `.ebextensions/03-apache-rewrite.config`, `.htaccess` (URLs limpas + HTTPS via `X-Forwarded-Proto`).
 

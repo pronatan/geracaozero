@@ -78,7 +78,7 @@
           if (!file) return;
           try {
             if (opts.onUploading) opts.onUploading(true);
-            var dataUrl = await w.gzResizeImageFile(file, 128, 0.82);
+            var dataUrl = await w.gzResizeImageFile(file, 256, 0.85);
             var res = await w.gzFetch("/api/auth/profile.php", {
               method: "PUT",
               body: JSON.stringify({ avatar: dataUrl }),

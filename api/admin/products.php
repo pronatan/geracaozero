@@ -5,6 +5,7 @@
  */
 require dirname(__DIR__) . '/auth/common.php';
 require dirname(__DIR__) . '/catalog-lib.php';
+require_once dirname(__DIR__) . '/s3.php';
 
 $admin = gz_require_admin();
 $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
@@ -40,13 +41,17 @@ if ($method === 'POST' || $method === 'PUT' || $method === 'PATCH') {
     }
 
     $imageUrl = trim((string) ($input['imageUrl'] ?? ''));
-    if (strpos($imageUrl, 'data:image/') === 0) {
-        if (strlen($imageUrl) > 180000) {
-            gz_respond(400, ['ok' => false, 'message' => 'Imagem muito grande (máx ~100KB)']);
+    if ($imageUrl !== '') {
+        $stored = gz_store_image_value($imageUrl, 'products', $id);
+        if (empty($stored['ok'])) {
+            gz_respond(400, [
+                'ok' => false,
+                'message' => $stored['message'] ?? 'Falha ao salvar imagem no S3',
+            ]);
         }
-        if (!preg_match('#^data:image/(jpeg|jpg|png|webp|gif);base64,#i', $imageUrl)) {
-            gz_respond(400, ['ok' => false, 'message' => 'Formato de imagem não suportado']);
-        }
+        $imageUrl = (string) ($stored['url'] ?? '');
+    } elseif ($method !== 'POST' && $existing) {
+        $imageUrl = (string) ($existing['imageUrl'] ?? '');
     }
 
     $sortOrder = (int) ($input['sortOrder'] ?? 0);

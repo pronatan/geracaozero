@@ -231,11 +231,11 @@
           var ctx = canvas.getContext("2d");
           ctx.imageSmoothingEnabled = true;
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          var dataUrl = canvas.toDataURL("image/jpeg", 0.82);
-          if (dataUrl.length > 180000) {
-            dataUrl = canvas.toDataURL("image/jpeg", 0.65);
+          var dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+          if (dataUrl.length > 700000) {
+            dataUrl = canvas.toDataURL("image/jpeg", 0.7);
           }
-          if (dataUrl.length > 180000) {
+          if (dataUrl.length > 700000) {
             reject(new Error("Imagem muito grande — use outra ou uma URL"));
             return;
           }
