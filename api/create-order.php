@@ -127,6 +127,49 @@ if (!$result['ok']) {
         ?? ($result['body']['error'] ?? 'Não foi possível criar o pagamento');
     if (isset($result['body']['errors']) && is_array($result['body']['errors'])) {
         $message = $result['body']['errors'][0]['message'] ?? $message;
+        $errDetails = $result['body']['errors'][0]['details'][0] ?? null;
+        if (is_string($errDetails) && $errDetails !== '') {
+            // ex.: "PAY01...: high_risk"
+            if (preg_match('/:\s*(.+)$/', $errDetails, $m)) {
+                $code = trim($m[1]);
+                $map = [
+                    'high_risk' => 'Pagamento recusado por análise de risco. Tente outro cartão ou use Pix.',
+                    'cc_rejected_insufficient_amount' => 'Cartão sem limite suficiente.',
+                    'cc_rejected_bad_filled_security_code' => 'CVV inválido.',
+                    'cc_rejected_bad_filled_date' => 'Validade do cartão inválida.',
+                    'cc_rejected_bad_filled_card_number' => 'Número do cartão inválido.',
+                    'cc_rejected_call_for_authorize' => 'Autorize o pagamento com o banco e tente de novo.',
+                    'cc_rejected_card_disabled' => 'Cartão desabilitado. Contate o banco.',
+                    'cc_rejected_other_reason' => 'Cartão recusado pelo emissor.',
+                    'pending_challenge' => 'Confirme a compra no app do banco (3DS).',
+                ];
+                $message = $map[$code] ?? ('Pagamento recusado: ' . $code);
+            }
+        }
+    }
+    // Orders API às vezes devolve o pedido falho em data
+    $failedOrder = $result['body']['data'] ?? null;
+    if (is_array($failedOrder) && !empty($failedOrder['id'])) {
+        $fp = $failedOrder['transactions']['payments'][0] ?? [];
+        gz_save_order([
+            'id' => (string) $failedOrder['id'],
+            'orderId' => (string) $failedOrder['id'],
+            'externalReference' => $externalReference,
+            'userId' => (string) ($sessionUser['id'] ?? 'guest'),
+            'nick' => $nick,
+            'email' => $email,
+            'vip' => $vip,
+            'productTitle' => (string) ($product['title'] ?? $vip),
+            'method' => $method,
+            'amount' => $amount,
+            'status' => (string) ($failedOrder['status'] ?? 'failed'),
+            'statusDetail' => (string) ($fp['status_detail'] ?? ($failedOrder['status_detail'] ?? 'failed')),
+            'paymentId' => (string) ($fp['id'] ?? ''),
+            'paymentStatus' => (string) ($fp['status'] ?? ''),
+            'fulfillmentStatus' => 'pending',
+            'createdAt' => date('c'),
+            'updatedAt' => date('c'),
+        ]);
     }
     gz_respond((int) $result['status'] ?: 502, [
         'ok' => false,

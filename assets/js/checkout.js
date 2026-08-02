@@ -158,6 +158,16 @@
     setMsg("Pagamento aprovado!", "ok");
   }
 
+  function isPaidStatus(data) {
+    var ok = ["processed", "accredited", "approved"];
+    return (
+      ok.indexOf(data.status) !== -1 ||
+      ok.indexOf(data.statusDetail) !== -1 ||
+      ok.indexOf(data.paymentStatus) !== -1 ||
+      ok.indexOf(data.paymentStatusDetail) !== -1
+    );
+  }
+
   function startPolling() {
     stopPolling();
     if (!state.orderId) return;
@@ -168,13 +178,7 @@
         );
         var data = await res.json();
         if (!data.ok) return;
-        var okStatuses = ["processed", "accredited"];
-        if (
-          okStatuses.indexOf(data.status) !== -1 ||
-          okStatuses.indexOf(data.statusDetail) !== -1 ||
-          okStatuses.indexOf(data.paymentStatus) !== -1 ||
-          okStatuses.indexOf(data.paymentStatusDetail) !== -1
-        ) {
+        if (isPaidStatus(data)) {
           renderPaid({
             nick: state.nick,
             orderId: data.orderId,
@@ -266,12 +270,16 @@
         issuerId: cardData.issuerId,
       });
 
-      if (data.status === "processed" || data.statusDetail === "accredited") {
+      state.orderId = data.orderId || null;
+
+      if (isPaidStatus(data)) {
         renderPaid(data);
-      } else if (data.status === "action_required") {
-        setMsg("Pagamento pendente de ação no banco/app.", "error");
+      } else if (data.status === "action_required" || data.status === "pending") {
+        setMsg("Pagamento em análise. Confirme no app do banco se pedido e aguarde…", "ok");
+        startPolling();
       } else {
-        setMsg("Status: " + (data.statusDetail || data.status || "pendente"), "error");
+        setMsg("Status: " + (data.statusDetail || data.status || "pendente") + ". Aguardando confirmação…", "ok");
+        startPolling();
       }
     } catch (e) {
       console.error(e);
