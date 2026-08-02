@@ -338,7 +338,7 @@
         $("checkout-resumo").textContent =
           (data.productTitle || state.title) + " — R$" + String(data.amount || state.amount).replace(".", ",");
       }
-      if (data.nick && $("checkout-nick") && !$("checkout-nick").value) {
+      if (data.nick && $("checkout-nick")) {
         $("checkout-nick").value = data.nick;
       }
 
@@ -356,22 +356,42 @@
         data.status === "pending" ||
         (data.statusDetail && String(data.statusDetail).indexOf("waiting") !== -1);
 
-      if (waiting && data.pix && (data.pix.qrCode || data.pix.qrCodeBase64 || data.pix.ticketUrl)) {
+      var isPix = data.method === "pix" || !!(data.pix && (data.pix.qrCode || data.pix.qrCodeBase64));
+      var isCard = data.method === "credit_card";
+
+      // Pix: já mostra QR / código na hora
+      if (isPix && data.pix && (data.pix.qrCode || data.pix.qrCodeBase64 || data.pix.ticketUrl)) {
+        var pixRadio = document.querySelector('input[name="pay-method"][value="pix"]');
+        if (pixRadio) pixRadio.checked = true;
         renderPix(data);
         return;
       }
 
-      // Cartão pendente / sem QR: deixa o formulário pronto pra pagar de novo
-      setMsg("Finalize o pagamento abaixo.", "ok");
-      if (data.method === "credit_card") {
+      // Cartão: abre direto a área do cartão
+      if (isCard || (!isPix && waiting)) {
+        show($("checkout-form-wrap"), true);
+        show($("pix-result"), false);
+        show($("pay-success"), false);
         var cardRadio = document.querySelector('input[name="pay-method"][value="credit_card"]');
-        if (cardRadio) {
-          cardRadio.checked = true;
-          show($("panel-pix"), false);
-          show($("panel-card"), true);
-          mountCardForm();
+        if (cardRadio) cardRadio.checked = true;
+        show($("panel-pix"), false);
+        show($("panel-card"), true);
+        mountCardForm();
+        setMsg("Digite os dados do cartão para pagar.", "ok");
+        var cardForm = $("form-checkout-card");
+        if (cardForm && cardForm.scrollIntoView) {
+          setTimeout(function () { cardForm.scrollIntoView({ behavior: "smooth", block: "center" }); }, 120);
         }
+        return;
       }
+
+      // Sem QR ainda (Pix): deixa pronto pra gerar
+      show($("checkout-form-wrap"), true);
+      var pixR = document.querySelector('input[name="pay-method"][value="pix"]');
+      if (pixR) pixR.checked = true;
+      show($("panel-pix"), true);
+      show($("panel-card"), false);
+      setMsg("Clique em Pagar com Pix para gerar o código.", "ok");
     } catch (e) {
       console.error(e);
       setMsg(e.message || "Não foi possível reabrir o pagamento", "error");

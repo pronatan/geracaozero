@@ -169,6 +169,97 @@
     renderUsers();
   }
 
+  function nextSortOrder() {
+    var max = 0;
+    (state.products || []).forEach(function (p) {
+      var n = parseInt(p.sortOrder, 10) || 0;
+      if (n > max) max = n;
+    });
+    return max + 1;
+  }
+
+  function amountToPriceLabel(amount) {
+    var raw = String(amount || "").trim().replace(",", ".");
+    if (!raw) return "";
+    var n = Number(raw);
+    if (isNaN(n)) return "R$" + String(amount).replace(".", ",");
+    return "R$" + n.toFixed(2).replace(".", ",");
+  }
+
+  function syncPriceLabel() {
+    var amountEl = $("p-amount");
+    var priceEl = $("p-price");
+    if (!amountEl || !priceEl) return;
+    priceEl.value = amountToPriceLabel(amountEl.value);
+  }
+
+  function setImagePreview(src) {
+    var img = $("p-img-preview");
+    var hint = $("p-img-hint");
+    if (!img) return;
+    if (src) {
+      img.src = src;
+      img.classList.remove("is-hidden");
+      if (hint) hint.classList.add("is-hidden");
+    } else {
+      img.removeAttribute("src");
+      img.classList.add("is-hidden");
+      if (hint) hint.classList.remove("is-hidden");
+    }
+  }
+
+  function resizeProductImage(file) {
+    return new Promise(function (resolve, reject) {
+      if (!file || !file.type || file.type.indexOf("image/") !== 0) {
+        reject(new Error("Selecione uma imagem"));
+        return;
+      }
+      var reader = new FileReader();
+      reader.onerror = function () { reject(new Error("Falha ao ler arquivo")); };
+      reader.onload = function () {
+        var img = new Image();
+        img.onerror = function () { reject(new Error("Imagem inválida")); };
+        img.onload = function () {
+          var maxW = 480;
+          var maxH = 480;
+          var w = img.width;
+          var h = img.height;
+          var scale = Math.min(1, maxW / w, maxH / h);
+          var canvas = document.createElement("canvas");
+          canvas.width = Math.max(1, Math.round(w * scale));
+          canvas.height = Math.max(1, Math.round(h * scale));
+          var ctx = canvas.getContext("2d");
+          ctx.imageSmoothingEnabled = true;
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          var dataUrl = canvas.toDataURL("image/jpeg", 0.82);
+          if (dataUrl.length > 180000) {
+            dataUrl = canvas.toDataURL("image/jpeg", 0.65);
+          }
+          if (dataUrl.length > 180000) {
+            reject(new Error("Imagem muito grande — use outra ou uma URL"));
+            return;
+          }
+          resolve(dataUrl);
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function handleProductImageFile(file) {
+    if (!file) return;
+    try {
+      msg("product-msg", "Processando imagem...", "");
+      var dataUrl = await resizeProductImage(file);
+      $("p-img").value = dataUrl;
+      setImagePreview(dataUrl);
+      msg("product-msg", "Imagem pronta!", "ok");
+    } catch (err) {
+      msg("product-msg", err.message || "Falha na imagem", "error");
+    }
+  }
+
   function openProductForm(product) {
     show($("form-product"), true);
     state.editingProductId = product ? product.id : null;
@@ -177,12 +268,17 @@
     $("p-id").readOnly = !!product;
     $("p-title").value = product ? product.title : "";
     $("p-amount").value = product ? product.amount : "";
-    $("p-price").value = product ? (product.priceLabel || "") : "";
+    $("p-price").value = product
+      ? (product.priceLabel || amountToPriceLabel(product.amount))
+      : "";
     $("p-img").value = product ? (product.imageUrl || "") : "";
+    setImagePreview(product && product.imageUrl ? product.imageUrl : "");
     $("p-desc").value = product ? (product.description || "") : "";
     $("p-perks").value = product && product.perks ? product.perks.join("\n") : "";
-    $("p-sort").value = product ? (product.sortOrder || 1) : 99;
+    $("p-sort").value = product ? (product.sortOrder || 1) : nextSortOrder();
+    $("p-sort").readOnly = !product; // novo = automático; edição permite ver
     $("p-active").checked = product ? !!product.active : true;
+    if (!product) syncPriceLabel();
     msg("product-msg", "");
   }
 
@@ -214,20 +310,68 @@
     $("btn-new-user").addEventListener("click", function () { openUserForm(null); });
     $("btn-cancel-user").addEventListener("click", function () { show($("form-user"), false); });
 
+    if ($("p-amount")) {
+      $("p-amount").addEventListener("input", syncPriceLabel);
+      $("p-amount").addEventListener("change", syncPriceLabel);
+    }
+    if ($("p-img")) {
+      $("p-img").addEventListener("input", function () {
+        var v = $("p-img").value.trim();
+        setImagePreview(v || "");
+      });
+    }
+
+    var drop = $("p-img-drop");
+    var fileInput = $("p-img-file");
+    if (drop && fileInput) {
+      drop.addEventListener("click", function () { fileInput.click(); });
+      fileInput.addEventListener("change", function () {
+        var f = fileInput.files && fileInput.files[0];
+        handleProductImageFile(f);
+        fileInput.value = "";
+      });
+      ["dragenter", "dragover"].forEach(function (ev) {
+        drop.addEventListener(ev, function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          drop.classList.add("is-dragover");
+        });
+      });
+      ["dragleave", "drop"].forEach(function (ev) {
+        drop.addEventListener(ev, function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          drop.classList.remove("is-dragover");
+        });
+      });
+      drop.addEventListener("drop", function (e) {
+        var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        handleProductImageFile(f);
+      });
+    }
+
     $("form-product").addEventListener("submit", async function (e) {
       e.preventDefault();
       var btn = $("btn-save-product");
+      syncPriceLabel();
+      if (!state.editingProductId) {
+        $("p-sort").value = nextSortOrder();
+      }
       var payload = {
         id: $("p-id").value.trim().toLowerCase(),
         title: $("p-title").value.trim(),
-        amount: $("p-amount").value.trim(),
-        priceLabel: $("p-price").value.trim(),
+        amount: $("p-amount").value.trim().replace(",", "."),
+        priceLabel: $("p-price").value.trim() || amountToPriceLabel($("p-amount").value),
         imageUrl: $("p-img").value.trim(),
         description: $("p-desc").value.trim(),
         perks: $("p-perks").value,
-        sortOrder: parseInt($("p-sort").value, 10) || 0,
+        sortOrder: parseInt($("p-sort").value, 10) || nextSortOrder(),
         active: $("p-active").checked,
       };
+      if (payload.imageUrl.indexOf("data:image/") === 0 && payload.imageUrl.length > 180000) {
+        msg("product-msg", "Imagem muito grande", "error");
+        return;
+      }
       btnLoad(btn, true);
       try {
         msg("product-msg", "Salvando...", "");

@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/gz.css?v=16">
-  <link rel="stylesheet" href="assets/css/admin.css?v=3">
+  <link rel="stylesheet" href="assets/css/admin.css?v=4">
 </head>
 <body class="admin-body">
 
@@ -70,20 +70,27 @@
               <input class="input" name="title" id="p-title" required>
             </div>
             <div class="column is-2">
-              <label>Amount (MP)</label>
-              <input class="input" name="amount" id="p-amount" required placeholder="29.90">
+              <label>Preço (R$)</label>
+              <input class="input" name="amount" id="p-amount" required placeholder="29.90" inputmode="decimal">
             </div>
             <div class="column is-2">
               <label>Ordem</label>
-              <input class="input" name="sortOrder" id="p-sort" type="number" value="1">
+              <input class="input" name="sortOrder" id="p-sort" type="number" min="1" readonly title="Preenchido automaticamente">
             </div>
             <div class="column is-4">
               <label>Preço exibido</label>
-              <input class="input" name="priceLabel" id="p-price" placeholder="R$29,90">
+              <input class="input" name="priceLabel" id="p-price" placeholder="R$29,90" readonly title="Gerado a partir do preço">
             </div>
             <div class="column is-8">
-              <label>Imagem (URL)</label>
-              <input class="input" name="imageUrl" id="p-img" placeholder="assets/img/vip-lacoste.png?v=1">
+              <label>Imagem</label>
+              <input class="input" name="imageUrl" id="p-img" placeholder="URL ou envie/arraste abaixo">
+              <div id="p-img-drop" class="gz-img-drop" tabindex="0">
+                <div class="gz-img-drop-inner">
+                  <img id="p-img-preview" class="gz-img-preview is-hidden" alt="Prévia">
+                  <p id="p-img-hint"><i class="fas fa-cloud-upload-alt"></i> Arraste uma imagem ou clique para enviar</p>
+                  <input type="file" id="p-img-file" accept="image/*" hidden>
+                </div>
+              </div>
             </div>
             <div class="column is-12">
               <label>Descrição</label>
@@ -159,7 +166,7 @@
 
 <script src="assets/js/config.js?v=3"></script>
 <script src="assets/js/avatar.js?v=1"></script>
-<script src="assets/js/admin.js?v=3"></script>
+<script src="assets/js/admin.js?v=4"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
 <script src="assets/js/password-toggle.js?v=4"></script>
 </body>

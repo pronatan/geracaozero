@@ -39,6 +39,31 @@ if ($method === 'POST' || $method === 'PUT' || $method === 'PATCH') {
         $perks = [];
     }
 
+    $imageUrl = trim((string) ($input['imageUrl'] ?? ''));
+    if (strpos($imageUrl, 'data:image/') === 0) {
+        if (strlen($imageUrl) > 180000) {
+            gz_respond(400, ['ok' => false, 'message' => 'Imagem muito grande (máx ~100KB)']);
+        }
+        if (!preg_match('#^data:image/(jpeg|jpg|png|webp|gif);base64,#i', $imageUrl)) {
+            gz_respond(400, ['ok' => false, 'message' => 'Formato de imagem não suportado']);
+        }
+    }
+
+    $sortOrder = (int) ($input['sortOrder'] ?? 0);
+    if ($method === 'POST' && $sortOrder < 1) {
+        $all = gz_products_all(false);
+        $max = 0;
+        foreach ($all as $p) {
+            $n = (int) ($p['sortOrder'] ?? 0);
+            if ($n > $max) {
+                $max = $n;
+            }
+        }
+        $sortOrder = $max + 1;
+    } elseif ($sortOrder < 1) {
+        $sortOrder = (int) ($existing['sortOrder'] ?? 99);
+    }
+
     $product = [
         'id' => $id,
         'title' => $title,
@@ -46,9 +71,9 @@ if ($method === 'POST' || $method === 'PUT' || $method === 'PATCH') {
         'priceLabel' => trim((string) ($input['priceLabel'] ?? '')) ?: ('R$' . str_replace('.', ',', $amount)),
         'description' => trim((string) ($input['description'] ?? '')),
         'mpDescription' => trim((string) ($input['mpDescription'] ?? ($title . ' - Geração Zero'))),
-        'imageUrl' => trim((string) ($input['imageUrl'] ?? '')),
+        'imageUrl' => $imageUrl,
         'perks' => $perks,
-        'sortOrder' => (int) ($input['sortOrder'] ?? ($existing['sortOrder'] ?? 99)),
+        'sortOrder' => $sortOrder,
         'active' => array_key_exists('active', $input) ? (bool) $input['active'] : (bool) ($existing['active'] ?? true),
         'createdAt' => $existing['createdAt'] ?? date('c'),
     ];
