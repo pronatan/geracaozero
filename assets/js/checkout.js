@@ -11,6 +11,7 @@
     orderId: null,
     pollTimer: null,
     nick: "",
+    nickLookup: null,
   };
 
     var packs = window.GZ_PACKS || {};
@@ -153,7 +154,7 @@
     show($("pix-result"), false);
     show($("pay-success"), true);
     $("pay-success-text").textContent =
-      "Pagamento confirmado para " + (data.nick || state.nick || "seu nome") +
+      "Pagamento confirmado para " + (data.nick || state.nick || "seu nick") +
       ". Em breve o VIP será liberado. Guarde o pedido: " + (data.externalReference || data.orderId || "");
     setMsg("Pagamento aprovado!", "ok");
   }
@@ -198,21 +199,43 @@
     }
   }
 
+  async function ensureNickFound() {
+    var nickEl = $("checkout-nick");
+    var nick = ((nickEl && nickEl.value) || "").trim();
+    if (!state.nickLookup) {
+      state.nick = nick;
+      return nick;
+    }
+    var st = state.nickLookup.getState();
+    if (!st.found) {
+      await state.nickLookup.lookup();
+      st = state.nickLookup.getState();
+    }
+    if (!st.found) {
+      throw new Error("Digite um nick válido encontrado na Mojang ou TLauncher.");
+    }
+    if (st.data && st.data.nick) {
+      nick = st.data.nick;
+      if (nickEl) nickEl.value = nick;
+    }
+    state.nick = nick;
+    return nick;
+  }
+
   async function submitPix() {
-    var nick = ($("checkout-nick") || {}).value || "";
     var email = ($("checkout-email") || {}).value || "";
     var cpf = ($("checkout-cpf") || {}).value || "";
 
-    state.nick = nick.trim();
     setMsg("Gerando Pix...", null);
     if (window.gzSetBtnLoading) window.gzSetBtnLoading($("btn-pay-pix"), true);
     else $("btn-pay-pix").disabled = true;
 
     try {
+      var nick = await ensureNickFound();
       var data = await createOrder({
         vip: state.vip,
         method: "pix",
-        nick: nick.trim(),
+        nick: nick,
         email: email.trim(),
         cpf: cpf.trim(),
       });
@@ -237,9 +260,6 @@
       return;
     }
 
-    var nick = ($("checkout-nick") || {}).value || "";
-    state.nick = nick.trim();
-
     var cardData;
     try {
       cardData = state.cardForm.getCardFormData();
@@ -258,10 +278,11 @@
     else $("btn-pay-card").disabled = true;
 
     try {
+      var nick = await ensureNickFound();
       var data = await createOrder({
         vip: state.vip,
         method: "credit_card",
-        nick: nick.trim(),
+        nick: nick,
         email: cardData.cardholderEmail || (($("checkout-email") || {}).value || ""),
         cpf: cardData.identificationNumber || (($("checkout-cpf") || {}).value || ""),
         cardToken: cardData.token,
@@ -403,6 +424,13 @@
     await ensureCatalog();
     syncPackFromPage();
     bindUI();
+    if (window.gzBindMinecraftNickLookup) {
+      state.nickLookup = window.gzBindMinecraftNickLookup({
+        inputId: "checkout-nick",
+        statusId: "checkout-nick-status",
+        avatarId: "checkout-nick-avatar",
+      });
+    }
     try {
       await loadPublicKey();
       setMsg("", null);
@@ -413,6 +441,7 @@
           window.GZ_USER = meData.user;
           if ($("checkout-nick") && !$("checkout-nick").value) {
             $("checkout-nick").value = meData.user.nick || "";
+            if (state.nickLookup) state.nickLookup.lookup();
           }
           if ($("checkout-email") && !$("checkout-email").value) {
             $("checkout-email").value = meData.user.email || "";

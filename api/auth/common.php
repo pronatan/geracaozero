@@ -38,6 +38,23 @@ function gz_save_user(array $user): bool
     return $res['ok'];
 }
 
+function gz_user_avatar_url(array $user): ?string
+{
+    $custom = trim((string) ($user['avatar'] ?? ''));
+    if ($custom !== '') {
+        return $custom;
+    }
+    $uuid = trim((string) ($user['mcUuid'] ?? ''));
+    if ($uuid !== '') {
+        return 'https://mc-heads.net/avatar/' . rawurlencode($uuid) . '/64';
+    }
+    $nick = trim((string) ($user['nick'] ?? ''));
+    if ($nick !== '') {
+        return 'https://mc-heads.net/avatar/' . rawurlencode($nick) . '/64';
+    }
+    return null;
+}
+
 function gz_public_user(array $user): array
 {
     return [
@@ -45,7 +62,9 @@ function gz_public_user(array $user): array
         'nick' => $user['nick'] ?? '',
         'email' => $user['email'] ?? '',
         'role' => $user['role'] ?? 'user',
-        'avatar' => $user['avatar'] ?? null,
+        'avatar' => gz_user_avatar_url($user),
+        'mcUuid' => $user['mcUuid'] ?? null,
+        'mcSource' => $user['mcSource'] ?? null,
         'createdAt' => $user['createdAt'] ?? null,
     ];
 }
@@ -74,7 +93,9 @@ function gz_admin_user_view(array $user): array
         'nick' => $user['nick'] ?? '',
         'email' => $user['email'] ?? '',
         'role' => $user['role'] ?? 'user',
-        'avatar' => $user['avatar'] ?? null,
+        'avatar' => gz_user_avatar_url($user),
+        'mcUuid' => $user['mcUuid'] ?? null,
+        'mcSource' => $user['mcSource'] ?? null,
         'createdAt' => $user['createdAt'] ?? null,
         'lastLoginAt' => $user['lastLoginAt'] ?? null,
     ];

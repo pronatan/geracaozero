@@ -1,5 +1,6 @@
 <?php
 require __DIR__ . '/auth/common.php';
+require_once __DIR__ . '/minecraft-lib.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     gz_respond(405, ['ok' => false, 'message' => 'Método não permitido']);
@@ -27,9 +28,21 @@ if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     gz_respond(400, ['ok' => false, 'message' => 'E-mail inválido']);
 }
 
-if ($nick === '' || strlen($nick) < 3) {
-    gz_respond(400, ['ok' => false, 'message' => 'Informe o nome (mín. 3 caracteres)']);
+if ($nick === '' || strlen($nick) < 3 || strlen($nick) > 16) {
+    gz_respond(400, ['ok' => false, 'message' => 'Informe o nick (3 a 16 caracteres)']);
 }
+if (!preg_match('/^[a-zA-Z0-9_]+$/', $nick)) {
+    gz_respond(400, ['ok' => false, 'message' => 'Nick só pode ter letras, números e _']);
+}
+
+$mc = gz_mc_lookup_nick($nick);
+if (empty($mc['found'])) {
+    gz_respond(400, [
+        'ok' => false,
+        'message' => $mc['message'] ?? 'Nick não encontrado na Mojang nem no TLauncher',
+    ]);
+}
+$nick = (string) $mc['nick'];
 
 if (!in_array($method, ['pix', 'credit_card'], true)) {
     gz_respond(400, ['ok' => false, 'message' => 'Forma de pagamento inválida']);
@@ -85,7 +98,7 @@ $orderBody = [
     'type' => 'online',
     'processing_mode' => 'automatic',
     'external_reference' => $externalReference,
-    'description' => $product['description'] . ' | Nome: ' . $nick,
+    'description' => $product['description'] . ' | Nick: ' . $nick,
     'total_amount' => $amount,
     'payer' => $payer,
     'items' => [
@@ -93,7 +106,7 @@ $orderBody = [
             'title' => $product['title'],
             'unit_price' => $amount,
             'quantity' => 1,
-            'description' => 'Nome: ' . $nick,
+            'description' => 'Nick: ' . $nick,
             'category_id' => 'others',
         ],
     ],

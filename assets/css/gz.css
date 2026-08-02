@@ -812,6 +812,29 @@ a.is-muted:hover {
   opacity: 0.95;
 }
 
+.mc-nick-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+.mc-nick-wrap .input {
+  flex: 1;
+}
+.mc-nick-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  image-rendering: pixelated;
+  border: 2px solid rgba(255, 242, 0, 0.45);
+  background: #111;
+  flex-shrink: 0;
+}
+.mc-lookup-status {
+  margin-top: 0.45rem;
+  margin-bottom: 0;
+  font-size: 0.85rem;
+}
+
 /* Evitar overflow da barra no desktop */
 @media screen and (min-width: 1024px) {
   .navbar-end .navbar-item,

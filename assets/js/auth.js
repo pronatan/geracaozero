@@ -139,12 +139,37 @@
 
     var registerForm = document.getElementById("form-register");
     if (registerForm) {
+      var nickLookup = null;
+      if (window.gzBindMinecraftNickLookup) {
+        nickLookup = window.gzBindMinecraftNickLookup({
+          inputId: "reg-nick",
+          statusId: "reg-nick-status",
+          avatarId: "reg-nick-avatar",
+        });
+      }
+
       registerForm.addEventListener("submit", async function (e) {
         e.preventDefault();
         var msg = document.getElementById("auth-msg");
         var btn = registerForm.querySelector('button[type="submit"]');
+        var nick = document.getElementById("reg-nick").value.trim();
+
+        if (nickLookup) {
+          var st = nickLookup.getState();
+          if (!st.found) {
+            await nickLookup.lookup();
+            st = nickLookup.getState();
+          }
+          if (!st.found) {
+            msg.className = "checkout-msg is-error";
+            msg.textContent = "Digite um nick válido encontrado na Mojang ou TLauncher.";
+            return;
+          }
+          if (st.data && st.data.nick) nick = st.data.nick;
+        }
+
         var payload = {
-          nick: document.getElementById("reg-nick").value.trim(),
+          nick: nick,
           email: document.getElementById("reg-email").value.trim(),
           password: document.getElementById("reg-password").value,
           passwordConfirm: document.getElementById("reg-password2").value,

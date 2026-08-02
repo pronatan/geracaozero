@@ -10,7 +10,7 @@ $login = trim((string) ($input['login'] ?? $input['email'] ?? $input['nick'] ?? 
 $password = (string) ($input['password'] ?? '');
 
 if ($login === '' || $password === '') {
-    gz_respond(400, ['ok' => false, 'message' => 'Informe e-mail/nome e senha']);
+    gz_respond(400, ['ok' => false, 'message' => 'Informe e-mail/nick e senha']);
 }
 
 $user = null;

@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/gz.css?v=16">
+  <link rel="stylesheet" href="assets/css/gz.css?v=17">
 </head>
 <body>
 
@@ -56,10 +56,12 @@
             <p id="auth-msg" class="checkout-msg is-hidden" aria-live="polite"></p>
             <form id="form-register">
               <div class="field">
-                <label class="label" for="reg-nick">Nome</label>
-                <div class="control">
-                  <input id="reg-nick" class="input" type="text" maxlength="32" required autocomplete="username">
+                <label class="label" for="reg-nick">Nick no Minecraft</label>
+                <div class="control mc-nick-wrap">
+                  <img id="reg-nick-avatar" class="mc-nick-avatar is-hidden" alt="">
+                  <input id="reg-nick" class="input" type="text" maxlength="16" required autocomplete="username" placeholder="Digite o nick">
                 </div>
+                <p id="reg-nick-status" class="checkout-msg mc-lookup-status is-hidden" aria-live="polite"></p>
               </div>
               <div class="field">
                 <label class="label" for="reg-email">E-mail</label>
@@ -102,7 +104,8 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="assets/js/config.js?v=3"></script>
 <script src="assets/js/gz.js?v=8"></script>
-<script src="assets/js/auth.js?v=13"></script>
+<script src="assets/js/mc-lookup.js?v=1"></script>
+<script src="assets/js/auth.js?v=14"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
 <script src="assets/js/password-toggle.js?v=4"></script>
 </body>

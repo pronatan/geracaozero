@@ -107,7 +107,7 @@
         "</td></tr>";
     }).join("");
     $("orders-table").innerHTML =
-      '<table class="admin-table"><thead><tr><th>ID</th><th>Nome</th><th>VIP</th><th>Valor</th><th>Método</th><th>Status</th><th>Entrega</th><th>Criado</th><th></th></tr></thead><tbody>' +
+      '<table class="admin-table"><thead><tr><th>ID</th><th>Nick</th><th>VIP</th><th>Valor</th><th>Método</th><th>Status</th><th>Entrega</th><th>Criado</th><th></th></tr></thead><tbody>' +
       (rows || "<tr><td colspan='9'>Nenhum pedido</td></tr>") +
       "</tbody></table>";
   }
@@ -131,7 +131,7 @@
         "</td></tr>";
     }).join("");
     $("users-table").innerHTML =
-      '<table class="admin-table"><thead><tr><th>Nome</th><th>E-mail</th><th>Role</th><th>Criado</th><th></th></tr></thead><tbody>' +
+      '<table class="admin-table"><thead><tr><th>Nick</th><th>E-mail</th><th>Role</th><th>Criado</th><th></th></tr></thead><tbody>' +
       (rows || "<tr><td colspan='5'>Nenhum usuário</td></tr>") +
       "</tbody></table>";
   }
