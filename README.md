@@ -34,6 +34,14 @@ Endpoints:
 
 Na navbar aparecem **Entrar** e **Criar conta**. Depois do login: nick + **Sair**.
 
+## Produção (AWS)
+
+- Conta AWS: `adm-geracaozero` (profile CLI `geracaozero`)
+- Elastic Beanstalk app: `geracaozero` / env: `geracaozero-prod`
+- URL: http://geracaozero-prod.eba-xbechmnn.us-east-1.elasticbeanstalk.com
+- Stack: PHP 8.4 / Amazon Linux 2023 / SingleInstance `t3.micro`
+- Repo GitHub: https://github.com/pronatan/geracaozero
+
 ## Abrir local
 
 O checkout precisa de **PHP** (Live Server/`npx serve` não executa `api/*.php`).

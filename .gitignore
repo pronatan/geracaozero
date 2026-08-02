@@ -4,3 +4,4 @@
 api/logs/
 data/users.json
 *.log
+.aws-tmp/
