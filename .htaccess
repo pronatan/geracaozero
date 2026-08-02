@@ -33,19 +33,22 @@ DirectoryIndex index.html
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
+  # ALB termina TLS: conexão local é HTTP — marcar HTTPS via X-Forwarded-Proto
+  SetEnvIf X-Forwarded-Proto "https" HTTPS=on
+
   # Passar Authorization para o PHP (Bearer token)
   RewriteCond %{HTTP:Authorization} .
   RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
   # /index.html ou /index → /
   RewriteCond %{THE_REQUEST} \s/+index\.html[\s?] [NC]
-  RewriteRule ^index\.html$ / [R=301,L]
+  RewriteRule ^index\.html$ https://%{HTTP_HOST}/ [R=301,L]
   RewriteCond %{THE_REQUEST} \s/+index[\s?] [NC]
-  RewriteRule ^index$ / [R=301,L]
+  RewriteRule ^index$ https://%{HTTP_HOST}/ [R=301,L]
 
-  # /pagina.html → /pagina (URLs limpas)
+  # /pagina.html → /pagina (URLs limpas, sempre HTTPS)
   RewriteCond %{THE_REQUEST} \s/+(.+?)\.html[\s?] [NC]
-  RewriteRule ^ /%1 [R=301,L]
+  RewriteRule ^ https://%{HTTP_HOST}/%1 [R=301,L]
 
   # Servir arquivo .html para URL sem extensão
   RewriteCond %{REQUEST_FILENAME} !-f
