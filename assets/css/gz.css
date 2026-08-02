@@ -821,18 +821,22 @@ a.is-muted:hover {
   flex: 1;
 }
 .mc-nick-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
   image-rendering: pixelated;
-  border: 2px solid rgba(255, 242, 0, 0.45);
+  border: 1px solid rgba(255, 242, 0, 0.4);
   background: #111;
   flex-shrink: 0;
 }
 .mc-lookup-status {
-  margin-top: 0.45rem;
+  margin-top: 0.3rem;
   margin-bottom: 0;
-  font-size: 0.85rem;
+  font-size: 0.72rem;
+  line-height: 1.25;
+}
+.mc-lookup-status.is-error {
+  font-size: 0.68rem;
 }
 
 /* Evitar overflow da barra no desktop */

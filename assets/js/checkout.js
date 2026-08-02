@@ -212,7 +212,7 @@
       st = state.nickLookup.getState();
     }
     if (!st.found) {
-      throw new Error("Digite um nick válido encontrado na Mojang ou TLauncher.");
+      throw new Error("Digite um nick válido.");
     }
     if (st.data && st.data.nick) {
       nick = st.data.nick;

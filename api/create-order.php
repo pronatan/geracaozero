@@ -39,7 +39,7 @@ $mc = gz_mc_lookup_nick($nick);
 if (empty($mc['found'])) {
     gz_respond(400, [
         'ok' => false,
-        'message' => $mc['message'] ?? 'Nick não encontrado na Mojang nem no TLauncher',
+        'message' => $mc['message'] ?? 'Nick não encontrado',
     ]);
 }
 $nick = (string) $mc['nick'];

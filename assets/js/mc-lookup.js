@@ -64,7 +64,7 @@
       }
 
       var reqId = ++lastReq;
-      setStatus("Buscando conta (Mojang / TLauncher)…", null);
+      setStatus("Buscando…", null);
 
       try {
         var res = await (w.gzFetch
@@ -87,7 +87,7 @@
             input.value = data.nick;
           }
           setAvatar(data.avatar || "");
-          setStatus("Conta encontrada: " + data.nick + " (" + (data.sourceLabel || data.source) + ")", "ok");
+          setStatus("Conta encontrada", "ok");
           if (opts.onFound) opts.onFound(data);
         } else {
           setAvatar("");

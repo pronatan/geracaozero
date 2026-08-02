@@ -162,7 +162,7 @@
           }
           if (!st.found) {
             msg.className = "checkout-msg is-error";
-            msg.textContent = "Digite um nick válido encontrado na Mojang ou TLauncher.";
+            msg.textContent = "Digite um nick válido.";
             return;
           }
           if (st.data && st.data.nick) nick = st.data.nick;

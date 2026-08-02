@@ -85,7 +85,7 @@ function gz_mc_lookup_nick(string $nick): array
             return [
                 'found' => true,
                 'source' => 'mojang',
-                'sourceLabel' => 'Mojang (oficial)',
+                'sourceLabel' => 'Mojang',
                 'nick' => $name,
                 'uuid' => $uuid,
                 'uuidDashed' => gz_mc_format_uuid($uuid),
@@ -107,7 +107,7 @@ function gz_mc_lookup_nick(string $nick): array
         return [
             'found' => true,
             'source' => 'ely',
-            'sourceLabel' => 'TLauncher / Ely.by',
+            'sourceLabel' => 'TLauncher',
             'nick' => $name,
             'uuid' => $uuid,
             'uuidDashed' => gz_mc_format_uuid($uuid),
@@ -127,7 +127,7 @@ function gz_mc_lookup_nick(string $nick): array
             'uuid' => null,
             'uuidDashed' => null,
             'avatar' => null,
-            'message' => 'Não foi possível consultar Mojang/TLauncher agora. Tente de novo em instantes.',
+            'message' => 'Não foi possível consultar o nick agora. Tente de novo.',
         ];
     }
 
@@ -140,6 +140,6 @@ function gz_mc_lookup_nick(string $nick): array
         'uuid' => null,
         'uuidDashed' => null,
         'avatar' => null,
-        'message' => 'Nick não encontrado na Mojang nem no TLauncher (Ely.by)',
+        'message' => 'Nick não encontrado',
     ];
 }
