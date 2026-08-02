@@ -165,18 +165,48 @@ if ($type === 'order' || str_starts_with(strtoupper($dataId), 'ORD') || $type ==
     // Se não for order, tenta payment (legacy)
 }
 
-// Pagamentos legacy
+// Pagamentos legacy (id numérico). IDs "PAY..." da Orders API não existem em /v1/payments.
 if ($type === 'payment' || $type === 'payment.updated' || ctype_digit($dataId) || !$type) {
-    $result = gz_mp_request('GET', '/v1/payments/' . rawurlencode($dataId));
-    gz_log('webhook-payments.log', [
-        'paymentId' => $dataId,
-        'type' => $type,
-        'ok' => $result['ok'],
-        'status' => $result['body']['status'] ?? null,
-        'body' => $result['body'],
-    ]);
-    if ($result['ok']) {
-        gz_mp_apply_payment_update($result['body']);
+    if (preg_match('/^PAY/i', $dataId)) {
+        // Tenta achar a order local que já guardou esse paymentId e atualiza via /v1/orders
+        $existing = null;
+        foreach (gz_ddb_scan_all(gz_orders_table(), 200) as $row) {
+            if (($row['paymentId'] ?? '') === $dataId || ($row['id'] ?? '') === $dataId) {
+                $existing = $row;
+                break;
+            }
+        }
+        $orderKey = (string) ($existing['orderId'] ?? $existing['id'] ?? '');
+        if ($orderKey !== '') {
+            $result = gz_mp_request('GET', '/v1/orders/' . rawurlencode($orderKey));
+            gz_log('webhook-payments.log', [
+                'paymentId' => $dataId,
+                'resolvedOrderId' => $orderKey,
+                'ok' => $result['ok'],
+                'status' => $result['body']['status'] ?? null,
+            ]);
+            if ($result['ok']) {
+                gz_mp_apply_order_update($orderKey, $result['body']);
+            }
+        } else {
+            gz_log('webhook-payments.log', [
+                'paymentId' => $dataId,
+                'ok' => false,
+                'note' => 'PAY id without local order; waiting numeric payment webhook',
+            ]);
+        }
+    } else {
+        $result = gz_mp_request('GET', '/v1/payments/' . rawurlencode($dataId));
+        gz_log('webhook-payments.log', [
+            'paymentId' => $dataId,
+            'type' => $type,
+            'ok' => $result['ok'],
+            'status' => $result['body']['status'] ?? null,
+            'body' => $result['body'],
+        ]);
+        if ($result['ok']) {
+            gz_mp_apply_payment_update($result['body']);
+        }
     }
 }
 
