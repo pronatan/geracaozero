@@ -1,11 +1,19 @@
 /**
- * Toggle mostrar/ocultar senha com ícones pixel.
+ * Toggle mostrar/ocultar senha — Font Awesome (fa-eye / fa-eye-slash).
  */
 (function () {
   "use strict";
 
-  var EYE = "assets/img/icon-eye-pixel.png?v=2";
-  var EYE_OFF = "assets/img/icon-eye-off-pixel.png?v=2";
+  function setIcon(btn, visible) {
+    btn.innerHTML = visible
+      ? '<i class="fas fa-eye gz-password-eye" aria-hidden="true"></i>'
+      : '<i class="fas fa-eye-slash gz-password-eye" aria-hidden="true"></i>';
+    btn.setAttribute("aria-label", visible ? "Ocultar senha" : "Mostrar senha");
+    btn.setAttribute("title", visible ? "Ocultar senha" : "Mostrar senha");
+    if (window.FontAwesome && FontAwesome.dom && typeof FontAwesome.dom.i2svg === "function") {
+      try { FontAwesome.dom.i2svg({ node: btn }); } catch (e) { /* ignore */ }
+    }
+  }
 
   function wrapInput(input) {
     if (!input || input.dataset.pwToggle === "1") return;
@@ -22,20 +30,14 @@
     var btn = document.createElement("button");
     btn.type = "button";
     btn.className = "gz-password-toggle";
-    btn.setAttribute("aria-label", "Mostrar senha");
-    btn.setAttribute("title", "Mostrar senha");
-    btn.innerHTML =
-      '<img class="gz-password-eye" src="' + EYE_OFF + '" alt="" width="20" height="20">';
+    setIcon(btn, false);
 
     btn.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
       var show = input.type === "password";
       input.type = show ? "text" : "password";
-      var img = btn.querySelector("img");
-      if (img) img.src = show ? EYE : EYE_OFF;
-      btn.setAttribute("aria-label", show ? "Ocultar senha" : "Mostrar senha");
-      btn.setAttribute("title", show ? "Ocultar senha" : "Mostrar senha");
+      setIcon(btn, show);
       input.focus();
     });
 

@@ -544,7 +544,7 @@ a.is-muted:hover {
   flex: 0 0 auto;
 }
 
-/* Senha: mostrar / ocultar */
+/* Senha: mostrar / ocultar — só o ícone */
 .gz-password-wrap {
   position: relative !important;
   display: block !important;
@@ -554,50 +554,51 @@ a.is-muted:hover {
 .gz-password-input {
   display: block !important;
   width: 100% !important;
-  padding-right: 2.85rem !important;
+  padding-right: 2.6rem !important;
   box-sizing: border-box !important;
 }
 .gz-password-toggle {
   position: absolute !important;
-  right: 0.4rem !important;
+  right: 0.35rem !important;
   top: 50% !important;
   bottom: auto !important;
   left: auto !important;
   transform: translateY(-50%) !important;
-  width: 1.85rem !important;
-  height: 1.85rem !important;
-  min-width: 1.85rem !important;
-  min-height: 1.85rem !important;
-  max-width: 1.85rem !important;
-  max-height: 1.85rem !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
   margin: 0 !important;
-  padding: 0 !important;
-  border: 2px solid var(--ciano) !important;
-  border-radius: 2px !important;
-  background: #001f5c !important;
+  padding: 0.15rem !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
   cursor: pointer !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  line-height: 1 !important;
+  line-height: 0 !important;
   z-index: 5 !important;
-  box-shadow: none !important;
   appearance: none !important;
   -webkit-appearance: none !important;
   font-size: 0 !important;
 }
 .gz-password-toggle:hover,
 .gz-password-toggle:focus {
-  border-color: var(--amarelo) !important;
-  background: #003a8c !important;
+  border: none !important;
+  background: transparent !important;
   outline: none !important;
+  opacity: 0.8;
 }
-.gz-password-eye {
-  width: 18px !important;
-  height: 18px !important;
-  object-fit: contain !important;
-  image-rendering: pixelated !important;
-  image-rendering: crisp-edges !important;
+.gz-password-toggle .gz-password-eye,
+.gz-password-toggle svg.svg-inline--fa.gz-password-eye,
+.gz-password-toggle svg.svg-inline--fa {
+  width: 1.45rem !important;
+  height: 1.45rem !important;
+  color: var(--navy) !important;
   display: block !important;
   pointer-events: none !important;
   margin: 0 !important;
