@@ -32,7 +32,7 @@ if ($method === 'POST') {
         gz_respond(400, ['ok' => false, 'message' => 'Role inválida (user|admin)']);
     }
     if (strlen($nick) < 3 || strlen($nick) > 32 || !preg_match('/^[a-zA-Z0-9_]+$/', $nick)) {
-        gz_respond(400, ['ok' => false, 'message' => 'Nick inválido']);
+        gz_respond(400, ['ok' => false, 'message' => 'Nome inválido']);
     }
     if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         gz_respond(400, ['ok' => false, 'message' => 'E-mail inválido']);
@@ -41,7 +41,7 @@ if ($method === 'POST') {
         gz_respond(400, ['ok' => false, 'message' => 'Senha mínima 6 caracteres']);
     }
     if (gz_find_user_by_email($email) || gz_find_user_by_nick($nick)) {
-        gz_respond(409, ['ok' => false, 'message' => 'Nick ou e-mail já cadastrado']);
+        gz_respond(409, ['ok' => false, 'message' => 'Nome ou e-mail já cadastrado']);
     }
 
     $user = [
@@ -85,11 +85,11 @@ if ($method === 'PUT' || $method === 'PATCH') {
     if (!empty($input['nick'])) {
         $nick = trim((string) $input['nick']);
         if (strlen($nick) < 3 || !preg_match('/^[a-zA-Z0-9_]+$/', $nick)) {
-            gz_respond(400, ['ok' => false, 'message' => 'Nick inválido']);
+            gz_respond(400, ['ok' => false, 'message' => 'Nome inválido']);
         }
         $other = gz_find_user_by_nick($nick);
         if ($other && ($other['id'] ?? '') !== $id) {
-            gz_respond(409, ['ok' => false, 'message' => 'Nick em uso']);
+            gz_respond(409, ['ok' => false, 'message' => 'Nome em uso']);
         }
         $user['nick'] = $nick;
     }

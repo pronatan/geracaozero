@@ -12,10 +12,10 @@ $password = (string) ($input['password'] ?? '');
 $password2 = (string) ($input['passwordConfirm'] ?? $input['password2'] ?? '');
 
 if (strlen($nick) < 3 || strlen($nick) > 32) {
-    gz_respond(400, ['ok' => false, 'message' => 'Nick deve ter entre 3 e 32 caracteres']);
+    gz_respond(400, ['ok' => false, 'message' => 'Nome deve ter entre 3 e 32 caracteres']);
 }
 if (!preg_match('/^[a-zA-Z0-9_]+$/', $nick)) {
-    gz_respond(400, ['ok' => false, 'message' => 'Nick só pode ter letras, números e _']);
+    gz_respond(400, ['ok' => false, 'message' => 'Nome só pode ter letras, números e _']);
 }
 if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     gz_respond(400, ['ok' => false, 'message' => 'E-mail inválido']);
@@ -30,7 +30,7 @@ if (gz_find_user_by_email($email)) {
     gz_respond(409, ['ok' => false, 'message' => 'Este e-mail já está cadastrado']);
 }
 if (gz_find_user_by_nick($nick)) {
-    gz_respond(409, ['ok' => false, 'message' => 'Este nick já está em uso']);
+    gz_respond(409, ['ok' => false, 'message' => 'Este nome já está em uso']);
 }
 
 $token = bin2hex(random_bytes(24));

@@ -28,7 +28,7 @@ if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
 }
 
 if ($nick === '' || strlen($nick) < 3) {
-    gz_respond(400, ['ok' => false, 'message' => 'Informe o nick do Minecraft (mín. 3 caracteres)']);
+    gz_respond(400, ['ok' => false, 'message' => 'Informe o nome (mín. 3 caracteres)']);
 }
 
 if (!in_array($method, ['pix', 'credit_card'], true)) {
@@ -85,7 +85,7 @@ $orderBody = [
     'type' => 'online',
     'processing_mode' => 'automatic',
     'external_reference' => $externalReference,
-    'description' => $product['description'] . ' | Nick: ' . $nick,
+    'description' => $product['description'] . ' | Nome: ' . $nick,
     'total_amount' => $amount,
     'payer' => $payer,
     'items' => [
@@ -93,7 +93,7 @@ $orderBody = [
             'title' => $product['title'],
             'unit_price' => $amount,
             'quantity' => 1,
-            'description' => 'Nick: ' . $nick,
+            'description' => 'Nome: ' . $nick,
             'category_id' => 'others',
         ],
     ],

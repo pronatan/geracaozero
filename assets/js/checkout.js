@@ -153,7 +153,7 @@
     show($("pix-result"), false);
     show($("pay-success"), true);
     $("pay-success-text").textContent =
-      "Pagamento confirmado para " + (data.nick || state.nick || "seu nick") +
+      "Pagamento confirmado para " + (data.nick || state.nick || "seu nome") +
       ". Em breve o VIP será liberado. Guarde o pedido: " + (data.externalReference || data.orderId || "");
     setMsg("Pagamento aprovado!", "ok");
   }
