@@ -333,12 +333,6 @@ footer.section {
   background: var(--branco);
 }
 
-.home-sobre-content .article-content {
-  border-top: 2px solid var(--navy);
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-}
-
 .home-forms-align {
   margin-top: 0.25rem;
 }
