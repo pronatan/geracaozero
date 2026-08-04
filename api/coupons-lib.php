@@ -107,7 +107,7 @@ function gz_coupon_increment_uses(string $code): void
 /** Fallback env map */
 function gz_coupons_map_env(): array
 {
-    $raw = trim(gz_env('GZ_COUPONS', ''));
+    $raw = trim(gz_env('GZ_COUPONS', 'STAFF10:10,EVENT15:15'));
     $out = [];
     if ($raw === '') {
         return $out;
