@@ -139,22 +139,62 @@
   function bindForms() {
     var loginForm = document.getElementById("form-login");
     if (loginForm) {
+      var stepCred = document.getElementById("login-step-credentials");
+      var step2fa = document.getElementById("login-step-2fa");
+      var pendingEl = document.getElementById("login-pending-token");
+      var back2fa = document.getElementById("login-2fa-back");
+      if (back2fa) {
+        back2fa.addEventListener("click", function () {
+          if (step2fa) step2fa.classList.add("is-hidden");
+          if (stepCred) stepCred.classList.remove("is-hidden");
+          if (pendingEl) pendingEl.value = "";
+          var codeEl = document.getElementById("login-2fa-code");
+          if (codeEl) codeEl.value = "";
+        });
+      }
       loginForm.addEventListener("submit", async function (e) {
         e.preventDefault();
         var msg = document.getElementById("auth-msg");
-        var btn = loginForm.querySelector('button[type="submit"]');
-        var login = document.getElementById("login-user").value.trim();
-        var password = document.getElementById("login-password").value;
+        var pending = pendingEl ? pendingEl.value.trim() : "";
+        var in2fa = step2fa && !step2fa.classList.contains("is-hidden") && pending;
+        var btn = in2fa
+          ? (step2fa.querySelector('button[type="submit"]') || loginForm.querySelector('button[type="submit"]'))
+          : (stepCred ? stepCred.querySelector('button[type="submit"]') : loginForm.querySelector('button[type="submit"]'));
         msg.className = "checkout-msg";
-        msg.textContent = "Entrando...";
+        msg.textContent = in2fa ? "Validando código..." : "Entrando...";
         setBtnLoading(btn, true);
         try {
+          var body;
+          if (in2fa) {
+            body = {
+              pendingToken: pending,
+              code: (document.getElementById("login-2fa-code").value || "").trim(),
+            };
+          } else {
+            body = {
+              login: document.getElementById("login-user").value.trim(),
+              password: document.getElementById("login-password").value,
+            };
+          }
           var res = await window.gzFetch("/api/auth/login.php", {
             method: "POST",
-            body: JSON.stringify({ login: login, password: password }),
+            body: JSON.stringify(body),
           });
           var data = await res.json();
           if (!res.ok || !data.ok) throw new Error(data.message || "Falha no login");
+          if (data.requires2fa && data.pendingToken) {
+            if (pendingEl) pendingEl.value = data.pendingToken;
+            if (stepCred) stepCred.classList.add("is-hidden");
+            if (step2fa) step2fa.classList.remove("is-hidden");
+            var hint = document.getElementById("login-2fa-hint");
+            if (hint) hint.textContent = data.message || "Informe o código 2FA.";
+            msg.className = "checkout-msg is-ok";
+            msg.textContent = data.message || "Código enviado.";
+            setBtnLoading(btn, false);
+            var codeFocus = document.getElementById("login-2fa-code");
+            if (codeFocus) codeFocus.focus();
+            return;
+          }
           if (data.token && window.gzSetToken) window.gzSetToken(data.token);
           msg.className = "checkout-msg is-ok";
           msg.textContent = "Login ok! Redirecionando...";

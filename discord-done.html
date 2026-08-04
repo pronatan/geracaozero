@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Discord - Geração Zero</title>
+  <link rel="icon" type="image/png" href="assets/img/logo.png?v=1">
+  <link rel="stylesheet" href="assets/css/bulma.min.css">
+  <link rel="stylesheet" href="assets/css/gz.css?v=29">
+</head>
+<body>
+<main class="section">
+  <div class="container" style="max-width:28rem;text-align:center">
+    <article class="article">
+      <h1 class="article-title"><i class="fab fa-discord"></i> Discord</h1>
+      <div class="article-content">
+        <p id="msg">Finalizando login...</p>
+        <a href="/" class="button is-primary">Início</a>
+        <a href="/conta" class="button is-link">Minha conta</a>
+      </div>
+    </article>
+  </div>
+</main>
+<script src="assets/js/config.js?v=3"></script>
+<script src="assets/js/gz.js?v=9"></script>
+<script>
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var token = params.get("token") || "";
+  var msg = document.getElementById("msg");
+  if (token && window.gzSetToken) {
+    window.gzSetToken(token);
+    msg.textContent = "Login com Discord ok! Redirecionando...";
+    setTimeout(function () { window.location.href = "/conta"; }, 700);
+  } else {
+    msg.textContent = "Token ausente. Tente entrar de novo.";
+  }
+})();
+</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
+</body>
+</html>

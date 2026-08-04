@@ -82,7 +82,17 @@ function gz_save_coupon(array $coupon): bool
     if ($n['createdAt'] === '') {
         $n['createdAt'] = $n['updatedAt'];
     }
-    return (bool) gz_ddb_put(gz_coupons_table(), $n);
+    // Garantir tipos numéricos (DynamoDB N)
+    $n['percent'] = (float) $n['percent'];
+    $n['maxUses'] = (int) $n['maxUses'];
+    $n['usedCount'] = (int) $n['usedCount'];
+    $n['active'] = !empty($n['active']);
+    $res = gz_ddb_put(gz_coupons_table(), $n);
+    if (empty($res['ok'])) {
+        gz_log('coupons.log', ['action' => 'save_fail', 'code' => $n['code'], 'body' => $res['body'] ?? null]);
+        return false;
+    }
+    return true;
 }
 
 function gz_delete_coupon(string $code): bool
@@ -91,7 +101,12 @@ function gz_delete_coupon(string $code): bool
     if ($code === '') {
         return false;
     }
-    return (bool) gz_ddb_delete(gz_coupons_table(), ['code' => $code]);
+    $res = gz_ddb_delete(gz_coupons_table(), ['code' => $code]);
+    if (empty($res['ok'])) {
+        gz_log('coupons.log', ['action' => 'delete_fail', 'code' => $code, 'body' => $res['body'] ?? null]);
+        return false;
+    }
+    return true;
 }
 
 function gz_coupon_increment_uses(string $code): void

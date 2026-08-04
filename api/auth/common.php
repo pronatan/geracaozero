@@ -57,6 +57,10 @@ function gz_user_avatar_url(array $user): ?string
 
 function gz_public_user(array $user): array
 {
+    $linked = $user['linkedAccounts'] ?? [];
+    if (!is_array($linked)) {
+        $linked = [];
+    }
     return [
         'id' => $user['id'] ?? null,
         'nick' => $user['nick'] ?? '',
@@ -65,6 +69,12 @@ function gz_public_user(array $user): array
         'avatar' => gz_user_avatar_url($user),
         'mcUuid' => $user['mcUuid'] ?? null,
         'mcSource' => $user['mcSource'] ?? null,
+        'linkedAccounts' => array_values($linked),
+        'twoFactorEnabled' => !empty($user['twoFactorEnabled']),
+        'twoFactorChannel' => (string) ($user['twoFactorChannel'] ?? 'email'),
+        'discordId' => $user['discordId'] ?? null,
+        'discordUsername' => $user['discordUsername'] ?? null,
+        'discordOAuthReady' => trim(gz_env('DISCORD_CLIENT_ID', '')) !== '',
         'createdAt' => $user['createdAt'] ?? null,
     ];
 }

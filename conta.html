@@ -116,6 +116,68 @@
             <a id="conta-admin-link" href="/admin" class="button is-link is-fullwidth is-hidden" style="margin-top:0.75rem">Acessar painel</a>
           </div>
         </article>
+
+        <article class="article" style="margin-top:1.5rem">
+          <h1 class="article-title"><i class="fas fa-shield-alt"></i> Segurança (2FA)</h1>
+          <div class="article-content">
+            <p class="checkout-note">Código enviado por e-mail (Amazon SES) ou DM do Discord.</p>
+            <div class="field">
+              <label class="checkbox">
+                <input id="conta-2fa-enabled" type="checkbox"> Ativar autenticação em duas etapas
+              </label>
+            </div>
+            <div class="field">
+              <label class="label" for="conta-2fa-channel">Canal do código</label>
+              <div class="control">
+                <div class="select is-fullwidth">
+                  <select id="conta-2fa-channel">
+                    <option value="email">E-mail (SES)</option>
+                    <option value="discord">Discord (DM)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <button type="button" id="btn-save-2fa" class="button is-warning is-fullwidth">Salvar 2FA</button>
+          </div>
+        </article>
+
+        <article class="article" style="margin-top:1.5rem">
+          <h1 class="article-title"><i class="fab fa-discord"></i> Discord</h1>
+          <div class="article-content">
+            <p id="conta-discord-status">Não vinculado</p>
+            <a id="conta-discord-link" href="/api/auth/discord-start.php" class="button is-link is-fullwidth" style="background:#5865F2;border-color:#5865F2">Vincular Discord</a>
+            <button type="button" id="btn-unlink-discord" class="button is-light is-fullwidth is-hidden" style="margin-top:0.5rem">Desvincular</button>
+          </div>
+        </article>
+
+        <article class="article" style="margin-top:1.5rem">
+          <h1 class="article-title"><i class="fas fa-link"></i> Contas Minecraft</h1>
+          <div class="article-content">
+            <p class="checkout-note">Vincule Java, Bedrock e TLauncher (até 8).</p>
+            <div id="conta-linked-list">Carregando...</div>
+            <hr>
+            <div class="field">
+              <label class="label" for="link-type">Tipo</label>
+              <div class="control">
+                <div class="select is-fullwidth">
+                  <select id="link-type">
+                    <option value="java">Java (Mojang)</option>
+                    <option value="bedrock">Bedrock (Xbox Gamertag)</option>
+                    <option value="tlauncher">TLauncher / Ely.by</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="field">
+              <label class="label" for="link-nick">Nick / Gamertag</label>
+              <div class="control">
+                <input id="link-nick" class="input" type="text" maxlength="32" placeholder="SeuNick">
+              </div>
+              <p id="link-nick-status" class="checkout-msg is-hidden"></p>
+            </div>
+            <button type="button" id="btn-add-linked" class="button is-success is-fullwidth">Vincular conta</button>
+          </div>
+        </article>
       </div>
 
       <div class="column is-7">
@@ -149,8 +211,9 @@
 <script src="assets/js/config.js?v=3"></script>
 <script src="assets/js/gz.js?v=9"></script>
 <script src="assets/js/avatar.js?v=2"></script>
-<script src="assets/js/auth.js?v=17"></script>
-<script src="assets/js/conta.js?v=9"></script>
+<script src="assets/js/auth.js?v=18"></script>
+<script src="assets/js/mc-lookup.js?v=5"></script>
+<script src="assets/js/conta.js?v=10"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
 <script src="assets/js/password-toggle.js?v=4"></script>
 </body>

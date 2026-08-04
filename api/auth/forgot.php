@@ -1,5 +1,9 @@
 <?php
+/**
+ * Atualiza forgot.php para usar SES
+ */
 require __DIR__ . '/common.php';
+require_once dirname(__DIR__) . '/mail.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     gz_respond(405, ['ok' => false, 'message' => 'Método não permitido']);
@@ -12,11 +16,10 @@ if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
 }
 
 $user = gz_find_user_by_email($email);
-// Resposta genérica (não revela se o e-mail existe)
 $generic = [
     'ok' => true,
-    'message' => 'Se o e-mail existir, enviaremos instruções. Sem e-mail configurado no servidor, abra um ticket no Discord.',
-    'mailConfigured' => false,
+    'message' => 'Se o e-mail existir, enviaremos instruções.',
+    'mailConfigured' => gz_mail_configured(),
 ];
 
 if (!$user) {
@@ -29,28 +32,30 @@ $user['resetExpires'] = date('c', time() + 3600);
 $user['updatedAt'] = date('c');
 gz_save_user($user);
 
-$mailFrom = trim(gz_env('MAIL_FROM', ''));
 $siteUrl = rtrim(gz_env('SITE_URL', 'https://geracaozero.ddnsfree.com'), '/');
 $resetUrl = $siteUrl . '/reset-senha?token=' . urlencode($token);
 
-if ($mailFrom !== '') {
-    $subject = 'Recuperar senha - Geração Zero';
-    $body = "Olá {$user['nick']},\n\nPara redefinir sua senha, abra:\n{$resetUrl}\n\nO link expira em 1 hora.\nSe não foi você, ignore este e-mail.\n";
-    $headers = 'From: ' . $mailFrom . "\r\n" . 'Content-Type: text/plain; charset=UTF-8';
-    $sent = @mail($email, $subject, $body, $headers);
+if (gz_mail_configured()) {
+    $nick = (string) ($user['nick'] ?? '');
+    $text = "Olá {$nick},\n\nPara redefinir sua senha no Geração Zero, abra:\n{$resetUrl}\n\nO link expira em 1 hora.\nSe não foi você, ignore este e-mail.\n";
+    $html = '<p>Olá <b>' . htmlspecialchars($nick, ENT_QUOTES, 'UTF-8') . '</b>,</p>' .
+        '<p>Para redefinir sua senha, clique:</p>' .
+        '<p><a href="' . htmlspecialchars($resetUrl, ENT_QUOTES, 'UTF-8') . '">Redefinir senha</a></p>' .
+        '<p>O link expira em 1 hora.</p>';
+    $sent = gz_mail_send($email, 'Recuperar senha - Geração Zero', $text, $html);
     gz_respond(200, [
         'ok' => true,
         'mailConfigured' => true,
-        'message' => $sent
+        'message' => $sent['ok']
             ? 'Enviamos um link de recuperação para o seu e-mail.'
-            : 'Não foi possível enviar o e-mail. Abra um ticket no Discord.',
+            : ('Não foi possível enviar o e-mail: ' . ($sent['message'] ?? 'erro SES') . '. Abra ticket no Discord.'),
     ]);
 }
 
 $dev = strtolower(gz_env('GZ_RESET_DEV', 'false')) === 'true';
 $payload = $generic;
+$payload['message'] = 'E-mail SES ainda não configurado (MAIL_FROM). Abra um ticket no Discord ou ative o SES.';
 if ($dev) {
     $payload['devResetUrl'] = $resetUrl;
-    $payload['message'] = 'Modo dev: use o link de reset (e-mail ainda não configurado).';
 }
 gz_respond(200, $payload);

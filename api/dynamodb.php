@@ -227,7 +227,13 @@ function gz_php_to_item(array $data): array
 {
     $out = [];
     foreach ($data as $k => $v) {
-        if ($v === null || $v === '') continue;
+        // Não pular false/0 — só null e string vazia
+        if ($v === null) {
+            continue;
+        }
+        if (is_string($v) && $v === '') {
+            continue;
+        }
         $out[$k] = gz_php_to_ddb($v);
     }
     return $out;

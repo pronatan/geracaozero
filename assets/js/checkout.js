@@ -340,6 +340,13 @@
     else $("btn-pay-pix").disabled = true;
 
     try {
+      var typedCoupon = (($("checkout-coupon") && $("checkout-coupon").value) || "").trim();
+      if (typedCoupon && (!state.coupon || state.coupon.toUpperCase() !== typedCoupon.toUpperCase())) {
+        await applyCoupon();
+        if (typedCoupon && !state.coupon) {
+          throw new Error(($("checkout-coupon-status") && $("checkout-coupon-status").textContent) || "Cupom inválido");
+        }
+      }
       var nick = await ensureNickFound();
       var data = await createOrder({
         vip: state.vip,
@@ -391,6 +398,13 @@
     else $("btn-pay-card").disabled = true;
 
     try {
+      var typedCouponCard = (($("checkout-coupon") && $("checkout-coupon").value) || "").trim();
+      if (typedCouponCard && (!state.coupon || state.coupon.toUpperCase() !== typedCouponCard.toUpperCase())) {
+        await applyCoupon();
+        if (typedCouponCard && !state.coupon) {
+          throw new Error(($("checkout-coupon-status") && $("checkout-coupon-status").textContent) || "Cupom inválido");
+        }
+      }
       var nick = await ensureNickFound();
       var data = await createOrder({
         vip: state.vip,

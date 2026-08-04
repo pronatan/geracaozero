@@ -74,20 +74,37 @@
           <div class="article-content">
             <p id="auth-msg" class="checkout-msg is-hidden" aria-live="polite"></p>
             <form id="form-login">
-              <div class="field">
-                <label class="label" for="login-user">E-mail ou nick</label>
-                <div class="control">
-                  <input id="login-user" class="input" type="text" required autocomplete="username">
+              <div id="login-step-credentials">
+                <div class="field">
+                  <label class="label" for="login-user">E-mail ou nick</label>
+                  <div class="control">
+                    <input id="login-user" class="input" type="text" required autocomplete="username">
+                  </div>
                 </div>
-              </div>
-              <div class="field">
-                <label class="label" for="login-password">Senha</label>
-                <div class="control">
-                  <input id="login-password" class="input" type="password" required autocomplete="current-password">
+                <div class="field">
+                  <label class="label" for="login-password">Senha</label>
+                  <div class="control">
+                    <input id="login-password" class="input" type="password" required autocomplete="current-password">
+                  </div>
                 </div>
+                <button type="submit" class="button is-success is-fullwidth">Entrar</button>
               </div>
-              <button type="submit" class="button is-success is-fullwidth">Entrar</button>
+              <div id="login-step-2fa" class="is-hidden">
+                <p class="checkout-note" id="login-2fa-hint">Informe o código 2FA enviado.</p>
+                <input type="hidden" id="login-pending-token" value="">
+                <div class="field">
+                  <label class="label" for="login-2fa-code">Código 2FA</label>
+                  <div class="control">
+                    <input id="login-2fa-code" class="input" type="text" inputmode="numeric" maxlength="8" autocomplete="one-time-code" placeholder="000000">
+                  </div>
+                </div>
+                <button type="submit" class="button is-success is-fullwidth">Confirmar código</button>
+                <button type="button" id="login-2fa-back" class="button is-light is-fullwidth" style="margin-top:0.5rem">Voltar</button>
+              </div>
             </form>
+            <a href="/api/auth/discord-start.php" class="button is-link is-fullwidth" style="margin-top:0.75rem;background:#5865F2;border-color:#5865F2">
+              <i class="fab fa-discord"></i>&nbsp; Entrar com Discord
+            </a>
             <p class="checkout-note" style="margin-top:0.75rem">
               <a href="/esqueci-senha">Esqueci minha senha</a>
             </p>
@@ -112,7 +129,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="assets/js/config.js?v=3"></script>
 <script src="assets/js/gz.js?v=9"></script>
-<script src="assets/js/auth.js?v=17"></script>
+<script src="assets/js/auth.js?v=18"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
 <script src="assets/js/password-toggle.js?v=4"></script>
 </body>

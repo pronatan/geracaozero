@@ -41,10 +41,18 @@ if ($method === 'POST' || $method === 'PUT' || $method === 'PATCH') {
     ];
 
     if (!gz_save_coupon($coupon)) {
-        gz_respond(500, ['ok' => false, 'message' => 'Falha ao salvar cupom']);
+        gz_respond(500, [
+            'ok' => false,
+            'message' => 'Falha ao salvar cupom no DynamoDB. Confira permissões IAM da tabela gz_coupons.',
+        ]);
+    }
+    // Confirma leitura após gravar
+    $saved = gz_coupon_by_code($code);
+    if (!$saved) {
+        gz_respond(500, ['ok' => false, 'message' => 'Cupom gravado, mas não foi possível ler de volta. Tente de novo.']);
     }
     gz_log('admin.log', ['action' => $method === 'POST' ? 'create_coupon' : 'update_coupon', 'by' => $admin['nick'] ?? '', 'code' => $code]);
-    gz_respond($method === 'POST' ? 201 : 200, ['ok' => true, 'coupon' => gz_normalize_coupon($coupon)]);
+    gz_respond($method === 'POST' ? 201 : 200, ['ok' => true, 'coupon' => $saved]);
 }
 
 if ($method === 'DELETE') {

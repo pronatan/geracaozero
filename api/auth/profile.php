@@ -149,6 +149,162 @@ if ($method === 'PUT' || $method === 'PATCH' || $method === 'POST') {
         }
     }
 
+    // 2FA (e-mail SES ou Discord DM)
+    if (array_key_exists('twoFactorEnabled', $input)) {
+        $enable = !empty($input['twoFactorEnabled']);
+        if ($enable) {
+            $channel = strtolower(trim((string) ($input['twoFactorChannel'] ?? ($user['twoFactorChannel'] ?? 'email'))));
+            if (!in_array($channel, ['email', 'discord'], true)) {
+                $channel = 'email';
+            }
+            if ($channel === 'email') {
+                require_once dirname(__DIR__) . '/mail.php';
+                if (!gz_mail_configured()) {
+                    gz_respond(503, ['ok' => false, 'message' => 'MAIL_FROM/SES não configurado. Contate a staff.']);
+                }
+                if (empty($user['email'])) {
+                    gz_respond(400, ['ok' => false, 'message' => 'Defina um e-mail antes de ativar 2FA']);
+                }
+            } else {
+                if (empty($user['discordId'])) {
+                    gz_respond(400, ['ok' => false, 'message' => 'Vincule o Discord antes de usar 2FA por Discord']);
+                }
+                require_once dirname(__DIR__) . '/discord.php';
+                if (gz_discord_bot_token() === '') {
+                    gz_respond(503, ['ok' => false, 'message' => 'Bot Discord (DISCORD_BOT_TOKEN) não configurado']);
+                }
+            }
+            $user['twoFactorEnabled'] = true;
+            $user['twoFactorChannel'] = $channel;
+        } else {
+            $user['twoFactorEnabled'] = false;
+            unset($user['twoFactorCodeHash'], $user['twoFactorPendingHash'], $user['twoFactorExpires']);
+        }
+    } elseif (!empty($input['twoFactorChannel'])) {
+        $channel = strtolower(trim((string) $input['twoFactorChannel']));
+        if (in_array($channel, ['email', 'discord'], true)) {
+            $user['twoFactorChannel'] = $channel;
+        }
+    }
+
+    // Desvincular Discord
+    if (!empty($input['unlinkDiscord'])) {
+        unset($user['discordId'], $user['discordUsername']);
+        if (($user['twoFactorChannel'] ?? '') === 'discord') {
+            $user['twoFactorChannel'] = 'email';
+        }
+    }
+
+    // Contas vinculadas (Java / Bedrock / TLauncher)
+    if (array_key_exists('linkedAccounts', $input) && is_array($input['linkedAccounts'])) {
+        require_once dirname(__DIR__) . '/minecraft-lib.php';
+        $linked = [];
+        foreach ($input['linkedAccounts'] as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $type = strtolower(trim((string) ($row['type'] ?? 'java')));
+            if (!in_array($type, ['java', 'bedrock', 'tlauncher'], true)) {
+                $type = 'java';
+            }
+            $nick = trim((string) ($row['nick'] ?? ''));
+            if ($nick === '' || strlen($nick) > 32) {
+                continue;
+            }
+            $entry = [
+                'type' => $type,
+                'nick' => $nick,
+                'uuid' => null,
+                'source' => $type,
+            ];
+            if ($type === 'bedrock') {
+                // Gamertag Bedrock — sem lookup Mojang
+                $entry['nick'] = preg_replace('/\s+/', ' ', $nick) ?? $nick;
+            } else {
+                $look = gz_mc_lookup_nick($nick);
+                if (empty($look['found'])) {
+                    gz_respond(400, [
+                        'ok' => false,
+                        'message' => 'Nick inválido (' . $type . '): ' . $nick .
+                            ($look['message'] ?? ''),
+                    ]);
+                }
+                $entry['nick'] = (string) ($look['nick'] ?? $nick);
+                $entry['uuid'] = $look['uuid'] ?? null;
+                $entry['source'] = $look['source'] ?? $type;
+                if ($type === 'tlauncher' && ($look['source'] ?? '') === 'mojang') {
+                    // ok — pode ser premium também
+                }
+            }
+            $linked[] = $entry;
+            if (count($linked) >= 8) {
+                break;
+            }
+        }
+        $user['linkedAccounts'] = $linked;
+    }
+
+    // Atalho: adicionar uma conta
+    if (!empty($input['addLinkedAccount']) && is_array($input['addLinkedAccount'])) {
+        require_once dirname(__DIR__) . '/minecraft-lib.php';
+        $row = $input['addLinkedAccount'];
+        $type = strtolower(trim((string) ($row['type'] ?? 'java')));
+        if (!in_array($type, ['java', 'bedrock', 'tlauncher'], true)) {
+            $type = 'java';
+        }
+        $nick = trim((string) ($row['nick'] ?? ''));
+        if ($nick === '') {
+            gz_respond(400, ['ok' => false, 'message' => 'Informe o nick da conta']);
+        }
+        $linked = $user['linkedAccounts'] ?? [];
+        if (!is_array($linked)) {
+            $linked = [];
+        }
+        if (count($linked) >= 8) {
+            gz_respond(400, ['ok' => false, 'message' => 'Máximo de 8 contas vinculadas']);
+        }
+        foreach ($linked as $ex) {
+            if (strcasecmp((string) ($ex['nick'] ?? ''), $nick) === 0 && ($ex['type'] ?? '') === $type) {
+                gz_respond(409, ['ok' => false, 'message' => 'Conta já vinculada']);
+            }
+        }
+        $entry = ['type' => $type, 'nick' => $nick, 'uuid' => null, 'source' => $type];
+        if ($type === 'bedrock') {
+            $entry['nick'] = preg_replace('/\s+/', ' ', $nick) ?? $nick;
+        } else {
+            $look = gz_mc_lookup_nick($nick);
+            if (empty($look['found'])) {
+                gz_respond(400, ['ok' => false, 'message' => $look['message'] ?? 'Nick não encontrado']);
+            }
+            $entry['nick'] = (string) ($look['nick'] ?? $nick);
+            $entry['uuid'] = $look['uuid'] ?? null;
+            $entry['source'] = $look['source'] ?? $type;
+        }
+        $linked[] = $entry;
+        $user['linkedAccounts'] = array_values($linked);
+    }
+
+    // Remover conta vinculada
+    if (!empty($input['removeLinkedAccount'])) {
+        $rm = $input['removeLinkedAccount'];
+        $rmNick = is_array($rm) ? trim((string) ($rm['nick'] ?? '')) : trim((string) $rm);
+        $rmType = is_array($rm) ? strtolower(trim((string) ($rm['type'] ?? ''))) : '';
+        $linked = $user['linkedAccounts'] ?? [];
+        if (!is_array($linked)) {
+            $linked = [];
+        }
+        $user['linkedAccounts'] = array_values(array_filter($linked, static function ($ex) use ($rmNick, $rmType) {
+            if (strcasecmp((string) ($ex['nick'] ?? ''), $rmNick) !== 0) {
+                return true;
+            }
+            if ($rmType !== '' && ($ex['type'] ?? '') !== $rmType) {
+                return true;
+            }
+            return false;
+        }));
+    }
+
+    $user['updatedAt'] = date('c');
     if (!gz_save_user($user)) {
         gz_respond(500, ['ok' => false, 'message' => 'Não foi possível salvar']);
     }
