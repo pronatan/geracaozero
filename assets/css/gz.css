@@ -721,6 +721,16 @@ a.is-muted:hover {
   flex-wrap: nowrap;
 }
 
+.auth-account-dd .navbar-link {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.auth-account-dd .navbar-dropdown {
+  min-width: 11rem;
+}
+
 .auth-btn {
   font-size: 0.55rem !important;
   white-space: nowrap;

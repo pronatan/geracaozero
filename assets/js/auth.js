@@ -7,15 +7,14 @@
 
   function renderGuest(slot) {
     var place = slot.getAttribute("data-auth-slot");
-    if (place === "brand") {
-      slot.innerHTML =
-        '<a href="/login" class="navbar-item auth-btn">Entrar</a>' +
-        '<a href="/register" class="navbar-item auth-btn auth-btn-accent">Criar conta</a>';
-      return;
-    }
-    slot.innerHTML =
-      '<a href="/login" class="navbar-item auth-btn"><i class="fas fa-sign-in-alt"></i> Entrar</a>' +
-      '<a href="/register" class="navbar-item auth-btn auth-btn-accent"><i class="fas fa-user-plus"></i> Criar conta</a>';
+    var dropdown =
+      '<div class="navbar-item has-dropdown is-hoverable auth-account-dd">' +
+      '<a class="navbar-link"><i class="fas fa-user"></i> Minha conta</a>' +
+      '<div class="navbar-dropdown' + (place === "end" ? " is-right" : "") + '">' +
+      '<a href="/login" class="navbar-item"><i class="fas fa-sign-in-alt"></i> Entrar</a>' +
+      '<a href="/register" class="navbar-item"><i class="fas fa-user-plus"></i> Criar conta</a>' +
+      "</div></div>";
+    slot.innerHTML = dropdown;
   }
 
   function renderUser(slot, user) {
@@ -23,25 +22,22 @@
     var avatarHtml = (user && user.avatar)
       ? '<img class="gz-nav-avatar" src="' + user.avatar + '" alt="">'
       : '<span class="gz-nav-avatar gz-nav-avatar-fallback">' + ((nick.charAt(0) || "?").toUpperCase()) + "</span>";
-    var accountCta =
-      '<a href="/conta" class="navbar-item auth-btn auth-btn-account" title="Gerenciar conta">' +
+    var place = slot.getAttribute("data-auth-slot");
+    var adminItem = (user && user.role === "admin")
+      ? '<a href="/admin" class="navbar-item"><i class="fas fa-tools"></i> Painel</a>'
+      : "";
+    slot.innerHTML =
+      '<div class="navbar-item has-dropdown is-hoverable auth-account-dd">' +
+      '<a class="navbar-link auth-btn-account" title="Minha conta">' +
       avatarHtml +
       '<span class="auth-nick-text">' + nick + "</span>" +
-      "</a>";
-    var adminLink = (user && user.role === "admin")
-      ? '<a href="/admin" class="navbar-item auth-btn auth-btn-accent" title="Acessar painel">Painel</a>'
-      : "";
-    if (slot.getAttribute("data-auth-slot") === "brand") {
-      slot.innerHTML =
-        accountCta +
-        adminLink +
-        '<a href="#" class="navbar-item auth-btn" data-auth-logout>Sair</a>';
-      return;
-    }
-    slot.innerHTML =
-      accountCta +
-      adminLink +
-      '<a href="#" class="navbar-item auth-btn" data-auth-logout><i class="fas fa-sign-out-alt"></i> Sair</a>';
+      "</a>" +
+      '<div class="navbar-dropdown' + (place === "end" ? " is-right" : "") + '">' +
+      '<a href="/conta" class="navbar-item"><i class="fas fa-user-cog"></i> Minha conta</a>' +
+      adminItem +
+      '<hr class="navbar-divider">' +
+      '<a href="#" class="navbar-item" data-auth-logout><i class="fas fa-sign-out-alt"></i> Sair</a>' +
+      "</div></div>";
   }
 
   function bindLogout(root) {

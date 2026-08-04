@@ -38,7 +38,13 @@
       <div class="navbar-menu">
         <div class="navbar-start">
           <a href="/" class="navbar-item"><i class="fas fa-home"></i> Início</a>
-          <a href="/regras" class="navbar-item"><i class="fas fa-book"></i> Regras</a>
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link"><i class="fas fa-folder-open"></i> Recursos</a>
+            <div class="navbar-dropdown">
+              <a href="/regras" class="navbar-item"><i class="fas fa-book"></i> Regras</a>
+              <a href="/formularios" class="navbar-item"><i class="fas fa-file-alt"></i> Formulários</a>
+            </div>
+          </div>
           <div class="navbar-item has-dropdown is-hoverable">
             <a href="/loja" class="navbar-link"><i class="fas fa-shopping-cart"></i> Loja</a>
             <div class="navbar-dropdown">
@@ -47,7 +53,7 @@
               <a href="/termos" class="navbar-item">Termos da loja</a>
             </div>
           </div>
-          <a href="/formularios" class="navbar-item"><i class="fas fa-file-alt"></i> Formulários</a>
+          
           <div class="navbar-item has-dropdown is-hoverable">
             <a class="navbar-link"><i class="fas fa-users"></i> Comunidade</a>
             <div class="navbar-dropdown">
@@ -122,7 +128,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="assets/js/config.js?v=3"></script>
 <script src="assets/js/gz.js?v=9"></script>
-<script src="assets/js/auth.js?v=15"></script>
+<script src="assets/js/auth.js?v=16"></script>
 <script src="assets/js/packs.js?v=8"></script>
 <script>
   (async function () {
