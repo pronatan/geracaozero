@@ -325,6 +325,30 @@ footer.section {
   object-fit: contain;
 }
 
+.home-sobre-top .article-thumbnail {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border: 2px solid var(--navy);
+  border-top: 0;
+  background: var(--branco);
+}
+
+.home-sobre-content .article-content {
+  border-top: 2px solid var(--navy);
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.home-forms-align {
+  margin-top: 0.25rem;
+}
+
+@media screen and (min-width: 769px) {
+  .home-forms-align {
+    align-items: stretch;
+  }
+}
+
 article.footer {
   display: flex;
   flex-direction: column;
