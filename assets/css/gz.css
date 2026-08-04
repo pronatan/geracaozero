@@ -729,6 +729,71 @@ a.is-muted:hover {
 
 .auth-account-dd .navbar-dropdown {
   min-width: 11rem;
+  background: var(--navy) !important;
+  border: 1px solid var(--ciano);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+}
+
+.auth-account-dd .navbar-dropdown .navbar-item {
+  background: var(--navy);
+  color: #fff;
+}
+
+.auth-account-dd .navbar-dropdown .navbar-item:hover,
+.auth-account-dd .navbar-dropdown .navbar-item:focus {
+  background: var(--ciano);
+  color: #000;
+}
+
+/* Tabelas sólidas (sem fundo transparente) */
+.admin-table-wrap,
+.article-content .admin-table-wrap {
+  background: #0b1c33;
+  border: 1px solid rgba(0, 174, 239, 0.45);
+  border-radius: 8px;
+  padding: 0.35rem;
+}
+
+.admin-table,
+table.admin-table {
+  background: #0b1c33 !important;
+  color: #fff;
+}
+
+.admin-table th {
+  background: #0a4f74 !important;
+  color: var(--amarelo) !important;
+}
+
+.admin-table td {
+  background: #0b1c33 !important;
+  color: #fff !important;
+}
+
+.admin-table tr:nth-child(even) td {
+  background: #102844 !important;
+}
+
+.article-content table,
+.box table {
+  background: #fff !important;
+  color: #121212;
+}
+
+.article-content table th,
+.box table th {
+  background: #e8f4fb !important;
+  color: #121212 !important;
+}
+
+.article-content table td,
+.box table td {
+  background: #fff !important;
+}
+
+.article-content table tr:nth-child(even) td,
+.box table tr:nth-child(even) td {
+  background: #f3f7fa !important;
 }
 
 .auth-btn {
@@ -943,6 +1008,67 @@ img.mc-nick-avatar {
 @media screen and (max-width: 1023px) {
   .logo.container {
     justify-content: center;
+  }
+
+  .navbar-brand {
+    align-items: center;
+    width: 100%;
+  }
+
+  .navbar-auth-brand {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: calc(100% - 3rem);
+  }
+
+  .navbar-auth-brand .auth-account-dd {
+    position: relative;
+    width: 100%;
+  }
+
+  .navbar-auth-brand .auth-account-dd > .navbar-link {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 0.55rem 0.75rem;
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 6px;
+  }
+
+  .navbar-auth-brand .auth-account-dd .navbar-dropdown {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: auto;
+    top: calc(100% + 4px);
+    z-index: 50;
+    min-width: 12.5rem;
+    width: max-content;
+    max-width: 90vw;
+    padding: 0.35rem 0;
+    background: #071526 !important;
+    border: 2px solid var(--ciano);
+    border-radius: 8px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65);
+  }
+
+  .navbar-auth-brand .auth-account-dd.is-active .navbar-dropdown {
+    display: block;
+  }
+
+  .navbar-menu .auth-account-dd .navbar-dropdown {
+    display: none;
+    position: static;
+    width: 100%;
+    float: none;
+    background: #071526 !important;
+    border: 1px solid var(--ciano);
+    border-radius: 6px;
+    margin: 0.25rem 0.75rem 0.75rem;
+    padding: 0.25rem 0;
+  }
+
+  .navbar-menu .auth-account-dd.is-active .navbar-dropdown {
+    display: block;
   }
 
   .navbar-menu {

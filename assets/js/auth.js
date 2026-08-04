@@ -40,6 +40,34 @@
       "</div></div>";
   }
 
+  function bindAuthDropdowns(root) {
+    Array.prototype.forEach.call(root.querySelectorAll(".auth-account-dd"), function (dd) {
+      var link = dd.querySelector(".navbar-link");
+      if (!link || link.dataset.authDdBound) return;
+      link.dataset.authDdBound = "1";
+      link.addEventListener("click", function (e) {
+        // Mobile / touch: abre o dropdown com toque
+        if (window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+          return; // desktop com hover
+        }
+        e.preventDefault();
+        e.stopPropagation();
+        var open = dd.classList.contains("is-active");
+        document.querySelectorAll(".auth-account-dd.is-active").forEach(function (el) {
+          el.classList.remove("is-active");
+        });
+        if (!open) dd.classList.add("is-active");
+      });
+    });
+  }
+
+  function closeAuthDropdowns(e) {
+    if (e.target && e.target.closest && e.target.closest(".auth-account-dd")) return;
+    document.querySelectorAll(".auth-account-dd.is-active").forEach(function (el) {
+      el.classList.remove("is-active");
+    });
+  }
+
   function bindLogout(root) {
     Array.prototype.forEach.call(root.querySelectorAll("[data-auth-logout]"), function (btn) {
       btn.addEventListener("click", function (e) {
@@ -61,7 +89,13 @@
       if (user) renderUser(slot, user);
       else renderGuest(slot);
       bindLogout(slot);
+      bindAuthDropdowns(slot);
     });
+  }
+
+  if (!window.__gzAuthDdDocBound) {
+    window.__gzAuthDdDocBound = true;
+    document.addEventListener("click", closeAuthDropdowns);
   }
 
   async function loadSession() {
