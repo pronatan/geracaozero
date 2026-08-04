@@ -48,6 +48,18 @@
             </div>
           </div>
           <a href="/formularios" class="navbar-item"><i class="fas fa-file-alt"></i> Formulários</a>
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link"><i class="fas fa-users"></i> Comunidade</a>
+            <div class="navbar-dropdown">
+              <a href="/votar" class="navbar-item"><i class="fas fa-vote-yea"></i> Votar</a>
+              <a href="/wiki" class="navbar-item"><i class="fas fa-book-open"></i> Wiki</a>
+              <a href="/changelog" class="navbar-item"><i class="fas fa-scroll"></i> Changelog</a>
+              <a href="/eventos" class="navbar-item"><i class="fas fa-calendar-alt"></i> Eventos</a>
+              <a href="/status" class="navbar-item"><i class="fas fa-heartbeat"></i> Status</a>
+              <a href="/mapa" class="navbar-item"><i class="fas fa-map"></i> Mapa</a>
+              <a href="/ranking" class="navbar-item"><i class="fas fa-trophy"></i> Ranking</a>
+            </div>
+          </div>
           <a href="https://discord.gg/pAtKdPHBk2" target="_blank" rel="noreferrer" class="navbar-item"><i class="fab fa-discord"></i> Discord</a>
         </div>
 
@@ -115,6 +127,32 @@
                 <div class="control">
                   <input id="checkout-cpf" class="input" type="text" maxlength="14" placeholder="000.000.000-00">
                 </div>
+              </div>
+
+              <div class="field">
+                <label class="checkbox">
+                  <input type="checkbox" id="checkout-gift-toggle"> Presentear outro jogador
+                </label>
+              </div>
+              <div class="field is-hidden" id="checkout-gift-wrap">
+                <label class="label" for="checkout-gift-nick">Nick que vai receber o VIP</label>
+                <div class="control">
+                  <input id="checkout-gift-nick" class="input" type="text" maxlength="16" placeholder="Nick do presente">
+                </div>
+                <p id="checkout-gift-status" class="checkout-msg mc-lookup-status is-hidden" aria-live="polite"></p>
+              </div>
+
+              <div class="field">
+                <label class="label" for="checkout-coupon">Cupom (opcional)</label>
+                <div class="field has-addons">
+                  <div class="control is-expanded">
+                    <input id="checkout-coupon" class="input" type="text" maxlength="32" placeholder="Ex: STAFF10">
+                  </div>
+                  <div class="control">
+                    <button type="button" id="btn-apply-coupon" class="button is-info">Aplicar</button>
+                  </div>
+                </div>
+                <p id="checkout-coupon-status" class="checkout-msg is-hidden" aria-live="polite"></p>
               </div>
 
               <div class="field">
@@ -229,7 +267,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="https://sdk.mercadopago.com/js/v2"></script>
 <script src="assets/js/config.js?v=3"></script>
-<script src="assets/js/gz.js?v=8"></script>
+<script src="assets/js/gz.js?v=9"></script>
 <script src="assets/js/mc-lookup.js?v=2"></script>
 <script src="assets/js/auth.js?v=15"></script>
 <script src="assets/js/packs.js?v=8"></script>
@@ -247,7 +285,7 @@
     document.title = "Checkout " + pack.titulo + " - Geração Zero";
   })();
 </script>
-<script src="assets/js/checkout.js?v=15"></script>
+<script src="assets/js/checkout.js?v=16"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
 
 </body>

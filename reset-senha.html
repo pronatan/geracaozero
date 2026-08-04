@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nova senha - Geração Zero</title>
+  <link rel="icon" type="image/png" href="assets/img/logo.png?v=1">
+  <link rel="stylesheet" href="assets/css/bulma.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/gz.css?v=26">
+</head>
+<body>
+<header class="section">
+  <div class="logo container"><a href="/"><img src="assets/img/logo.png?v=1" alt="Geração Zero"></a></div>
+</header>
+<main class="section">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-5">
+        <article class="article produto-sidebar">
+          <h1 class="article-title"><i class="fas fa-lock"></i> Nova senha</h1>
+          <div class="article-content">
+            <p id="auth-msg" class="checkout-msg is-hidden" aria-live="polite"></p>
+            <form id="form-reset">
+              <div class="field">
+                <label class="label" for="reset-pass">Nova senha</label>
+                <div class="control">
+                  <input id="reset-pass" class="input" type="password" minlength="6" required>
+                </div>
+              </div>
+              <div class="field">
+                <label class="label" for="reset-pass2">Confirmar</label>
+                <div class="control">
+                  <input id="reset-pass2" class="input" type="password" minlength="6" required>
+                </div>
+              </div>
+              <button type="submit" class="button is-success is-fullwidth">Salvar senha</button>
+            </form>
+            <a href="/login" class="button is-link is-fullwidth" style="margin-top:0.75rem">Ir para login</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="assets/js/config.js?v=3"></script>
+<script>
+(function () {
+  var token = new URLSearchParams(location.search).get("token") || "";
+  var msg = document.getElementById("auth-msg");
+  function setMsg(t, ok) {
+    msg.textContent = t || "";
+    msg.className = "checkout-msg" + (t ? (ok ? " is-ok" : " is-error") : " is-hidden");
+  }
+  if (!token) setMsg("Link inválido. Solicite um novo em Esqueci a senha.", false);
+  document.getElementById("form-reset").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var p1 = document.getElementById("reset-pass").value;
+    var p2 = document.getElementById("reset-pass2").value;
+    if (p1 !== p2) return setMsg("As senhas não conferem", false);
+    try {
+      var res = await window.gzFetch("/api/auth/reset.php", {
+        method: "POST",
+        body: JSON.stringify({ token: token, password: p1 })
+      });
+      var data = await res.json();
+      setMsg(data.message || (data.ok ? "Senha atualizada" : "Falha"), !!data.ok);
+      if (data.ok) setTimeout(function () { location.href = "/login"; }, 1200);
+    } catch (err) {
+      setMsg(err.message || "Falha", false);
+    }
+  });
+})();
+</script>
+<script defer src="https://use.fontawesome.com/releases/v5.12.1/js/all.js"></script>
+</body>
+</html>

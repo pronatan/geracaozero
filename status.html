@@ -4,37 +4,23 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  <title>Regras - Geração Zero</title>
-    <link rel="icon" type="image/png" href="assets/img/logo.png?v=1">
-<link rel="stylesheet" href="assets/css/bulma.min.css">
+  <title>Status - Geração Zero</title>
+  <link rel="icon" type="image/png" href="assets/img/logo.png?v=1">
+  <link rel="stylesheet" href="assets/css/bulma.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/gz.css?v=22">
+  <link rel="stylesheet" href="assets/css/gz.css?v=26">
 </head>
-
 <body>
-
 <header class="section">
-  <div class="logo container">
-    <a href="/">
-      <img src="assets/img/logo.png?v=1" alt="Geração Zero">
-    </a>
-  </div>
-
+  <div class="logo container"><a href="/"><img src="assets/img/logo.png?v=1" alt="Geração Zero"></a></div>
   <div class="container">
     <nav class="navbar">
       <div class="navbar-brand">
         <div class="navbar-auth-brand" data-auth-slot="brand"></div>
-        <a class="navbar-burger burger">
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-        </a>
+        <a class="navbar-burger burger"><span></span><span></span><span></span></a>
       </div>
-
       <div class="navbar-menu">
         <div class="navbar-start">
           <a href="/" class="navbar-item"><i class="fas fa-home"></i> Início</a>
@@ -62,106 +48,39 @@
           </div>
           <a href="https://discord.gg/pAtKdPHBk2" target="_blank" rel="noreferrer" class="navbar-item"><i class="fab fa-discord"></i> Discord</a>
         </div>
-
         <div class="navbar-end">
           <div data-auth-slot="end"></div>
-          <a id="ip" class="navbar-item">
-            <i class="fas fa-copy"></i> <span>geracaozero.bedrock.net.br</span>
-            <textarea></textarea>
-          </a>
+          <a id="ip" class="navbar-item"><i class="fas fa-copy"></i> <span>geracaozero.bedrock.net.br</span><textarea></textarea></a>
         </div>
       </div>
     </nav>
   </div>
 </header>
-
 <main class="section">
   <div class="container">
     <article class="article">
-      <h1 class="article-title"><i class="fas fa-list-ul"></i> Lista de regras</h1>
+      <h1 class="article-title"><i class="fas fa-heartbeat"></i> Status do servidor</h1>
       <div class="article-content">
-        <p>
-          <b>1. Respeito em primeiro lugar</b><br>
-          Sem ofensas, assédio, discriminação ou toxicidade. Discussão é bem-vinda; humilhação não.
-
-          <br><br>
-
-          <b>2. Sem trapaça</b><br>
-          Hack, x-ray, duping, macros abusivos e exploits são ban. Achou bug? Avise a staff.
-
-          <br><br>
-
-          <b>3. Sem grief e roubo</b><br>
-          Não destrua nem invada bases sem permissão. Terrenos e baús de outros jogadores são sagrados.
-
-          <br><br>
-
-          <b>4. Chat limpo</b><br>
-          Sem spam, flood, divulgação de outros servidores ou links suspeitos.
-
-          <br><br>
-
-          <b>5. Conta e identidade</b><br>
-          Você é responsável pela sua conta. Compartilhar conta ou se passar por staff resulta em punição.
-
-          <br><br>
-
-          <b>6. Decisão da staff</b><br>
-          A equipe pode intervir para manter o servidor justo. Conteste com educação no Discord.
-        </p>
-      </div>
-    </article>
-
-    <article class="article">
-      <h1 class="article-title"><i class="fas fa-ban"></i> Tabela de punições</h1>
-      <div class="article-content">
-        <table class="table is-fullwidth is-striped is-bordered is-narrow">
-          <thead>
-            <tr>
-              <th>Infração</th>
-              <th>1ª ocorrência</th>
-              <th>2ª ocorrência</th>
-              <th>3ª ocorrência</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Toxicidade / ofensa</td>
-              <td>Mute 1h</td>
-              <td>Mute 1 dia</td>
-              <td>Ban 7 dias</td>
-            </tr>
-            <tr>
-              <td>Spam / flood</td>
-              <td>Mute 30min</td>
-              <td>Mute 6h</td>
-              <td>Mute 3 dias</td>
-            </tr>
-            <tr>
-              <td>Grief / roubo</td>
-              <td>Ban 3 dias</td>
-              <td>Ban 14 dias</td>
-              <td>Ban permanente</td>
-            </tr>
-            <tr>
-              <td>Hack / cheat</td>
-              <td>Ban 30 dias</td>
-              <td>Ban permanente</td>
-              <td>-</td>
-            </tr>
-            <tr>
-              <td>Abuso de bugs</td>
-              <td>Ban 7 dias</td>
-              <td>Ban 30 dias</td>
-              <td>Ban permanente</td>
-            </tr>
-          </tbody>
-        </table>
+        <p>Status ao vivo do Survival.</p>
+        <article class="article" style="margin-top:1rem">
+          <h2 id="status" class="article-title"><i class="fas fa-sync fa-spin"></i> Atualizando...</h2>
+          <div class="article-content status-info">
+            <div><b>MOTD:</b> <span id="motd">...</span></div>
+            <div><b>Jogadores:</b> <span id="players">...</span></div>
+            <div><b>Versão:</b> 26.2</div>
+            <div class="status-ip"><b>IP:</b> <span>geracaozero.bedrock.net.br</span></div>
+            <div style="margin-top:0.75rem"><b>Amostra de jogadores:</b></div>
+            <ul id="status-players-list" class="list"><li>Carregando...</li></ul>
+          </div>
+        </article>
+        <h2 style="margin-top:1.5rem"><b>Incidentes / manutenção</b></h2>
+        <div class="box">
+          <p><b>Nenhum incidente aberto.</b> Manutenções programadas serão listadas aqui e no Discord.</p>
+        </div>
       </div>
     </article>
   </div>
 </main>
-
 <footer class="section">
   <div class="container">
     <article class="footer">
@@ -170,12 +89,10 @@
     </article>
   </div>
 </footer>
-
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="assets/js/config.js?v=3"></script>
 <script src="assets/js/gz.js?v=9"></script>
 <script src="assets/js/auth.js?v=15"></script>
 <script defer src="https://use.fontawesome.com/releases/v5.12.1/js/all.js"></script>
-
 </body>
 </html>

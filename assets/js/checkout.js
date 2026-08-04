@@ -4,6 +4,7 @@
   var state = {
     vip: "lacoste",
     amount: "29.90",
+    amountOriginal: "29.90",
     title: "VIP Lacoste",
     publicKey: null,
     mp: null,
@@ -12,6 +13,8 @@
     pollTimer: null,
     nick: "",
     nickLookup: null,
+    coupon: "",
+    couponPercent: 0,
   };
 
     var packs = window.GZ_PACKS || {};
@@ -99,9 +102,67 @@
     if (!pack) return;
     state.vip = vip;
     state.title = pack.titulo;
-    state.amount = String(pack.amount || "29.90");
-    if ($("checkout-resumo")) {
-      $("checkout-resumo").textContent = pack.titulo + " — " + money(state.amount);
+    state.amountOriginal = String(pack.amount || "29.90");
+    state.amount = state.amountOriginal;
+    state.coupon = "";
+    state.couponPercent = 0;
+    updateResumo();
+  }
+
+  function updateResumo() {
+    if (!$("checkout-resumo")) return;
+    var text = state.title + " — " + money(state.amount);
+    if (state.coupon && state.couponPercent) {
+      text += " (cupom " + state.coupon + " −" + state.couponPercent + "%)";
+    }
+    $("checkout-resumo").textContent = text;
+    if ($("produto-preco")) $("produto-preco").textContent = money(state.amount);
+  }
+
+  function getGiftNick() {
+    var toggle = $("checkout-gift-toggle");
+    if (!toggle || !toggle.checked) return "";
+    return (($("checkout-gift-nick") && $("checkout-gift-nick").value) || "").trim();
+  }
+
+  async function applyCoupon() {
+    var code = (($("checkout-coupon") && $("checkout-coupon").value) || "").trim();
+    var status = $("checkout-coupon-status");
+    if (!code) {
+      state.coupon = "";
+      state.couponPercent = 0;
+      state.amount = state.amountOriginal;
+      updateResumo();
+      if (status) {
+        status.textContent = "";
+        status.className = "checkout-msg is-hidden";
+      }
+      return;
+    }
+    try {
+      var res = await window.gzFetch("/api/validate-coupon.php", {
+        method: "POST",
+        body: JSON.stringify({ code: code, amount: Number(state.amountOriginal) }),
+      });
+      var data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.message || "Cupom inválido");
+      state.coupon = data.code;
+      state.couponPercent = data.percent;
+      state.amount = String(data.amount || state.amountOriginal);
+      updateResumo();
+      if (status) {
+        status.textContent = data.message || "Cupom aplicado";
+        status.className = "checkout-msg is-ok";
+      }
+    } catch (e) {
+      state.coupon = "";
+      state.couponPercent = 0;
+      state.amount = state.amountOriginal;
+      updateResumo();
+      if (status) {
+        status.textContent = e.message || "Cupom inválido";
+        status.className = "checkout-msg is-error";
+      }
     }
   }
 
@@ -154,7 +215,7 @@
     show($("pix-result"), false);
     show($("pay-success"), true);
     $("pay-success-text").textContent =
-      "Pagamento confirmado para " + (data.nick || state.nick || "seu nick") +
+      "Pagamento confirmado para " + (data.deliveryNick || data.nick || state.nick || "seu nick") +
       ". Em breve o VIP será liberado. Guarde o pedido: " + (data.externalReference || data.orderId || "");
     setMsg("Pagamento aprovado!", "ok");
   }
@@ -236,6 +297,8 @@
         vip: state.vip,
         method: "pix",
         nick: nick,
+        giftNick: getGiftNick(),
+        coupon: state.coupon || "",
         email: email.trim(),
         cpf: cpf.trim(),
       });
@@ -283,6 +346,8 @@
         vip: state.vip,
         method: "credit_card",
         nick: nick,
+        giftNick: getGiftNick(),
+        coupon: state.coupon || "",
         email: cardData.cardholderEmail || (($("checkout-email") || {}).value || ""),
         cpf: cardData.identificationNumber || (($("checkout-cpf") || {}).value || ""),
         cardToken: cardData.token,
@@ -337,6 +402,21 @@
         navigator.clipboard.writeText(code.value).then(function () {
           setMsg("Código Pix copiado!", "ok");
         });
+      });
+    }
+
+    var giftToggle = $("checkout-gift-toggle");
+    if (giftToggle) {
+      giftToggle.addEventListener("change", function () {
+        show($("checkout-gift-wrap"), !!giftToggle.checked);
+      });
+    }
+
+    var btnCoupon = $("btn-apply-coupon");
+    if (btnCoupon) {
+      btnCoupon.addEventListener("click", function (e) {
+        e.preventDefault();
+        applyCoupon();
       });
     }
   }

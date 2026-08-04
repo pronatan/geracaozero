@@ -72,6 +72,9 @@ if (ip) {
 //
 if (typeof $ !== "undefined" && $("#status").length) {
   $("#motd").text(SERVER_MOTD);
+  if ($("#players").length) {
+    $("#players").text("...");
+  }
 
   $.getJSON(
     "https://api.minetools.eu/ping/" + SERVER_HOST + "/" + SERVER_PORT,
@@ -79,14 +82,29 @@ if (typeof $ !== "undefined" && $("#status").length) {
       if (data.error) {
         $("#status").html('<i class="fas fa-times"></i> Servidor offline');
         $("#motd").text(SERVER_MOTD);
+        if ($("#players").length) $("#players").text("0/0");
       } else {
         $("#status").html('<i class="fas fa-check"></i> Servidor online');
         $("#motd").text(formatMotd(data.description));
+        var online = data.players && data.players.online != null ? data.players.online : "?";
+        var max = data.players && data.players.max != null ? data.players.max : "?";
+        if ($("#players").length) {
+          $("#players").text(online + "/" + max);
+        }
+        if ($("#status-players-list").length && data.players && Array.isArray(data.players.sample)) {
+          var names = data.players.sample.map(function (p) { return p && p.name ? p.name : ""; }).filter(Boolean);
+          $("#status-players-list").html(
+            names.length
+              ? names.map(function (n) { return "<li>" + n + "</li>"; }).join("")
+              : "<li>Lista de nicks indisponível</li>"
+          );
+        }
       }
     },
   ).fail(function () {
     $("#status").html('<i class="fas fa-times"></i> Status indisponível');
     $("#motd").text(SERVER_MOTD);
+    if ($("#players").length) $("#players").text("-");
   });
 }
 

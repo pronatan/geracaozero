@@ -1,6 +1,7 @@
 <?php
 require __DIR__ . '/auth/common.php';
 require_once __DIR__ . '/minecraft-lib.php';
+require_once __DIR__ . '/coupons-lib.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     gz_respond(405, ['ok' => false, 'message' => 'Método não permitido']);
@@ -13,6 +14,8 @@ $vip = strtolower(trim((string) ($input['vip'] ?? '')));
 $method = strtolower(trim((string) ($input['method'] ?? 'pix')));
 $email = strtolower(trim((string) ($input['email'] ?? '')));
 $nick = trim((string) ($input['nick'] ?? ''));
+$giftNick = trim((string) ($input['giftNick'] ?? ''));
+$couponCode = trim((string) ($input['coupon'] ?? ''));
 $cpf = preg_replace('/\D+/', '', (string) ($input['cpf'] ?? '')) ?: '';
 $cardToken = trim((string) ($input['cardToken'] ?? ''));
 $paymentMethodId = strtolower(trim((string) ($input['paymentMethodId'] ?? '')));
@@ -43,17 +46,48 @@ if (empty($mc['found'])) {
     ]);
 }
 $nick = (string) $mc['nick'];
+$buyerNick = $nick;
+$deliveryNick = $nick;
+
+if ($giftNick !== '') {
+    if (strlen($giftNick) < 3 || strlen($giftNick) > 16 || !preg_match('/^[a-zA-Z0-9_]+$/', $giftNick)) {
+        gz_respond(400, ['ok' => false, 'message' => 'Nick do presente inválido']);
+    }
+    $giftMc = gz_mc_lookup_nick($giftNick);
+    if (empty($giftMc['found'])) {
+        gz_respond(400, [
+            'ok' => false,
+            'message' => $giftMc['message'] ?? 'Nick do presente não encontrado',
+        ]);
+    }
+    $deliveryNick = (string) $giftMc['nick'];
+}
 
 if (!in_array($method, ['pix', 'credit_card'], true)) {
     gz_respond(400, ['ok' => false, 'message' => 'Forma de pagamento inválida']);
 }
 
 $product = $catalog[$vip];
-$amount = $product['amount'];
+$amountOriginal = (float) $product['amount'];
+$amount = number_format($amountOriginal, 2, '.', '');
+$couponApplied = null;
+if ($couponCode !== '') {
+    $coupon = gz_coupon_validate($couponCode);
+    if (!$coupon['ok']) {
+        gz_respond(400, ['ok' => false, 'message' => $coupon['message'] ?? 'Cupom inválido']);
+    }
+    $amount = gz_coupon_apply_amount($amountOriginal, (float) $coupon['percent']);
+    $couponApplied = [
+        'code' => $coupon['code'],
+        'percent' => $coupon['percent'],
+        'originalAmount' => number_format($amountOriginal, 2, '.', ''),
+    ];
+}
+
 $externalReference = sprintf(
     'gz_%s_%s_%s',
     $vip,
-    preg_replace('/[^a-zA-Z0-9_-]/', '', $nick),
+    preg_replace('/[^a-zA-Z0-9_-]/', '', $deliveryNick),
     bin2hex(random_bytes(4))
 );
 
@@ -84,7 +118,7 @@ if ($method === 'pix') {
 
 $payer = [
     'email' => $email,
-    'first_name' => $nick,
+    'first_name' => $buyerNick,
 ];
 
 if (strlen($cpf) === 11) {
@@ -94,11 +128,19 @@ if (strlen($cpf) === 11) {
     ];
 }
 
+$itemDesc = 'Nick: ' . $deliveryNick;
+if ($deliveryNick !== $buyerNick) {
+    $itemDesc .= ' (presente de ' . $buyerNick . ')';
+}
+if ($couponApplied) {
+    $itemDesc .= ' | Cupom ' . $couponApplied['code'];
+}
+
 $orderBody = [
     'type' => 'online',
     'processing_mode' => 'automatic',
     'external_reference' => $externalReference,
-    'description' => $product['description'] . ' | Nick: ' . $nick,
+    'description' => $product['description'] . ' | ' . $itemDesc,
     'total_amount' => $amount,
     'payer' => $payer,
     'items' => [
@@ -106,7 +148,7 @@ $orderBody = [
             'title' => $product['title'],
             'unit_price' => $amount,
             'quantity' => 1,
-            'description' => 'Nick: ' . $nick,
+            'description' => $itemDesc,
             'category_id' => 'others',
         ],
     ],
@@ -128,8 +170,11 @@ $result = gz_mp_request('POST', '/v1/orders', $orderBody, $idempotency);
 gz_log('orders.log', [
     'external_reference' => $externalReference,
     'vip' => $vip,
-    'nick' => $nick,
+    'nick' => $buyerNick,
+    'deliveryNick' => $deliveryNick,
+    'coupon' => $couponApplied['code'] ?? null,
     'method' => $method,
+    'amount' => $amount,
     'mp_status' => $result['status'],
     'ok' => $result['ok'],
     'order_id' => $result['body']['id'] ?? null,
@@ -164,12 +209,13 @@ if (!$result['ok']) {
     $failedOrder = $result['body']['data'] ?? null;
     if (is_array($failedOrder) && !empty($failedOrder['id'])) {
         $fp = $failedOrder['transactions']['payments'][0] ?? [];
-        gz_save_order([
+        $failOrder = [
             'id' => (string) $failedOrder['id'],
             'orderId' => (string) $failedOrder['id'],
             'externalReference' => $externalReference,
             'userId' => (string) ($sessionUser['id'] ?? 'guest'),
-            'nick' => $nick,
+            'nick' => $buyerNick,
+            'deliveryNick' => $deliveryNick,
             'email' => $email,
             'vip' => $vip,
             'productTitle' => (string) ($product['title'] ?? $vip),
@@ -182,7 +228,16 @@ if (!$result['ok']) {
             'fulfillmentStatus' => 'pending',
             'createdAt' => date('c'),
             'updatedAt' => date('c'),
-        ]);
+        ];
+        if ($couponApplied) {
+            $failOrder['couponCode'] = $couponApplied['code'];
+            $failOrder['couponPercent'] = $couponApplied['percent'];
+            $failOrder['amountOriginal'] = $couponApplied['originalAmount'];
+        }
+        if ($deliveryNick !== $buyerNick) {
+            $failOrder['giftNick'] = $deliveryNick;
+        }
+        gz_save_order($failOrder);
     }
     gz_respond((int) $result['status'] ?: 502, [
         'ok' => false,
@@ -196,12 +251,13 @@ $payment = $order['transactions']['payments'][0] ?? [];
 $pm = $payment['payment_method'] ?? [];
 
 $orderId = (string) ($order['id'] ?? $externalReference);
-gz_save_order([
+$saved = [
     'id' => $orderId,
     'orderId' => $orderId,
     'externalReference' => $externalReference,
     'userId' => (string) ($sessionUser['id'] ?? 'guest'),
-    'nick' => $nick,
+    'nick' => $buyerNick,
+    'deliveryNick' => $deliveryNick,
     'email' => $email,
     'vip' => $vip,
     'productTitle' => (string) ($product['title'] ?? $vip),
@@ -213,7 +269,16 @@ gz_save_order([
     'fulfillmentStatus' => 'pending',
     'createdAt' => date('c'),
     'updatedAt' => date('c'),
-]);
+];
+if ($couponApplied) {
+    $saved['couponCode'] = $couponApplied['code'];
+    $saved['couponPercent'] = $couponApplied['percent'];
+    $saved['amountOriginal'] = $couponApplied['originalAmount'];
+}
+if ($deliveryNick !== $buyerNick) {
+    $saved['giftNick'] = $deliveryNick;
+}
+gz_save_order($saved);
 
 $response = [
     'ok' => true,
@@ -223,10 +288,14 @@ $response = [
     'externalReference' => $externalReference,
     'amount' => $amount,
     'vip' => $vip,
-    'nick' => $nick,
+    'nick' => $buyerNick,
+    'deliveryNick' => $deliveryNick,
     'method' => $method,
     'paymentId' => $payment['id'] ?? null,
 ];
+if ($couponApplied) {
+    $response['coupon'] = $couponApplied;
+}
 
 if ($method === 'pix') {
     $response['pix'] = [

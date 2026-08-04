@@ -74,6 +74,33 @@
     return entregaLabel(o) === "Aguardando pagamento";
   }
 
+  function isVipActive(o) {
+    var pay = String(o.status || "").toLowerCase();
+    var detail = String(o.statusDetail || o.paymentStatus || "").toLowerCase();
+    var fulfill = String(o.fulfillmentStatus || "pending").toLowerCase();
+    if (fulfill === "done") return true;
+    return pay === "processed" || pay === "approved" || detail === "accredited";
+  }
+
+  function renderBenefits(orders) {
+    var el = $("conta-benefits");
+    if (!el) return;
+    var active = (orders || []).filter(isVipActive);
+    if (!active.length) {
+      el.innerHTML = "<p>Nenhum VIP ativo ainda. Confira a <a href='/loja'>loja</a>.</p>";
+      return;
+    }
+    el.innerHTML = "<ul class='list'>" + active.map(function (o) {
+      var title = o.productTitle || o.vip || "VIP";
+      var para = o.deliveryNick || o.giftNick || o.nick || "-";
+      var st = String(o.fulfillmentStatus || "").toLowerCase() === "done"
+        ? "Liberado no servidor"
+        : "Pago — aguardando liberação in-game";
+      return "<li><i class='fas fa-check'></i> <b>" + esc(title) + "</b> → " + esc(para) +
+        " <small>(" + esc(st) + ")</small></li>";
+    }).join("") + "</ul>";
+  }
+
   function payUrl(o) {
     var id = o.id || o.orderId || "";
     var vip = o.vip || "";
@@ -118,12 +145,13 @@
       }
 
       var orders = data.orders || [];
+      renderBenefits(orders);
       if (!orders.length) {
         $("conta-orders").innerHTML = "<p>Nenhum pedido ainda. Visite a <a href='/loja'>loja</a>.</p>";
       } else {
         $("conta-orders").innerHTML =
           '<table class="admin-table" style="width:100%;font-size:0.48rem">' +
-          "<thead><tr><th>Produto</th><th>Valor</th><th>Entrega</th><th>Data</th><th></th></tr></thead><tbody>" +
+          "<thead><tr><th>Produto</th><th>Para</th><th>Valor</th><th>Entrega</th><th>Data</th><th></th></tr></thead><tbody>" +
           orders.map(function (o) {
             var id = o.id || "";
             var payBtn = needsPay(o)
@@ -132,8 +160,10 @@
             var delBtn = id
               ? '<button type="button" class="button is-small is-danger" data-del-my-order="' + esc(id) + '">Excluir</button>'
               : "";
+            var para = o.deliveryNick || o.giftNick || o.nick || "-";
             return "<tr>" +
               "<td>" + esc(o.productTitle || o.vip || "VIP") + "</td>" +
+              "<td>" + esc(para) + "</td>" +
               "<td>" + esc(formatMoney(o.amount)) + "</td>" +
               "<td>" + esc(entregaLabel(o)) + "</td>" +
               "<td>" + esc(formatDate(o.createdAt)) + "</td>" +

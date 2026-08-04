@@ -4,37 +4,23 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
   <title>Votar - Geração Zero</title>
-    <link rel="icon" type="image/png" href="assets/img/logo.png?v=1">
-<link rel="stylesheet" href="assets/css/bulma.min.css">
+  <link rel="icon" type="image/png" href="assets/img/logo.png?v=1">
+  <link rel="stylesheet" href="assets/css/bulma.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/gz.css?v=22">
+  <link rel="stylesheet" href="assets/css/gz.css?v=26">
 </head>
-
 <body>
-
 <header class="section">
-  <div class="logo container">
-    <a href="/">
-      <img src="assets/img/logo.png?v=1" alt="Geração Zero">
-    </a>
-  </div>
-
+  <div class="logo container"><a href="/"><img src="assets/img/logo.png?v=1" alt="Geração Zero"></a></div>
   <div class="container">
     <nav class="navbar">
       <div class="navbar-brand">
         <div class="navbar-auth-brand" data-auth-slot="brand"></div>
-        <a class="navbar-burger burger">
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-        </a>
+        <a class="navbar-burger burger"><span></span><span></span><span></span></a>
       </div>
-
       <div class="navbar-menu">
         <div class="navbar-start">
           <a href="/" class="navbar-item"><i class="fas fa-home"></i> Início</a>
@@ -48,15 +34,23 @@
             </div>
           </div>
           <a href="/formularios" class="navbar-item"><i class="fas fa-file-alt"></i> Formulários</a>
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link"><i class="fas fa-users"></i> Comunidade</a>
+            <div class="navbar-dropdown">
+              <a href="/votar" class="navbar-item"><i class="fas fa-vote-yea"></i> Votar</a>
+              <a href="/wiki" class="navbar-item"><i class="fas fa-book-open"></i> Wiki</a>
+              <a href="/changelog" class="navbar-item"><i class="fas fa-scroll"></i> Changelog</a>
+              <a href="/eventos" class="navbar-item"><i class="fas fa-calendar-alt"></i> Eventos</a>
+              <a href="/status" class="navbar-item"><i class="fas fa-heartbeat"></i> Status</a>
+              <a href="/mapa" class="navbar-item"><i class="fas fa-map"></i> Mapa</a>
+              <a href="/ranking" class="navbar-item"><i class="fas fa-trophy"></i> Ranking</a>
+            </div>
+          </div>
           <a href="https://discord.gg/pAtKdPHBk2" target="_blank" rel="noreferrer" class="navbar-item"><i class="fab fa-discord"></i> Discord</a>
         </div>
-
         <div class="navbar-end">
           <div data-auth-slot="end"></div>
-          <a id="ip" class="navbar-item">
-            <i class="fas fa-copy"></i> <span>geracaozero.bedrock.net.br</span>
-            <textarea></textarea>
-          </a>
+          <a id="ip" class="navbar-item"><i class="fas fa-copy"></i> <span>geracaozero.bedrock.net.br</span><textarea></textarea></a>
         </div>
       </div>
     </nav>
@@ -68,17 +62,43 @@
     <article class="article">
       <h1 class="article-title"><i class="fas fa-vote-yea"></i> Votar no Geração Zero</h1>
       <div class="article-content">
-        <p>
-          Ajude o servidor a crescer votando nos listadores. Em troca, a staff pode liberar recompensas diárias (configure o plugin de votos no Minecraft).
-          <br><br>
-          Coloque o link real do listador no botão abaixo quando tiver a página de votos pronta.
-        </p>
-        <div class="has-text-centered" style="margin-top:1rem">
-          <a href="https://discord.gg/pAtKdPHBk2" target="_blank" rel="noreferrer" class="button is-primary">
-            <span class="icon"><i class="fas fa-check"></i></span>
-            <span>Ver recompensas no Discord</span>
-          </a>
+        <p>Vote diariamente nos listadores para ajudar o servidor a crescer. Recompensas in-game são liberadas pela staff / plugin de votos.</p>
+        <div class="columns is-multiline" style="margin-top:1rem">
+          <div class="column is-6">
+            <div class="box">
+              <h2 class="title is-5">Minecraft-MP</h2>
+              <p>Liste e vote no servidor.</p>
+              <a class="button is-success is-fullwidth" target="_blank" rel="noopener noreferrer"
+                 href="https://minecraft-mp.com/server-s340123">Votar no Minecraft-MP</a>
+            </div>
+          </div>
+          <div class="column is-6">
+            <div class="box">
+              <h2 class="title is-5">TopG</h2>
+              <p>Outro listador popular.</p>
+              <a class="button is-info is-fullwidth" target="_blank" rel="noopener noreferrer"
+                 href="https://topg.org/minecraft-servers">Votar no TopG</a>
+            </div>
+          </div>
+          <div class="column is-6">
+            <div class="box">
+              <h2 class="title is-5">Minecraft Servers List</h2>
+              <a class="button is-link is-fullwidth" target="_blank" rel="noopener noreferrer"
+                 href="https://minecraftservers.org/">Abrir listador</a>
+            </div>
+          </div>
+          <div class="column is-6">
+            <div class="box">
+              <h2 class="title is-5">Recompensas</h2>
+              <p>Tire dúvida sobre keys e kits no Discord.</p>
+              <a class="button is-primary is-fullwidth" target="_blank" rel="noopener noreferrer"
+                 href="https://discord.gg/pAtKdPHBk2">Ver no Discord</a>
+            </div>
+          </div>
         </div>
+        <p class="is-size-7" style="margin-top:1rem;opacity:.8">
+          Quando tiver os links oficiais do servidor em cada listador, envie para a staff atualizar os botões.
+        </p>
       </div>
     </article>
   </div>
@@ -92,12 +112,10 @@
     </article>
   </div>
 </footer>
-
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="assets/js/config.js?v=3"></script>
-<script src="assets/js/gz.js?v=8"></script>
+<script src="assets/js/gz.js?v=9"></script>
 <script src="assets/js/auth.js?v=15"></script>
 <script defer src="https://use.fontawesome.com/releases/v5.12.1/js/all.js"></script>
-
 </body>
 </html>
