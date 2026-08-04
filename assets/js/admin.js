@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var state = { products: [], users: [], orders: [], editingProductId: null, editingUserId: null };
+  var state = { products: [], coupons: [], users: [], orders: [], editingProductId: null, editingCouponCode: null, editingUserId: null };
 
   function $(id) { return document.getElementById(id); }
 
@@ -48,7 +48,7 @@
     document.querySelectorAll(".admin-tabs li").forEach(function (li) {
       li.classList.toggle("is-active", li.getAttribute("data-tab") === name);
     });
-    ["products", "orders", "users"].forEach(function (t) {
+    ["products", "coupons", "orders", "users"].forEach(function (t) {
       show($("tab-" + t), t === name);
     });
   }
@@ -160,6 +160,15 @@
     state.products = products.products || [];
     renderProducts();
 
+    try {
+      var coupons = await api("/api/admin/coupons.php");
+      state.coupons = coupons.coupons || [];
+      renderCoupons();
+    } catch (e) {
+      state.coupons = [];
+      if ($("coupons-table")) $("coupons-table").innerHTML = "<p>Não foi possível carregar cupons.</p>";
+    }
+
     var orders = await api("/api/admin/orders.php");
     state.orders = orders.orders || [];
     renderOrders();
@@ -167,6 +176,40 @@
     var users = await api("/api/admin/users.php");
     state.users = users.users || [];
     renderUsers();
+  }
+
+  function renderCoupons() {
+    if (!$("coupons-table")) return;
+    var rows = (state.coupons || []).map(function (c) {
+      return "<tr>" +
+        "<td><b>" + esc(c.code) + "</b></td>" +
+        "<td>" + esc(c.percent) + "%</td>" +
+        "<td>" + (c.active ? "sim" : "não") + "</td>" +
+        "<td>" + esc(c.usedCount || 0) + (c.maxUses ? ("/" + c.maxUses) : "") + "</td>" +
+        "<td>" + esc(c.expiresAt || "—") + "</td>" +
+        '<td class="admin-actions">' +
+        '<button type="button" class="button is-small" data-edit-coupon="' + esc(c.code) + '">Editar</button> ' +
+        '<button type="button" class="button is-small is-danger" data-del-coupon="' + esc(c.code) + '">Excluir</button>' +
+        "</td></tr>";
+    }).join("");
+    $("coupons-table").innerHTML =
+      '<table class="admin-table" style="width:100%"><thead><tr>' +
+      "<th>Código</th><th>%</th><th>Ativo</th><th>Usos</th><th>Expira</th><th></th>" +
+      "</tr></thead><tbody>" + (rows || "<tr><td colspan='6'>Nenhum cupom</td></tr>") + "</tbody></table>";
+  }
+
+  function openCouponForm(coupon) {
+    state.editingCouponCode = coupon ? coupon.code : null;
+    show($("form-coupon"), true);
+    $("coupon-form-title").textContent = coupon ? ("Editar " + coupon.code) : "Novo cupom";
+    $("c-code").value = coupon ? coupon.code : "";
+    $("c-code").readOnly = !!coupon;
+    $("c-percent").value = coupon ? coupon.percent : 10;
+    $("c-max").value = coupon ? (coupon.maxUses || 0) : 0;
+    $("c-expires").value = coupon ? (coupon.expiresAt || "") : "";
+    $("c-note").value = coupon ? (coupon.note || "") : "";
+    $("c-active").checked = coupon ? !!coupon.active : true;
+    msg("coupon-msg", "");
   }
 
   function nextSortOrder() {
@@ -307,8 +350,39 @@
 
     $("btn-new-product").addEventListener("click", function () { openProductForm(null); });
     $("btn-cancel-product").addEventListener("click", function () { show($("form-product"), false); });
+    if ($("btn-new-coupon")) {
+      $("btn-new-coupon").addEventListener("click", function () { openCouponForm(null); });
+    }
+    if ($("btn-cancel-coupon")) {
+      $("btn-cancel-coupon").addEventListener("click", function () { show($("form-coupon"), false); });
+    }
     $("btn-new-user").addEventListener("click", function () { openUserForm(null); });
     $("btn-cancel-user").addEventListener("click", function () { show($("form-user"), false); });
+
+    if ($("form-coupon")) {
+      $("form-coupon").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        var payload = {
+          code: $("c-code").value.trim().toUpperCase(),
+          percent: Number($("c-percent").value),
+          maxUses: Number($("c-max").value) || 0,
+          expiresAt: $("c-expires").value.trim(),
+          note: $("c-note").value.trim(),
+          active: $("c-active").checked,
+        };
+        try {
+          await api("/api/admin/coupons.php", {
+            method: state.editingCouponCode ? "PUT" : "POST",
+            body: JSON.stringify(payload),
+          });
+          msg("coupon-msg", "Cupom salvo!", "ok");
+          show($("form-coupon"), false);
+          await refreshAll();
+        } catch (err) {
+          msg("coupon-msg", err.message || "Falha", "error");
+        }
+      });
+    }
 
     if ($("p-amount")) {
       $("p-amount").addEventListener("input", syncPriceLabel);
@@ -426,7 +500,7 @@
     });
 
     document.body.addEventListener("click", async function (e) {
-      var t = e.target.closest("[data-edit-product],[data-edit-user],[data-del-product],[data-del-user],[data-del-order],[data-role-admin],[data-role-user],[data-fulfill]");
+      var t = e.target.closest("[data-edit-product],[data-edit-user],[data-edit-coupon],[data-del-product],[data-del-user],[data-del-coupon],[data-del-order],[data-role-admin],[data-role-user],[data-fulfill]");
       if (!t) return;
       btnLoad(t, true);
       try {
@@ -434,6 +508,10 @@
           var pid = t.getAttribute("data-edit-product");
           var p = state.products.find(function (x) { return x.id === pid; });
           if (p) openProductForm(p);
+        } else if (t.hasAttribute("data-edit-coupon")) {
+          var ccode = t.getAttribute("data-edit-coupon");
+          var c = state.coupons.find(function (x) { return x.code === ccode; });
+          if (c) openCouponForm(c);
         } else if (t.hasAttribute("data-edit-user")) {
           var uid = t.getAttribute("data-edit-user");
           var u = state.users.find(function (x) { return x.id === uid; });
@@ -441,6 +519,10 @@
         } else if (t.hasAttribute("data-del-product")) {
           if (!confirm("Excluir produto?")) return;
           await api("/api/admin/products.php?id=" + encodeURIComponent(t.getAttribute("data-del-product")), { method: "DELETE" });
+          await refreshAll();
+        } else if (t.hasAttribute("data-del-coupon")) {
+          if (!confirm("Excluir cupom?")) return;
+          await api("/api/admin/coupons.php?code=" + encodeURIComponent(t.getAttribute("data-del-coupon")), { method: "DELETE" });
           await refreshAll();
         } else if (t.hasAttribute("data-del-user")) {
           if (!confirm("Excluir usuário?")) return;

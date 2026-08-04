@@ -52,7 +52,11 @@ function gz_mp_apply_order_update(string $orderId, array $orderBody, ?array $exi
     ]);
 
     // preservar campos locais importantes
-    foreach (['nick', 'email', 'vip', 'productTitle', 'method', 'amount', 'fulfillmentStatus', 'fulfilledAt', 'fulfilledBy', 'adminNote'] as $k) {
+    foreach ([
+        'nick', 'email', 'vip', 'productTitle', 'method', 'amount', 'items',
+        'deliveryNick', 'giftNick', 'couponCode', 'couponPercent', 'amountOriginal',
+        'fulfillmentStatus', 'fulfilledAt', 'fulfilledBy', 'adminNote',
+    ] as $k) {
         if (!isset($merged[$k]) && isset($existing[$k])) {
             $merged[$k] = $existing[$k];
         }
@@ -62,7 +66,70 @@ function gz_mp_apply_order_update(string $orderId, array $orderBody, ?array $exi
     }
 
     gz_save_order($merged);
-    return $merged;
+    return gz_mp_try_auto_fulfill($merged);
+}
+
+/**
+ * Tenta liberar VIP automaticamente quando pago (RCON / plugin).
+ */
+function gz_mp_try_auto_fulfill(array $order): array
+{
+    if (!gz_mp_is_paid_status(
+        (string) ($order['status'] ?? ''),
+        (string) ($order['statusDetail'] ?? ''),
+        (string) ($order['paymentStatus'] ?? '')
+    )) {
+        return $order;
+    }
+    if (strtolower((string) ($order['fulfillmentStatus'] ?? '')) === 'done') {
+        return $order;
+    }
+
+    require_once __DIR__ . '/integrations/vip-auto.php';
+    if (!gz_vip_auto_enabled()) {
+        return $order;
+    }
+
+    $nick = (string) ($order['deliveryNick'] ?? $order['giftNick'] ?? $order['nick'] ?? '');
+    if ($nick === '') {
+        return $order;
+    }
+
+    $okAll = true;
+    $cmds = [];
+    $lines = $order['items'] ?? null;
+    if (is_array($lines) && count($lines) > 0) {
+        foreach ($lines as $line) {
+            $vipId = (string) ($line['vip'] ?? '');
+            $qty = max(1, (int) ($line['qty'] ?? 1));
+            for ($i = 0; $i < $qty; $i++) {
+                $res = gz_vip_auto_fulfill($nick, $vipId);
+                $cmds[] = $res['command'] ?? null;
+                if (empty($res['ok'])) {
+                    $okAll = false;
+                }
+            }
+        }
+    } else {
+        $res = gz_vip_auto_fulfill($nick, (string) ($order['vip'] ?? ''));
+        $cmds[] = $res['command'] ?? null;
+        $okAll = !empty($res['ok']);
+    }
+
+    if ($okAll) {
+        $order['fulfillmentStatus'] = 'done';
+        $order['fulfilledAt'] = date('c');
+        $order['fulfilledBy'] = 'auto';
+        $order['autoFulfillCommands'] = array_values(array_filter($cmds));
+        $order['updatedAt'] = date('c');
+        gz_save_order($order);
+    } else {
+        $order['autoFulfillAttemptAt'] = date('c');
+        $order['autoFulfillCommands'] = array_values(array_filter($cmds));
+        $order['updatedAt'] = date('c');
+        gz_save_order($order);
+    }
+    return $order;
 }
 
 function gz_mp_apply_payment_update(array $payment, ?array $existing = null): array
@@ -102,7 +169,7 @@ function gz_mp_apply_payment_update(array $payment, ?array $existing = null): ar
         $merged['fulfillmentStatus'] = 'pending';
     }
     gz_save_order($merged);
-    return $merged;
+    return gz_mp_try_auto_fulfill($merged);
 }
 
 /**

@@ -109,6 +109,7 @@
 <script src="assets/js/gz.js?v=9"></script>
 <script src="assets/js/auth.js?v=16"></script>
 <script src="assets/js/packs.js?v=8"></script>
+<script src="assets/js/cart.js?v=1"></script>
 <script>
   (async function () {
     await window.gzLoadCatalog();
@@ -128,10 +129,18 @@
         "<h2>" + p.preco + "</h2>" +
         '<div class="buttons is-centered">' +
         '<a href="/produto?vip=' + id + '" class="button is-primary" title="Ver detalhes"><span class="icon is-small"><i class="fas fa-eye"></i></span></a>' +
+        '<button type="button" class="button is-info" data-add-cart="' + id + '"><span class="icon"><i class="fas fa-plus"></i></span><span>Carrinho</span></button>' +
         '<a href="/checkout?vip=' + id + '" class="button is-success"><span class="icon"><i class="fas fa-shopping-cart"></i></span><span>Comprar</span></a>' +
         "</div></li>"
       );
     }).join("");
+    list.querySelectorAll("[data-add-cart]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        if (window.gzCart) window.gzCart.add(btn.getAttribute("data-add-cart"), 1);
+        btn.textContent = "Adicionado!";
+        setTimeout(function () { btn.innerHTML = '<span class="icon"><i class="fas fa-plus"></i></span><span>Carrinho</span>'; }, 900);
+      });
+    });
   })();
 </script>
 <script defer src="https://use.fontawesome.com/releases/v5.12.1/js/all.js"></script>

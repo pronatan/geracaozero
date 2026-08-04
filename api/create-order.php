@@ -23,9 +23,30 @@ $installments = (int) ($input['installments'] ?? 1);
 $issuerId = isset($input['issuerId']) ? (string) $input['issuerId'] : null;
 
 $catalog = gz_catalog();
-if (!isset($catalog[$vip])) {
-    gz_respond(400, ['ok' => false, 'message' => 'Pacote VIP inválido']);
+
+// items: [{vip, qty}] | legado vip único
+$rawItems = $input['items'] ?? null;
+$lineItems = [];
+if (is_array($rawItems) && count($rawItems) > 0) {
+    foreach ($rawItems as $it) {
+        $id = strtolower(trim((string) ($it['vip'] ?? $it['id'] ?? '')));
+        $qty = max(1, min(20, (int) ($it['qty'] ?? 1)));
+        if ($id === '' || !isset($catalog[$id])) {
+            gz_respond(400, ['ok' => false, 'message' => 'Item VIP inválido: ' . $id]);
+        }
+        if (!isset($lineItems[$id])) {
+            $lineItems[$id] = 0;
+        }
+        $lineItems[$id] += $qty;
+    }
+} else {
+    if ($vip === '' || !isset($catalog[$vip])) {
+        gz_respond(400, ['ok' => false, 'message' => 'Pacote VIP inválido']);
+    }
+    $lineItems[$vip] = 1;
 }
+
+$vip = array_key_first($lineItems) ?: $vip;
 
 if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     gz_respond(400, ['ok' => false, 'message' => 'E-mail inválido']);
@@ -67,8 +88,25 @@ if (!in_array($method, ['pix', 'credit_card'], true)) {
     gz_respond(400, ['ok' => false, 'message' => 'Forma de pagamento inválida']);
 }
 
+$orderLines = [];
+$amountOriginal = 0.0;
+$titles = [];
+foreach ($lineItems as $pid => $qty) {
+    $p = $catalog[$pid];
+    $unit = (float) $p['amount'];
+    $lineTotal = $unit * $qty;
+    $amountOriginal += $lineTotal;
+    $titles[] = $p['title'] . ($qty > 1 ? (' x' . $qty) : '');
+    $orderLines[] = [
+        'vip' => $pid,
+        'title' => (string) ($p['title'] ?? $pid),
+        'qty' => $qty,
+        'unitAmount' => number_format($unit, 2, '.', ''),
+        'amount' => number_format($lineTotal, 2, '.', ''),
+    ];
+}
+$productTitle = implode(' + ', $titles);
 $product = $catalog[$vip];
-$amountOriginal = (float) $product['amount'];
 $amount = number_format($amountOriginal, 2, '.', '');
 $couponApplied = null;
 if ($couponCode !== '') {
@@ -86,7 +124,7 @@ if ($couponCode !== '') {
 
 $externalReference = sprintf(
     'gz_%s_%s_%s',
-    $vip,
+    preg_replace('/[^a-z0-9_-]/i', '', implode('-', array_keys($lineItems))),
     preg_replace('/[^a-zA-Z0-9_-]/', '', $deliveryNick),
     bin2hex(random_bytes(4))
 );
@@ -136,22 +174,50 @@ if ($couponApplied) {
     $itemDesc .= ' | Cupom ' . $couponApplied['code'];
 }
 
+$mpItems = [];
+foreach ($orderLines as $line) {
+    $mpItems[] = [
+        'title' => $line['title'],
+        'unit_price' => $line['unitAmount'],
+        'quantity' => (int) $line['qty'],
+        'description' => $itemDesc,
+        'category_id' => 'others',
+    ];
+}
+
+// Se houve cupom, ajusta total_amount; MP Orders exige soma ≈ total
+// Rateio simples: uma linha "Desconto" negativa não é aceita — usamos total com preço unitário ajustado quando 1 item,
+// ou total_amount = amount e items com preços originais (MP pode validar soma). Preferir reescrever unit prices proporcionalmente.
+if ($couponApplied && $amountOriginal > 0) {
+    $factor = ((float) $amount) / $amountOriginal;
+    $mpItems = [];
+    $acc = 0.0;
+    $n = count($orderLines);
+    foreach ($orderLines as $i => $line) {
+        $lineAmt = round(((float) $line['amount']) * $factor, 2);
+        if ($i === $n - 1) {
+            $lineAmt = round(((float) $amount) - $acc, 2);
+        }
+        $acc += $lineAmt;
+        $unit = round($lineAmt / max(1, (int) $line['qty']), 2);
+        $mpItems[] = [
+            'title' => $line['title'],
+            'unit_price' => number_format($unit, 2, '.', ''),
+            'quantity' => (int) $line['qty'],
+            'description' => $itemDesc,
+            'category_id' => 'others',
+        ];
+    }
+}
+
 $orderBody = [
     'type' => 'online',
     'processing_mode' => 'automatic',
     'external_reference' => $externalReference,
-    'description' => $product['description'] . ' | ' . $itemDesc,
+    'description' => $productTitle . ' | ' . $itemDesc,
     'total_amount' => $amount,
     'payer' => $payer,
-    'items' => [
-        [
-            'title' => $product['title'],
-            'unit_price' => $amount,
-            'quantity' => 1,
-            'description' => $itemDesc,
-            'category_id' => 'others',
-        ],
-    ],
+    'items' => $mpItems,
     'transactions' => [
         'payments' => [
             [
@@ -218,7 +284,8 @@ if (!$result['ok']) {
             'deliveryNick' => $deliveryNick,
             'email' => $email,
             'vip' => $vip,
-            'productTitle' => (string) ($product['title'] ?? $vip),
+            'productTitle' => $productTitle,
+            'items' => $orderLines,
             'method' => $method,
             'amount' => $amount,
             'status' => (string) ($failedOrder['status'] ?? 'failed'),
@@ -260,7 +327,8 @@ $saved = [
     'deliveryNick' => $deliveryNick,
     'email' => $email,
     'vip' => $vip,
-    'productTitle' => (string) ($product['title'] ?? $vip),
+    'productTitle' => $productTitle,
+    'items' => $orderLines,
     'method' => $method,
     'amount' => $amount,
     'status' => (string) ($order['status'] ?? ''),
@@ -279,6 +347,9 @@ if ($deliveryNick !== $buyerNick) {
     $saved['giftNick'] = $deliveryNick;
 }
 gz_save_order($saved);
+if ($couponApplied) {
+    gz_coupon_increment_uses($couponApplied['code']);
+}
 
 $response = [
     'ok' => true,

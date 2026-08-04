@@ -43,6 +43,7 @@
       <div class="tabs is-boxed admin-tabs">
         <ul>
           <li class="is-active" data-tab="products"><a>Produtos</a></li>
+          <li data-tab="coupons"><a>Cupons</a></li>
           <li data-tab="orders"><a>Pedidos</a></li>
           <li data-tab="users"><a>Usuários</a></li>
         </ul>
@@ -112,6 +113,50 @@
         </form>
       </section>
 
+      <section id="tab-coupons" class="admin-panel article is-hidden">
+        <div class="admin-panel-head">
+          <h2 class="article-title">Cupons de desconto</h2>
+          <button type="button" class="button is-success" id="btn-new-coupon">
+            <span class="icon is-small"><i class="fas fa-plus"></i></span>
+            <span>Novo cupom</span>
+          </button>
+        </div>
+        <div id="coupons-table" class="admin-table-wrap"></div>
+        <form id="form-coupon" class="admin-form is-hidden">
+          <h3 id="coupon-form-title">Novo cupom</h3>
+          <div class="columns is-multiline">
+            <div class="column is-3">
+              <label>Código</label>
+              <input class="input" id="c-code" required maxlength="32" placeholder="STAFF10" style="text-transform:uppercase">
+            </div>
+            <div class="column is-2">
+              <label>% desconto</label>
+              <input class="input" id="c-percent" type="number" min="1" max="90" required value="10">
+            </div>
+            <div class="column is-2">
+              <label>Máx. usos (0=∞)</label>
+              <input class="input" id="c-max" type="number" min="0" value="0">
+            </div>
+            <div class="column is-3">
+              <label>Expira em (ISO opcional)</label>
+              <input class="input" id="c-expires" placeholder="2026-12-31T23:59:00">
+            </div>
+            <div class="column is-12">
+              <label>Nota</label>
+              <input class="input" id="c-note" placeholder="Campanha Discord">
+            </div>
+            <div class="column is-12">
+              <label class="checkbox"><input type="checkbox" id="c-active" checked> Ativo</label>
+            </div>
+          </div>
+          <div class="buttons">
+            <button type="submit" class="button is-primary">Salvar cupom</button>
+            <button type="button" class="button" id="btn-cancel-coupon">Cancelar</button>
+          </div>
+          <p id="coupon-msg" class="checkout-msg is-hidden"></p>
+        </form>
+      </section>
+
       <section id="tab-orders" class="admin-panel article is-hidden">
         <h2 class="article-title">Pedidos</h2>
         <div id="orders-table" class="admin-table-wrap"></div>
@@ -166,7 +211,7 @@
 
 <script src="assets/js/config.js?v=3"></script>
 <script src="assets/js/avatar.js?v=2"></script>
-<script src="assets/js/admin.js?v=16"></script>
+<script src="assets/js/admin.js?v=17"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
 <script src="assets/js/password-toggle.js?v=4"></script>
 </body>

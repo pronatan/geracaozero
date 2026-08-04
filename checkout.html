@@ -91,6 +91,7 @@
             <img id="produto-img" src="assets/img/vip-lacoste.png?v=1" alt="VIP">
             <h1 id="produto-preco">R$29,90</h1>
             <p id="checkout-resumo" class="checkout-resumo">VIP Lacoste — R$29,90</p>
+            <div id="checkout-cart-box" class="box is-hidden" style="margin:0.75rem 0;padding:0.75rem;font-size:0.85rem"></div>
             <p id="checkout-msg" class="checkout-msg is-hidden" aria-live="polite"></p>
 
             <div id="pay-success" class="is-hidden checkout-success">
@@ -277,6 +278,7 @@
 <script src="assets/js/mc-lookup.js?v=2"></script>
 <script src="assets/js/auth.js?v=16"></script>
 <script src="assets/js/packs.js?v=8"></script>
+<script src="assets/js/cart.js?v=1"></script>
 <script>
   (async function () {
     await window.gzLoadCatalog();
@@ -291,7 +293,7 @@
     document.title = "Checkout " + pack.titulo + " - Geração Zero";
   })();
 </script>
-<script src="assets/js/checkout.js?v=16"></script>
+<script src="assets/js/checkout.js?v=17"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
 
 </body>

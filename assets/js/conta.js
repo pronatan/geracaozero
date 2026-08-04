@@ -161,13 +161,16 @@
               ? '<button type="button" class="button is-small is-danger" data-del-my-order="' + esc(id) + '">Excluir</button>'
               : "";
             var para = o.deliveryNick || o.giftNick || o.nick || "-";
+            var receipt = (entregaLabel(o) === "VIP liberado" || entregaLabel(o) === "Aguardando liberação")
+              ? '<a class="button is-small is-link" target="_blank" href="/api/auth/receipt.php?orderId=' + esc(id) + '">Comprovante</a> '
+              : "";
             return "<tr>" +
               "<td>" + esc(o.productTitle || o.vip || "VIP") + "</td>" +
               "<td>" + esc(para) + "</td>" +
               "<td>" + esc(formatMoney(o.amount)) + "</td>" +
               "<td>" + esc(entregaLabel(o)) + "</td>" +
               "<td>" + esc(formatDate(o.createdAt)) + "</td>" +
-              '<td class="admin-actions">' + payBtn + delBtn + "</td>" +
+              '<td class="admin-actions">' + payBtn + receipt + delBtn + "</td>" +
               "</tr>";
           }).join("") +
           "</tbody></table>";

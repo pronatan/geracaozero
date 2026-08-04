@@ -97,16 +97,64 @@
   }
 
   function syncPackFromPage() {
-    var vip = new URLSearchParams(location.search).get("vip") || "lacoste";
-    var pack = packs[vip] || packs.lacoste || packs[Object.keys(packs)[0]];
-    if (!pack) return;
-    state.vip = vip;
-    state.title = pack.titulo;
-    state.amountOriginal = String(pack.amount || "29.90");
+    var vipQ = new URLSearchParams(location.search).get("vip") || "";
+    var cartItems = (window.gzCart && window.gzCart.items) ? window.gzCart.items() : [];
+    state.cartLines = [];
+
+    if (cartItems.length) {
+      cartItems.forEach(function (it) {
+        var pack = packs[it.id];
+        if (!pack) return;
+        state.cartLines.push({
+          vip: it.id,
+          qty: Math.max(1, Number(it.qty) || 1),
+          title: pack.titulo,
+          unit: Number(pack.amount || 0),
+        });
+      });
+    }
+
+    if (!state.cartLines.length) {
+      var vip = vipQ || "lacoste";
+      var pack = packs[vip] || packs.lacoste || packs[Object.keys(packs)[0]];
+      if (!pack) return;
+      state.cartLines = [{ vip: vip, qty: 1, title: pack.titulo, unit: Number(pack.amount || 0) }];
+    }
+
+    state.vip = state.cartLines[0].vip;
+    state.title = state.cartLines.map(function (l) {
+      return l.title + (l.qty > 1 ? (" x" + l.qty) : "");
+    }).join(" + ");
+    state.amountOriginal = String(state.cartLines.reduce(function (s, l) {
+      return s + l.unit * l.qty;
+    }, 0).toFixed(2));
     state.amount = state.amountOriginal;
     state.coupon = "";
     state.couponPercent = 0;
+    renderCartBox();
     updateResumo();
+  }
+
+  function renderCartBox() {
+    var box = $("checkout-cart-box");
+    if (!box) return;
+    if (!state.cartLines || state.cartLines.length < 2) {
+      box.classList.add("is-hidden");
+      box.innerHTML = "";
+      return;
+    }
+    box.classList.remove("is-hidden");
+    box.innerHTML = "<b>Carrinho</b><ul style='margin:0.4rem 0 0;padding-left:1.1rem'>" +
+      state.cartLines.map(function (l) {
+        return "<li>" + l.title + " × " + l.qty + " — " + money(l.unit * l.qty) + "</li>";
+      }).join("") +
+      "</ul><a href='/loja' style='font-size:0.75rem'>Adicionar mais na loja</a>";
+  }
+
+  function orderItemsPayload() {
+    return (state.cartLines || []).map(function (l) {
+      return { vip: l.vip, qty: l.qty };
+    });
   }
 
   function updateResumo() {
@@ -295,6 +343,7 @@
       var nick = await ensureNickFound();
       var data = await createOrder({
         vip: state.vip,
+        items: orderItemsPayload(),
         method: "pix",
         nick: nick,
         giftNick: getGiftNick(),
@@ -302,6 +351,7 @@
         email: email.trim(),
         cpf: cpf.trim(),
       });
+      if (window.gzCart) window.gzCart.clear();
 
       if (data.status === "processed" || data.statusDetail === "accredited") {
         renderPaid(data);
@@ -344,6 +394,7 @@
       var nick = await ensureNickFound();
       var data = await createOrder({
         vip: state.vip,
+        items: orderItemsPayload(),
         method: "credit_card",
         nick: nick,
         giftNick: getGiftNick(),
@@ -355,6 +406,7 @@
         installments: Number(cardData.installments || 1),
         issuerId: cardData.issuerId,
       });
+      if (window.gzCart) window.gzCart.clear();
 
       state.orderId = data.orderId || null;
 
