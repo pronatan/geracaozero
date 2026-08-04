@@ -955,6 +955,74 @@ img.mc-nick-avatar {
   }
 }
 
+/* Formulários */
+.form-card {
+  margin-top: 1.25rem;
+  overflow: hidden;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+}
+
+.form-card-banner {
+  display: block;
+  line-height: 0;
+  background: #1a1338;
+}
+
+.form-card-banner img {
+  display: block;
+  width: 100%;
+  max-height: 280px;
+  object-fit: cover;
+}
+
+.form-card-body {
+  padding: 1.25rem 1.35rem 1.5rem;
+}
+
+.form-card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem;
+  color: #fff;
+}
+
+.form-card-desc {
+  margin: 0 0 1rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.form-card-actions {
+  margin-bottom: 1.15rem;
+}
+
+.form-card-embed {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #fff;
+}
+
+.form-card-embed iframe {
+  display: block;
+  width: 100%;
+  min-height: 1200px;
+  border: 0;
+}
+
+@media screen and (max-width: 768px) {
+  .form-card-banner img {
+    max-height: 180px;
+  }
+
+  .form-card-embed iframe {
+    min-height: 1400px;
+  }
+}
+
 .cor-4{color:#be0000}
 .cor-c{color:#fe3f3f}
 .cor-6{color:#d9a334}
