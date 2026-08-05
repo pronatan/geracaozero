@@ -116,17 +116,7 @@
   }
 
   function renderLinked(list) {
-    var el = $("conta-linked-list");
-    if (!el) return;
-    list = list || [];
-    if (!list.length) {
-      el.innerHTML = "<p class='checkout-note'>Nenhuma conta extra vinculada.</p>";
-      return;
-    }
-    el.innerHTML = "<ul class='list'>" + list.map(function (a) {
-      return "<li><b>" + esc(typeLabel(a.type)) + "</b>: " + esc(a.nick) +
-        ' <button type="button" class="button is-small is-danger" data-rm-linked="' + esc(a.nick) + '" data-rm-type="' + esc(a.type || "") + '">Remover</button></li>';
-    }).join("") + "</ul>";
+    // card Contas Minecraft removido da UI
   }
 
   function renderDiscord(u) {

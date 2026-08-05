@@ -1,6 +1,6 @@
 <?php
 /**
- * Login — com suporte a 2FA por e-mail (SES)
+ * Login — com suporte a 2FA por e-mail ou Discord
  */
 require __DIR__ . '/common.php';
 require_once dirname(__DIR__) . '/mail.php';
@@ -69,7 +69,7 @@ if (!$user || empty($user['passwordHash']) || !password_verify($password, $user[
     gz_respond(401, ['ok' => false, 'message' => 'Login ou senha inválidos']);
 }
 
-// 2FA ativo → envia código (e-mail SES ou Discord DM)
+// 2FA ativo → envia código (e-mail ou Discord DM)
 if (!empty($user['twoFactorEnabled'])) {
     $channel = strtolower((string) ($user['twoFactorChannel'] ?? 'email'));
     if (!in_array($channel, ['email', 'discord'], true)) {
@@ -109,7 +109,7 @@ if (!empty($user['twoFactorEnabled'])) {
     if (!gz_mail_configured()) {
         gz_respond(503, [
             'ok' => false,
-            'message' => '2FA ativo, mas MAIL_FROM/SES não está configurado. Contate a staff.',
+            'message' => '2FA ativo, mas o envio de e-mail ainda não está configurado. Contate a staff.',
         ]);
     }
     $email = (string) ($user['email'] ?? '');
@@ -119,7 +119,7 @@ if (!empty($user['twoFactorEnabled'])) {
         '<p>Válido por 10 minutos.</p>';
     $sent = gz_mail_send($email, 'Código 2FA - Geração Zero', $text, $html);
     if (!$sent['ok']) {
-        gz_respond(502, ['ok' => false, 'message' => 'Não foi possível enviar o código 2FA: ' . ($sent['message'] ?? 'SES')]);
+        gz_respond(502, ['ok' => false, 'message' => 'Não foi possível enviar o código 2FA: ' . ($sent['message'] ?? 'e-mail')]);
     }
 
     gz_respond(200, [

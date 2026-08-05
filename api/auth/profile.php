@@ -149,7 +149,7 @@ if ($method === 'PUT' || $method === 'PATCH' || $method === 'POST') {
         }
     }
 
-    // 2FA (e-mail SES ou Discord DM)
+    // 2FA (e-mail ou Discord DM)
     if (array_key_exists('twoFactorEnabled', $input)) {
         $enable = !empty($input['twoFactorEnabled']);
         if ($enable) {
@@ -160,7 +160,7 @@ if ($method === 'PUT' || $method === 'PATCH' || $method === 'POST') {
             if ($channel === 'email') {
                 require_once dirname(__DIR__) . '/mail.php';
                 if (!gz_mail_configured()) {
-                    gz_respond(503, ['ok' => false, 'message' => 'MAIL_FROM/SES não configurado. Contate a staff.']);
+                    gz_respond(503, ['ok' => false, 'message' => 'Envio de e-mail ainda não está configurado. Contate a staff.']);
                 }
                 if (empty($user['email'])) {
                     gz_respond(400, ['ok' => false, 'message' => 'Defina um e-mail antes de ativar 2FA']);

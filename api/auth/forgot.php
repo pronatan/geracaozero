@@ -1,6 +1,6 @@
 <?php
 /**
- * Atualiza forgot.php para usar SES
+ * Recuperação de senha — e-mail via Resend
  */
 require __DIR__ . '/common.php';
 require_once dirname(__DIR__) . '/mail.php';
@@ -48,13 +48,13 @@ if (gz_mail_configured()) {
         'mailConfigured' => true,
         'message' => $sent['ok']
             ? 'Enviamos um link de recuperação para o seu e-mail.'
-            : ('Não foi possível enviar o e-mail: ' . ($sent['message'] ?? 'erro SES') . '. Abra ticket no Discord.'),
+            : ('Não foi possível enviar o e-mail: ' . ($sent['message'] ?? 'erro') . '. Abra ticket no Discord.'),
     ]);
 }
 
 $dev = strtolower(gz_env('GZ_RESET_DEV', 'false')) === 'true';
 $payload = $generic;
-$payload['message'] = 'E-mail SES ainda não configurado (MAIL_FROM). Abra um ticket no Discord ou ative o SES.';
+$payload['message'] = 'Envio de e-mail ainda não configurado. Abra um ticket no Discord.';
 if ($dev) {
     $payload['devResetUrl'] = $resetUrl;
 }
