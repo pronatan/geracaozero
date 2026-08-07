@@ -120,32 +120,14 @@
         <article class="article" style="margin-top:1.5rem">
           <h1 class="article-title"><i class="fas fa-shield-alt"></i> Segurança (2FA)</h1>
           <div class="article-content">
-            <p class="checkout-note">Código enviado por e-mail ou DM do Discord.</p>
+            <p class="checkout-note">Código enviado por e-mail quando você entrar.</p>
             <div class="field">
               <label class="checkbox">
                 <input id="conta-2fa-enabled" type="checkbox"> Ativar autenticação em duas etapas
               </label>
             </div>
-              <div class="field">
-              <div class="control">
-                <div class="select is-fullwidth">
-                  <select id="conta-2fa-channel" aria-label="Canal do código 2FA">
-                    <option value="email">E-mail</option>
-                    <option value="discord">Discord (DM)</option>
-                  </select>
-                </div>
-              </div>
-            </div>
+            <input type="hidden" id="conta-2fa-channel" value="email">
             <button type="button" id="btn-save-2fa" class="button is-warning is-fullwidth">Salvar 2FA</button>
-          </div>
-        </article>
-
-        <article class="article" style="margin-top:1.5rem">
-          <h1 class="article-title"><i class="fab fa-discord"></i> Discord</h1>
-          <div class="article-content">
-            <p id="conta-discord-status">Não vinculado</p>
-            <a id="conta-discord-link" href="/discord-auth?mode=link" class="button is-link is-fullwidth" style="background:#5865F2;border-color:#5865F2">Vincular Discord</a>
-            <button type="button" id="btn-unlink-discord" class="button is-light is-fullwidth is-hidden" style="margin-top:0.5rem">Desvincular</button>
           </div>
         </article>
       </div>
@@ -182,7 +164,7 @@
 <script src="assets/js/gz.js?v=9"></script>
 <script src="assets/js/avatar.js?v=2"></script>
 <script src="assets/js/auth.js?v=18"></script>
-<script src="assets/js/conta.js?v=13"></script>
+<script src="assets/js/conta.js?v=14"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
 <script src="assets/js/password-toggle.js?v=4"></script>
 </body>

@@ -4,7 +4,6 @@
  */
 require __DIR__ . '/common.php';
 require_once dirname(__DIR__) . '/mail.php';
-require_once dirname(__DIR__) . '/discord.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     gz_respond(405, ['ok' => false, 'message' => 'Método não permitido']);
@@ -69,13 +68,8 @@ if (!$user || empty($user['passwordHash']) || !password_verify($password, $user[
     gz_respond(401, ['ok' => false, 'message' => 'Login ou senha inválidos']);
 }
 
-// 2FA ativo → envia código (e-mail ou Discord DM)
+// 2FA ativo → envia código por e-mail
 if (!empty($user['twoFactorEnabled'])) {
-    $channel = strtolower((string) ($user['twoFactorChannel'] ?? 'email'));
-    if (!in_array($channel, ['email', 'discord'], true)) {
-        $channel = 'email';
-    }
-
     $code = (string) random_int(100000, 999999);
     $pending = bin2hex(random_bytes(24));
     $user['twoFactorCodeHash'] = hash('sha256', $code);
@@ -85,27 +79,6 @@ if (!empty($user['twoFactorEnabled'])) {
     gz_save_user($user);
 
     $nick = (string) ($user['nick'] ?? '');
-    if ($channel === 'discord') {
-        $discordId = (string) ($user['discordId'] ?? '');
-        if ($discordId === '') {
-            gz_respond(400, ['ok' => false, 'message' => '2FA Discord ativo, mas a conta não está vinculada. Contate a staff.']);
-        }
-        $sent = gz_discord_send_dm(
-            $discordId,
-            "**Geração Zero — 2FA**\nOlá **{$nick}**, seu código: `{$code}`\nVálido por 10 minutos."
-        );
-        if (!$sent['ok']) {
-            gz_respond(502, ['ok' => false, 'message' => 'Não foi possível enviar o código no Discord: ' . ($sent['message'] ?? '')]);
-        }
-        gz_respond(200, [
-            'ok' => true,
-            'requires2fa' => true,
-            'pendingToken' => $pending,
-            'channel' => 'discord',
-            'message' => 'Enviamos um código 2FA na sua DM do Discord.',
-        ]);
-    }
-
     if (!gz_mail_configured()) {
         gz_respond(503, [
             'ok' => false,

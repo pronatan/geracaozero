@@ -153,10 +153,7 @@ if ($method === 'PUT' || $method === 'PATCH' || $method === 'POST') {
     if (array_key_exists('twoFactorEnabled', $input)) {
         $enable = !empty($input['twoFactorEnabled']);
         if ($enable) {
-            $channel = strtolower(trim((string) ($input['twoFactorChannel'] ?? ($user['twoFactorChannel'] ?? 'email'))));
-            if (!in_array($channel, ['email', 'discord'], true)) {
-                $channel = 'email';
-            }
+            $channel = 'email';
             if ($channel === 'email') {
                 require_once dirname(__DIR__) . '/mail.php';
                 if (!gz_mail_configured()) {
@@ -165,34 +162,21 @@ if ($method === 'PUT' || $method === 'PATCH' || $method === 'POST') {
                 if (empty($user['email'])) {
                     gz_respond(400, ['ok' => false, 'message' => 'Defina um e-mail antes de ativar 2FA']);
                 }
-            } else {
-                if (empty($user['discordId'])) {
-                    gz_respond(400, ['ok' => false, 'message' => 'Vincule o Discord antes de usar 2FA por Discord']);
-                }
-                require_once dirname(__DIR__) . '/discord.php';
-                if (gz_discord_bot_token() === '') {
-                    gz_respond(503, ['ok' => false, 'message' => 'Bot Discord (DISCORD_BOT_TOKEN) não configurado']);
-                }
             }
             $user['twoFactorEnabled'] = true;
-            $user['twoFactorChannel'] = $channel;
+            $user['twoFactorChannel'] = 'email';
         } else {
             $user['twoFactorEnabled'] = false;
             unset($user['twoFactorCodeHash'], $user['twoFactorPendingHash'], $user['twoFactorExpires']);
         }
     } elseif (!empty($input['twoFactorChannel'])) {
-        $channel = strtolower(trim((string) $input['twoFactorChannel']));
-        if (in_array($channel, ['email', 'discord'], true)) {
-            $user['twoFactorChannel'] = $channel;
-        }
+        $user['twoFactorChannel'] = 'email';
     }
 
-    // Desvincular Discord
+    // Desvincular Discord (legado)
     if (!empty($input['unlinkDiscord'])) {
         unset($user['discordId'], $user['discordUsername']);
-        if (($user['twoFactorChannel'] ?? '') === 'discord') {
-            $user['twoFactorChannel'] = 'email';
-        }
+        $user['twoFactorChannel'] = 'email';
     }
 
     // Contas vinculadas (Java / Bedrock / TLauncher)

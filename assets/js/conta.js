@@ -119,33 +119,11 @@
     // card Contas Minecraft removido da UI
   }
 
-  function renderDiscord(u) {
-    var st = $("conta-discord-status");
-    var link = $("conta-discord-link");
-    var unlink = $("btn-unlink-discord");
-    if (u.discordId) {
-      if (st) st.innerHTML = "Vinculado: <b>" + esc(u.discordUsername || u.discordId) + "</b>";
-      if (link) link.classList.add("is-hidden");
-      if (unlink) unlink.classList.remove("is-hidden");
-    } else {
-      if (st) st.textContent = u.discordOAuthReady === false
-        ? "Discord OAuth ainda não configurado no servidor."
-        : "Não vinculado";
-      if (link) {
-        var tok = (window.gzGetToken && window.gzGetToken()) || (localStorage.getItem("gz_token") || "");
-        link.href = "/discord-auth?mode=link";
-        // token segue no localStorage; API usa Authorization via gzFetch na página discord-auth
-        link.classList.toggle("is-hidden", false);
-      }
-      if (unlink) unlink.classList.add("is-hidden");
-    }
-  }
-
   function renderSecurity(u) {
     var en = $("conta-2fa-enabled");
     var ch = $("conta-2fa-channel");
     if (en) en.checked = !!u.twoFactorEnabled;
-    if (ch) ch.value = u.twoFactorChannel === "discord" ? "discord" : "email";
+    if (ch) ch.value = "email";
   }
 
   async function load() {
@@ -162,7 +140,6 @@
       $("conta-email-view").textContent = u.email || "-";
       $("conta-email").value = u.email || "";
       renderSecurity(u);
-      renderDiscord(u);
       renderLinked(u.linkedAccounts || []);
       if (window.gzRenderAvatarChip) {
         window.gzRenderAvatarChip($("conta-avatar"), u, {
@@ -218,12 +195,6 @@
               "</tr>";
           }).join("") +
           "</tbody></table>";
-      }
-
-      var qs = new URLSearchParams(window.location.search);
-      if (qs.get("discord") === "linked") {
-        setMsg("Discord vinculado com sucesso!", "ok");
-        history.replaceState({}, "", "/conta");
       }
     } catch (e) {
       show($("conta-gate"), true);
@@ -307,7 +278,7 @@
             method: "PUT",
             body: JSON.stringify({
               twoFactorEnabled: !!($("conta-2fa-enabled") && $("conta-2fa-enabled").checked),
-              twoFactorChannel: ($("conta-2fa-channel") && $("conta-2fa-channel").value) || "email",
+              twoFactorChannel: "email",
             }),
           });
           var data = await res.json();
@@ -318,80 +289,6 @@
           setMsg(err.message || "Erro 2FA", "error");
         } finally {
           if (window.gzSetBtnLoading) window.gzSetBtnLoading(btn2fa, false);
-        }
-      });
-    }
-
-    var unlink = $("btn-unlink-discord");
-    if (unlink && !unlink.dataset.bound) {
-      unlink.dataset.bound = "1";
-      unlink.addEventListener("click", async function () {
-        if (!confirm("Desvincular Discord desta conta?")) return;
-        try {
-          var res = await window.gzFetch("/api/auth/profile.php", {
-            method: "PUT",
-            body: JSON.stringify({ unlinkDiscord: true }),
-          });
-          var data = await res.json();
-          if (!res.ok || !data.ok) throw new Error(data.message || "Falha");
-          setMsg("Discord desvinculado.", "ok");
-          renderDiscord(data.user || {});
-          renderSecurity(data.user || {});
-        } catch (err) {
-          setMsg(err.message || "Erro", "error");
-        }
-      });
-    }
-
-    var addBtn = $("btn-add-linked");
-    if (addBtn && !addBtn.dataset.bound) {
-      addBtn.dataset.bound = "1";
-      addBtn.addEventListener("click", async function () {
-        var nick = ($("link-nick") && $("link-nick").value || "").trim();
-        var type = ($("link-type") && $("link-type").value) || "java";
-        if (!nick) {
-          setMsg("Informe o nick/gamertag.", "error");
-          return;
-        }
-        if (window.gzSetBtnLoading) window.gzSetBtnLoading(addBtn, true);
-        try {
-          setMsg("Vinculando...", "");
-          var res = await window.gzFetch("/api/auth/profile.php", {
-            method: "PUT",
-            body: JSON.stringify({ addLinkedAccount: { type: type, nick: nick } }),
-          });
-          var data = await res.json();
-          if (!res.ok || !data.ok) throw new Error(data.message || "Falha ao vincular");
-          setMsg("Conta vinculada!", "ok");
-          $("link-nick").value = "";
-          renderLinked((data.user && data.user.linkedAccounts) || []);
-        } catch (err) {
-          setMsg(err.message || "Erro", "error");
-        } finally {
-          if (window.gzSetBtnLoading) window.gzSetBtnLoading(addBtn, false);
-        }
-      });
-    }
-
-    var linkedWrap = $("conta-linked-list");
-    if (linkedWrap && !linkedWrap.dataset.boundRm) {
-      linkedWrap.dataset.boundRm = "1";
-      linkedWrap.addEventListener("click", async function (e) {
-        var btn = e.target.closest("[data-rm-linked]");
-        if (!btn) return;
-        var nick = btn.getAttribute("data-rm-linked");
-        var type = btn.getAttribute("data-rm-type") || "";
-        try {
-          var res = await window.gzFetch("/api/auth/profile.php", {
-            method: "PUT",
-            body: JSON.stringify({ removeLinkedAccount: { nick: nick, type: type } }),
-          });
-          var data = await res.json();
-          if (!res.ok || !data.ok) throw new Error(data.message || "Falha");
-          setMsg("Conta removida.", "ok");
-          renderLinked((data.user && data.user.linkedAccounts) || []);
-        } catch (err) {
-          setMsg(err.message || "Erro", "error");
         }
       });
     }
