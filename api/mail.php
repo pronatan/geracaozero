@@ -1,23 +1,53 @@
 <?php
 /**
- * Envio de e-mail via Resend (https://resend.com)
- * Env: RESEND_API_KEY=re_xxx
- *      MAIL_FROM="Geração Zero <onboarding@resend.dev>" (ou domínio verificado)
+ * Envio de e-mail via Brevo (https://developers.brevo.com)
+ * Env: BREVO_API_KEY=xkeysib-...
+ *      MAIL_FROM=Geração Zero <guihcomercial@gmail.com>  (remetente verificado no Brevo)
  */
 require_once __DIR__ . '/bootstrap.php';
 
 function gz_mail_configured(): bool
 {
-    return trim(gz_env('RESEND_API_KEY', '')) !== '';
+    return trim(gz_env('BREVO_API_KEY', '')) !== ''
+        || trim(gz_env('RESEND_API_KEY', '')) !== ''; // legado
+}
+
+/**
+ * @return array{name:string,email:string}
+ */
+function gz_mail_from_parts(): array
+{
+    $from = trim(gz_env('MAIL_FROM', ''));
+    $defaultEmail = 'guihcomercial@gmail.com';
+    $defaultName = 'Geração Zero';
+
+    if ($from === '') {
+        return ['name' => $defaultName, 'email' => $defaultEmail];
+    }
+
+    // Formato: Nome <email@x.com>
+    if (preg_match('/^\s*(.*?)\s*<\s*([^>]+)\s*>\s*$/u', $from, $m)) {
+        $name = trim($m[1]);
+        $email = strtolower(trim($m[2]));
+        if ($name === '') {
+            $name = $defaultName;
+        }
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return ['name' => $name, 'email' => $email];
+        }
+    }
+
+    if (filter_var($from, FILTER_VALIDATE_EMAIL)) {
+        return ['name' => $defaultName, 'email' => strtolower($from)];
+    }
+
+    return ['name' => $defaultName, 'email' => $defaultEmail];
 }
 
 function gz_mail_from(): string
 {
-    $from = trim(gz_env('MAIL_FROM', ''));
-    if ($from !== '') {
-        return $from;
-    }
-    return 'Geração Zero <onboarding@resend.dev>';
+    $p = gz_mail_from_parts();
+    return $p['name'] . ' <' . $p['email'] . '>';
 }
 
 /**
@@ -25,33 +55,43 @@ function gz_mail_from(): string
  */
 function gz_mail_send(string $to, string $subject, string $textBody, string $htmlBody = ''): array
 {
-    $apiKey = trim(gz_env('RESEND_API_KEY', ''));
+    $apiKey = trim(gz_env('BREVO_API_KEY', ''));
     if ($apiKey === '') {
-        return ['ok' => false, 'message' => 'E-mail não configurado (RESEND_API_KEY)'];
+        return ['ok' => false, 'message' => 'E-mail não configurado (BREVO_API_KEY)'];
     }
+
     $to = strtolower(trim($to));
     if ($to === '' || !filter_var($to, FILTER_VALIDATE_EMAIL)) {
         return ['ok' => false, 'message' => 'Destinatário inválido'];
     }
 
+    $from = gz_mail_from_parts();
     $payload = [
-        'from' => gz_mail_from(),
-        'to' => [$to],
+        'sender' => [
+            'name' => $from['name'],
+            'email' => $from['email'],
+        ],
+        'to' => [
+            ['email' => $to],
+        ],
         'subject' => $subject,
-        'text' => $textBody,
+        'textContent' => $textBody !== '' ? $textBody : strip_tags($htmlBody),
     ];
     if ($htmlBody !== '') {
-        $payload['html'] = $htmlBody;
+        $payload['htmlContent'] = $htmlBody;
+    } else {
+        $payload['htmlContent'] = '<p>' . nl2br(htmlspecialchars($textBody, ENT_QUOTES, 'UTF-8')) . '</p>';
     }
 
     $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
-    $ch = curl_init('https://api.resend.com/emails');
+    $ch = curl_init('https://api.brevo.com/v3/smtp/email');
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => $json,
         CURLOPT_HTTPHEADER => [
-            'Authorization: Bearer ' . $apiKey,
-            'Content-Type: application/json',
+            'api-key: ' . $apiKey,
+            'accept: application/json',
+            'content-type: application/json',
         ],
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT => 20,
@@ -67,6 +107,7 @@ function gz_mail_send(string $to, string $subject, string $textBody, string $htm
     }
 
     gz_log('mail.log', [
+        'provider' => 'brevo',
         'to' => $to,
         'subject' => $subject,
         'status' => $status,
@@ -79,17 +120,12 @@ function gz_mail_send(string $to, string $subject, string $textBody, string $htm
         if (is_array($msg)) {
             $msg = json_encode($msg, JSON_UNESCAPED_UNICODE);
         }
-        $msg = is_string($msg) ? $msg : 'Falha ao enviar e-mail';
-        // Mensagem mais clara quando o Resend ainda está em modo teste (sem domínio)
-        if (stripos($msg, 'only send testing emails') !== false || stripos($msg, 'verify a domain') !== false) {
-            $msg = 'O envio de e-mail ainda está em modo teste. É preciso verificar um domínio no Resend e usar esse remetente.';
-        }
-        return ['ok' => false, 'message' => $msg];
+        return ['ok' => false, 'message' => is_string($msg) ? $msg : 'Falha ao enviar e-mail'];
     }
 
     return [
         'ok' => true,
         'message' => 'Enviado',
-        'messageId' => (string) ($decoded['id'] ?? ''),
+        'messageId' => (string) ($decoded['messageId'] ?? ''),
     ];
 }
