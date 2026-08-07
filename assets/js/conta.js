@@ -188,8 +188,10 @@
       var orders = data.orders || [];
       renderBenefits(orders);
       if (!orders.length) {
+        $("conta-orders").className = "admin-table-wrap is-empty";
         $("conta-orders").innerHTML = "<p>Nenhum pedido ainda. Visite a <a href='/loja'>loja</a>.</p>";
       } else {
+        $("conta-orders").className = "admin-table-wrap";
         $("conta-orders").innerHTML =
           '<table class="admin-table" style="width:100%;font-size:0.48rem">' +
           "<thead><tr><th>Produto</th><th>Para</th><th>Valor</th><th>Entrega</th><th>Data</th><th></th></tr></thead><tbody>" +

@@ -754,6 +754,29 @@ a.is-muted:hover {
   padding: 0.35rem;
 }
 
+/* Estado vazio (sem tabela): fundo claro e texto legível */
+.admin-table-wrap.is-empty,
+.article-content .admin-table-wrap.is-empty {
+  background: #f4f8fb;
+  border: 1px solid rgba(0, 31, 92, 0.16);
+  padding: 0.9rem 1rem;
+  color: #121212;
+}
+
+.admin-table-wrap.is-empty p,
+.article-content .admin-table-wrap.is-empty p {
+  margin: 0;
+  color: #121212;
+  font-size: 0.55rem;
+  line-height: 1.55;
+}
+
+.admin-table-wrap.is-empty a,
+.article-content .admin-table-wrap.is-empty a {
+  color: #0077a8;
+  text-decoration: underline;
+}
+
 .admin-table,
 table.admin-table {
   background: #0b1c33 !important;
