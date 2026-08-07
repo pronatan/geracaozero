@@ -2,7 +2,9 @@
 /**
  * Envio de e-mail via Brevo (https://developers.brevo.com)
  * Env: BREVO_API_KEY=xkeysib-...
- *      MAIL_FROM=Geração Zero <guihcomercial@gmail.com>  (remetente verificado no Brevo)
+ *      MAIL_FROM_EMAIL=guihcomercial@gmail.com
+ *      MAIL_FROM_NAME=Geracao Zero   (ASCII no EB; display UTF-8 no PHP)
+ *      MAIL_FROM=Geracao Zero <guihcomercial@gmail.com>  (legado; ASCII preferivel)
  */
 require_once __DIR__ . '/bootstrap.php';
 
@@ -13,25 +15,76 @@ function gz_mail_configured(): bool
 }
 
 /**
+ * Nome de exibicao UTF-8 padrao (arquivo fonte em UTF-8).
+ */
+function gz_mail_brand_name(): string
+{
+    return "Geração Zero";
+}
+
+/**
+ * Detecta nome corrompido (??, replacement char, mojibake) ou ASCII "Geracao Zero".
+ */
+function gz_mail_name_looks_corrupted(string $name): bool
+{
+    if ($name === '') {
+        return true;
+    }
+    if (strpos($name, '?') !== false || strpos($name, "\xEF\xBF\xBD") !== false) {
+        return true;
+    }
+    // mojibake comum de "Geração" (UTF-8 lido como Latin-1 / Windows-1252)
+    if (preg_match('/Gera[\xC3\x83]|GeraÃ|GeraÂ|GeraÃ§|GeraÃ£/u', $name)) {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Normaliza nome do remetente para UTF-8 correto "Geração Zero".
+ */
+function gz_mail_normalize_name(string $name): string
+{
+    $brand = gz_mail_brand_name();
+    $trimmed = trim($name);
+    if ($trimmed === '') {
+        return $brand;
+    }
+    if (gz_mail_name_looks_corrupted($trimmed)) {
+        return $brand;
+    }
+    // ASCII sem acento no EB -> display com acento
+    if (strcasecmp($trimmed, 'Geracao Zero') === 0) {
+        return $brand;
+    }
+    return $trimmed;
+}
+
+/**
  * @return array{name:string,email:string}
  */
 function gz_mail_from_parts(): array
 {
-    $from = trim(gz_env('MAIL_FROM', ''));
     $defaultEmail = 'guihcomercial@gmail.com';
-    $defaultName = 'Geração Zero';
+    $defaultName = gz_mail_brand_name();
 
+    $envEmail = trim(gz_env('MAIL_FROM_EMAIL', ''));
+    $envName = trim(gz_env('MAIL_FROM_NAME', ''));
+
+    if ($envEmail !== '' && filter_var($envEmail, FILTER_VALIDATE_EMAIL)) {
+        $name = $envName !== '' ? gz_mail_normalize_name($envName) : $defaultName;
+        return ['name' => $name, 'email' => strtolower($envEmail)];
+    }
+
+    $from = trim(gz_env('MAIL_FROM', ''));
     if ($from === '') {
         return ['name' => $defaultName, 'email' => $defaultEmail];
     }
 
     // Formato: Nome <email@x.com>
     if (preg_match('/^\s*(.*?)\s*<\s*([^>]+)\s*>\s*$/u', $from, $m)) {
-        $name = trim($m[1]);
+        $name = gz_mail_normalize_name(trim($m[1]));
         $email = strtolower(trim($m[2]));
-        if ($name === '') {
-            $name = $defaultName;
-        }
         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return ['name' => $name, 'email' => $email];
         }
