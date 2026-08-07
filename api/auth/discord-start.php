@@ -1,19 +1,45 @@
 <?php
 /**
- * Discord OAuth — inicia login/vínculo
- * Env: DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, SITE_URL
+ * Discord — inicia fluxo.
+ * OAuth redirect_uris NÃO pode ser gravado via Bot API (Discord ignora).
+ * Por isso usamos login/vínculo por código na DM: /discord-auth
+ *
+ * Se DISCORD_OAUTH_ENABLED=true E redirects já cadastrados no portal, usa OAuth clássico.
  */
 require __DIR__ . '/common.php';
 
+$oauthEnabled = in_array(strtolower(trim(gz_env('DISCORD_OAUTH_ENABLED', 'false'))), ['1', 'true', 'yes'], true);
 $clientId = trim(gz_env('DISCORD_CLIENT_ID', ''));
 $siteUrl = rtrim(gz_env('SITE_URL', 'https://geracaozero.ddnsfree.com'), '/');
+
+$mode = 'login';
+$user = gz_current_user();
+$qToken = trim((string) ($_GET['token'] ?? ''));
+if (!$user && $qToken !== '') {
+    $hash = hash('sha256', $qToken);
+    $res = gz_dynamo_request('DynamoDB_20120810.Scan', [
+        'TableName' => gz_users_table(),
+        'FilterExpression' => 'tokenHash = :h',
+        'ExpressionAttributeValues' => [':h' => ['S' => $hash]],
+        'Limit' => 50,
+    ]);
+    if (!empty($res['ok']) && !empty($res['body']['Items'][0])) {
+        $user = gz_item_to_php($res['body']['Items'][0]);
+    }
+}
+if ($user || isset($_GET['link']) || $qToken !== '') {
+    $mode = 'link';
+}
+
+// Fluxo por DM (padrão — funciona via API sem portal OAuth redirects)
+if (!$oauthEnabled) {
+    $qs = 'mode=' . rawurlencode($mode);
+    header('Location: /discord-auth?' . $qs);
+    exit;
+}
+
 if ($clientId === '') {
-    http_response_code(503);
-    header('Content-Type: text/html; charset=utf-8');
-    echo '<!DOCTYPE html><html><body style="font-family:sans-serif;padding:2rem">' .
-        '<h1>Discord não configurado</h1>' .
-        '<p>Defina <code>DISCORD_CLIENT_ID</code> e <code>DISCORD_CLIENT_SECRET</code> no ambiente EB.</p>' .
-        '<p><a href="/conta">Voltar</a></p></body></html>';
+    header('Location: /discord-auth?mode=' . rawurlencode($mode));
     exit;
 }
 
@@ -22,23 +48,6 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 $_SESSION['discord_oauth_state'] = $state;
-$user = gz_current_user();
-// Front guarda token no localStorage — link <a> não manda Authorization
-if (!$user) {
-    $qToken = trim((string) ($_GET['token'] ?? ''));
-    if ($qToken !== '') {
-        $hash = hash('sha256', $qToken);
-        $res = gz_dynamo_request('DynamoDB_20120810.Scan', [
-            'TableName' => gz_users_table(),
-            'FilterExpression' => 'tokenHash = :h',
-            'ExpressionAttributeValues' => [':h' => ['S' => $hash]],
-            'Limit' => 50,
-        ]);
-        if (!empty($res['ok']) && !empty($res['body']['Items'][0])) {
-            $user = gz_item_to_php($res['body']['Items'][0]);
-        }
-    }
-}
 $_SESSION['discord_oauth_link'] = $user ? (string) ($user['id'] ?? '') : '';
 
 $redirect = $siteUrl . '/api/auth/discord-callback.php';

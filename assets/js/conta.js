@@ -133,8 +133,9 @@
         : "Não vinculado";
       if (link) {
         var tok = (window.gzGetToken && window.gzGetToken()) || (localStorage.getItem("gz_token") || "");
-        link.href = "/api/auth/discord-start.php" + (tok ? ("?token=" + encodeURIComponent(tok)) : "");
-        link.classList.toggle("is-hidden", u.discordOAuthReady === false);
+        link.href = "/discord-auth?mode=link";
+        // token segue no localStorage; API usa Authorization via gzFetch na página discord-auth
+        link.classList.toggle("is-hidden", false);
       }
       if (unlink) unlink.classList.add("is-hidden");
     }

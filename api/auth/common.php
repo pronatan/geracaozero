@@ -74,7 +74,8 @@ function gz_public_user(array $user): array
         'twoFactorChannel' => (string) ($user['twoFactorChannel'] ?? 'email'),
         'discordId' => $user['discordId'] ?? null,
         'discordUsername' => $user['discordUsername'] ?? null,
-        'discordOAuthReady' => trim(gz_env('DISCORD_CLIENT_ID', '')) !== '',
+        'discordOAuthReady' => trim(gz_env('DISCORD_BOT_TOKEN', '')) !== ''
+            || (trim(gz_env('DISCORD_CLIENT_ID', '')) !== '' && trim(gz_env('DISCORD_CLIENT_SECRET', '')) !== ''),
         'createdAt' => $user['createdAt'] ?? null,
     ];
 }
