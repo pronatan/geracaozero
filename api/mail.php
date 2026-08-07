@@ -79,7 +79,12 @@ function gz_mail_send(string $to, string $subject, string $textBody, string $htm
         if (is_array($msg)) {
             $msg = json_encode($msg, JSON_UNESCAPED_UNICODE);
         }
-        return ['ok' => false, 'message' => is_string($msg) ? $msg : 'Falha ao enviar e-mail'];
+        $msg = is_string($msg) ? $msg : 'Falha ao enviar e-mail';
+        // Mensagem mais clara quando o Resend ainda está em modo teste (sem domínio)
+        if (stripos($msg, 'only send testing emails') !== false || stripos($msg, 'verify a domain') !== false) {
+            $msg = 'O envio de e-mail ainda está em modo teste. É preciso verificar um domínio no Resend e usar esse remetente.';
+        }
+        return ['ok' => false, 'message' => $msg];
     }
 
     return [
